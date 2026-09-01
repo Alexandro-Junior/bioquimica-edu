@@ -1,0 +1,113 @@
+[
+  {
+    "id": 1,
+    "categoria": "Cardíaco",
+    "pergunta": "Qual marcador cardíaco é considerado o mais ESPECÍFICO para diagnóstico de infarto agudo do miocárdio?",
+    "alternativas": ["CK-MB", "LDH", "Troponina I", "AST"],
+    "resposta_correta": 2,
+    "explicacao": "A Troponina I é altamente específica para lesão miocárdica. Ela se eleva de 3 a 6 horas após o infarto e permanece elevada por até 14 dias, sendo o marcador padrão-ouro para IAM."
+  },
+  {
+    "id": 2,
+    "categoria": "Glicêmico",
+    "pergunta": "A HbA1c (hemoglobina glicada) reflete o controle glicêmico de qual período de tempo?",
+    "alternativas": ["Últimas 24 horas", "Últimas 2 semanas", "Últimos 3 meses", "Último ano"],
+    "resposta_correta": 2,
+    "explicacao": "A HbA1c reflete a média da glicemia nos últimos 2 a 3 meses, correspondendo ao tempo de vida das hemácias. Valores acima de 6,5% confirmam diabetes mellitus."
+  },
+  {
+    "id": 3,
+    "categoria": "Hepático",
+    "pergunta": "Na hepatite alcoólica, qual relação entre enzimas hepáticas é característica?",
+    "alternativas": ["ALT > AST", "AST > ALT (razão > 2)", "GGT < ALT", "Bilirrubina normal"],
+    "resposta_correta": 1,
+    "explicacao": "Na hepatite alcoólica, a relação AST/ALT costuma ser maior que 2. O álcool causa deficiência de piridoxina (vitamina B6), que prejudica mais a produção de ALT do que de AST."
+  },
+  {
+    "id": 4,
+    "categoria": "Renal",
+    "pergunta": "Por que pacientes com insuficiência renal crônica avançada desenvolvem hipercalemia (K⁺ elevado)?",
+    "alternativas": [
+      "Porque ingerem mais alimentos ricos em potássio",
+      "Porque os rins doentes não conseguem excretar potássio adequadamente",
+      "Porque o fígado produz mais potássio",
+      "Porque a insulina diminui a captação celular de potássio"
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O rim é o principal órgão responsável pela excreção de potássio. Na insuficiência renal, essa capacidade está comprometida, levando ao acúmulo de K⁺ no sangue (hipercalemia), com risco de arritmias cardíacas fatais."
+  },
+  {
+    "id": 5,
+    "categoria": "Lipídico",
+    "pergunta": "Qual das alternativas representa o perfil lipídico de MAIOR risco cardiovascular?",
+    "alternativas": [
+      "LDL 90 mg/dL, HDL 55 mg/dL, TG 120 mg/dL",
+      "LDL 160 mg/dL, HDL 35 mg/dL, TG 280 mg/dL",
+      "LDL 110 mg/dL, HDL 60 mg/dL, TG 100 mg/dL",
+      "LDL 100 mg/dL, HDL 50 mg/dL, TG 140 mg/dL"
+    ],
+    "resposta_correta": 1,
+    "explicacao": "LDL elevado (>130), HDL baixo (<40) e triglicerídeos muito altos (>150) formam a tríade da dislipidemia aterogênica, com alto risco para doenças coronarianas e aterosclerose."
+  },
+  {
+    "id": 6,
+    "categoria": "Eletrólito",
+    "pergunta": "Uma paciente chega com pH sanguíneo de 7.28. Esse achado indica:",
+    "alternativas": ["Alcalose respiratória", "Equilíbrio ácido-base normal", "Acidose (respiratória ou metabólica)", "Hipernatremia"],
+    "resposta_correta": 2,
+    "explicacao": "O pH normal do sangue é de 7.35 a 7.45. Valores abaixo de 7.35 indicam acidose. As causas incluem insuficiência renal, cetoacidose diabética, acidose lática e retenção de CO₂ (acidose respiratória)."
+  },
+  {
+    "id": 7,
+    "categoria": "Hepático",
+    "pergunta": "Qual marcador hepático é o mais sensível para detectar consumo crônico de álcool?",
+    "alternativas": ["ALT", "AST", "GGT", "Bilirrubina direta"],
+    "resposta_correta": 2,
+    "explicacao": "A GGT (Gama-glutamiltransferase) é o marcador mais sensível para uso crônico de álcool e também se eleva com uso de medicamentos como anticonvulsivantes. Isoladamente, não é específica para alcoolismo."
+  },
+  {
+    "id": 8,
+    "categoria": "Renal",
+    "pergunta": "Qual marcador é utilizado para estimar a Taxa de Filtração Glomerular (TFG) e avaliar a função renal?",
+    "alternativas": ["Ureia", "Creatinina", "Ácido Úrico", "Sódio"],
+    "resposta_correta": 1,
+    "explicacao": "A creatinina sérica é o marcador mais utilizado para estimar a TFG. Ela é produzida pelo metabolismo muscular e excretada pelos rins. Elevações indicam redução da filtração glomerular."
+  },
+  {
+    "id": 9,
+    "categoria": "Glicêmico",
+    "pergunta": "Qual valor de glicose em jejum confirma diagnóstico de Diabetes Mellitus?",
+    "alternativas": ["≥ 100 mg/dL", "≥ 126 mg/dL em duas ocasiões", "≥ 150 mg/dL", "≥ 200 mg/dL apenas"],
+    "resposta_correta": 1,
+    "explicacao": "Glicose em jejum ≥ 126 mg/dL confirmada em duas ocasiões distintas diagnostica Diabetes Mellitus. Valores entre 100-125 mg/dL indicam pré-diabetes (glicemia de jejum alterada)."
+  },
+  {
+    "id": 10,
+    "categoria": "Cardíaco",
+    "pergunta": "Após um infarto, em quanto tempo a Troponina I começa a se elevar no sangue?",
+    "alternativas": ["Imediatamente (< 1 hora)", "3 a 6 horas após a lesão", "24 a 48 horas após", "Apenas após 3 dias"],
+    "resposta_correta": 1,
+    "explicacao": "A Troponina I começa a se elevar de 3 a 6 horas após o início da lesão miocárdica, atinge pico em 12-24 horas e permanece elevada por 7 a 14 dias, sendo ideal para diagnóstico e monitoramento do IAM."
+  },
+  {
+    "id": 11,
+    "categoria": "Eletrólito",
+    "pergunta": "Paciente em uso de diuréticos apresenta K⁺ = 2.8 mEq/L. Qual o principal risco imediato?",
+    "alternativas": ["Hipertensão grave", "Arritmias cardíacas potencialmente fatais", "Insuficiência renal aguda", "Hiperglicemia"],
+    "resposta_correta": 1,
+    "explicacao": "A hipocalemia grave (K⁺ < 3.0 mEq/L) altera o potencial de membrana das células cardíacas, podendo causar arritmias graves como fibrilação ventricular. É uma emergência eletrolítica."
+  },
+  {
+    "id": 12,
+    "categoria": "Lipídico",
+    "pergunta": "O HDL colesterol é chamado de 'colesterol bom' porque:",
+    "alternativas": [
+      "É produzido pelo fígado em maior quantidade",
+      "Remove colesterol das artérias e o transporta ao fígado para eliminação",
+      "Impede a absorção intestinal de gorduras",
+      "Diminui a produção de triglicerídeos"
+    ],
+    "resposta_correta": 1,
+    "explicacao": "O HDL realiza o transporte reverso do colesterol: recolhe o excesso de colesterol dos tecidos periféricos e paredes arteriais, levando-o de volta ao fígado para metabolização e excreção. Valores baixos de HDL aumentam o risco cardiovascular."
+  }
+]

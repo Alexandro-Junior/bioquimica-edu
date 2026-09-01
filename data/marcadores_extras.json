@@ -1,0 +1,235 @@
+{
+  "marcadores_extras": [
+    {
+      "sigla": "ALT",
+      "videos": [
+        {
+          "titulo": "O que é ALT e quando sobe?",
+          "url": "https://www.youtube.com/embed/aLtaLMqLzAQ",
+          "duracao": "5:32"
+        },
+        {
+          "titulo": "ALT vs AST - Diferenças clínicas",
+          "url": "https://www.youtube.com/embed/VQ5t6K1u1x0",
+          "duracao": "7:15"
+        }
+      ],
+      "exemplos": [
+        {
+          "titulo": "Caso 1: Hepatite Viral A",
+          "descricao": "Paciente 28 anos com icterícia, mal-estar, ALT 1200 U/L, AST 800 U/L, Bilirrubina 3.5. Diagnóstico: Hepatite A aguda.",
+          "valores": "ALT: 1200 | AST: 800 | Bili Total: 3.5 | IgM anti-HAV: Positivo",
+          "conducao": "Repouso, hidratação, monitorar função hepática. Hepatite A é autolimitada."
+        },
+        {
+          "titulo": "Caso 2: Cirrose Hepática",
+          "descricao": "Paciente 55 anos com cirrose por álcool. ALT 65 U/L, AST 180 U/L (AST > ALT), Plaquetas 80.000, INR 1.8.",
+          "valores": "ALT: 65 | AST: 180 | Plaquetas: 80k | INR: 1.8",
+          "conducao": "Trata underlying cause, monitora coagulopatia, rastreia varizes."
+        },
+        {
+          "titulo": "Caso 3: Hepatotoxicidade por Paracetamol",
+          "descricao": "Paciente 35 anos com overdose de paracetamol. ALT 3500 U/L, INR 3.5, Bili 2.8, encefalopatia.",
+          "valores": "ALT: 3500 | AST: 2800 | INR: 3.5 | Estado: Encefalopatia grau II",
+          "conducao": "N-acetilcisteína IV, monitora INR, considere transplante hepático."
+        }
+      ]
+    },
+    {
+      "sigla": "AST",
+      "videos": [
+        {
+          "titulo": "Aspartato Aminotransferase (AST) explicado",
+          "url": "https://www.youtube.com/embed/k4RQ8LhVD8U",
+          "duracao": "6:10"
+        }
+      ],
+      "exemplos": [
+        {
+          "titulo": "Caso: Infarto do Miocárdio",
+          "descricao": "Paciente 60 anos com dor torácica típica. AST 450 U/L, ALT 280 U/L, CK-MB 8 ng/mL, Troponina I 2.5.",
+          "valores": "AST: 450 | ALT: 280 | CK-MB: 8 | Troponina: 2.5",
+          "conducao": "ECG com elevação ST, cateterismo urgente, stent."
+        },
+        {
+          "titulo": "Caso: Miosite por Statina",
+          "descricao": "Paciente 50 anos em atorvastatina com mialgia. AST 600 U/L, ALT 480 U/L, CK 8000 U/L, Mioglobina 200.",
+          "valores": "AST: 600 | ALT: 480 | CK: 8000 | Mioglobina: 200",
+          "conducao": "Suspender statina, IV fluidos, monitorar rabdomiólise."
+        }
+      ]
+    },
+    {
+      "sigla": "GGT",
+      "videos": [
+        {
+          "titulo": "GGT - Marcador de Colestase",
+          "url": "https://www.youtube.com/embed/lK8pW_1XZ5E",
+          "duracao": "4:45"
+        }
+      ],
+      "exemplos": [
+        {
+          "titulo": "Caso: Colestase Extra-hepática",
+          "descricao": "Paciente 70 anos com pancreatite crónica. FA 280 U/L, GGT 400 U/L, Bilirrubina 2.5, ALT normal.",
+          "valores": "FA: 280 | GGT: 400 | Bili: 2.5 | ALT: 45",
+          "conducao": "Ultrassom: dilatação de via biliar. ERCP com papilotomia."
+        }
+      ]
+    },
+    {
+      "sigla": "Creatinina",
+      "videos": [
+        {
+          "titulo": "Creatinina e Função Renal",
+          "url": "https://www.youtube.com/embed/gFImdRAR0oI",
+          "duracao": "8:20"
+        }
+      ],
+      "exemplos": [
+        {
+          "titulo": "Caso: Insuficiência Renal Aguda",
+          "descricao": "Paciente 65 anos pós-cirurgia de bypass. Creatinina subiu de 1.0 para 3.5 em 24h. Oligúria, Ureia 120.",
+          "valores": "Creatinina: 3.5 | Ureia: 120 | Débito: < 400 mL/24h | Potássio: 6.2",
+          "conducao": "Causa pós-renal (cateter). Investigar perfusão renal. Vigilância para hipercalemia."
+        },
+        {
+          "titulo": "Caso: Insuficiência Renal Crônica Estágio 5",
+          "descricao": "Paciente 75 anos diabético. Creatinina 8.5 mg/dL, eGFR 5 mL/min, Ureia 180, Potássio 5.8.",
+          "valores": "Creatinina: 8.5 | eGFR: 5 | Ureia: 180 | Potássio: 5.8",
+          "conducao": "Inicia diálise, restrição potássio/fósforo, avalia transplante."
+        }
+      ]
+    },
+    {
+      "sigla": "Glicose",
+      "videos": [
+        {
+          "titulo": "Glicose e Diabetes Mellitus",
+          "url": "https://www.youtube.com/embed/2MnVjRYzHFk",
+          "duracao": "9:45"
+        },
+        {
+          "titulo": "Cetoacidose Diabética - Emergência",
+          "url": "https://www.youtube.com/embed/QJp_h_fOKFg",
+          "duracao": "7:30"
+        }
+      ],
+      "exemplos": [
+        {
+          "titulo": "Caso: Diabetes Tipo 2 Descompensada",
+          "descricao": "Paciente 50 anos com glicose 450 mg/dL, sedentarismo, obesidade, sem sintomas neurológicos.",
+          "valores": "Glicose: 450 | HbA1c: 11.2% | Insulina: 5 | Peptídeo C: 3.2",
+          "conducao": "Metformina, dieta, atividade física. Considerar GLP-1 ou insulina."
+        },
+        {
+          "titulo": "Caso: Cetoacidose Diabética",
+          "descricao": "Paciente 25 anos (Diabetes Tipo 1) com polidipsia, poliúria, respiração profunda. Glicose 520, pH 7.15, HCO3- 8.",
+          "valores": "Glicose: 520 | pH: 7.15 | HCO3-: 8 | Cetonas: MASSIVAS | Anion Gap: 20",
+          "conducao": "EMERGÊNCIA! Insulina IV, fluidos isotônicos, reposição eletrólitos, monitora ICU."
+        }
+      ]
+    },
+    {
+      "sigla": "Colesterol",
+      "videos": [
+        {
+          "titulo": "Colesterol e Doença Cardiovascular",
+          "url": "https://www.youtube.com/embed/JaUVFN5FBHM",
+          "duracao": "10:15"
+        }
+      ],
+      "exemplos": [
+        {
+          "titulo": "Caso: Hipercolesterolemia Familiar",
+          "descricao": "Paciente 35 anos com Colesterol Total 580, LDL 450, histórico familiar de infarto precoce.",
+          "valores": "Col Total: 580 | LDL: 450 | HDL: 35 | Trig: 150",
+          "conducao": "Atorvastatina de alta dose, considerar ezetimiba ou PCSK9i, antiagregante."
+        },
+        {
+          "titulo": "Caso: Dislipidemia Aterogênica",
+          "descricao": "Paciente 55 anos diabético com Colesterol 260, LDL 180, HDL 30, Triglicerídeos 320.",
+          "valores": "Col Total: 260 | LDL: 180 | HDL: 30 | Trig: 320 | Trig/HDL: 10.6",
+          "conducao": "Alto risco cardiovascular. Estatina + fibroato, controla diabetes, estilo de vida."
+        }
+      ]
+    },
+    {
+      "sigla": "Potássio",
+      "videos": [
+        {
+          "titulo": "Hipercalemia - Emergência Potássio Alto",
+          "url": "https://www.youtube.com/embed/k1J8A7aKAFE",
+          "duracao": "6:50"
+        },
+        {
+          "titulo": "Hipocalemia - Potássio Baixo",
+          "url": "https://www.youtube.com/embed/EVqRpD7XFBY",
+          "duracao": "7:20"
+        }
+      ],
+      "exemplos": [
+        {
+          "titulo": "Caso: Hipercalemia em IRC",
+          "descricao": "Paciente 70 anos com eGFR 8 mL/min, K+ 6.8, ECG com pico de Osborn. Uremia.",
+          "valores": "K+: 6.8 | eGFR: 8 | Ureia: 200 | Cálcio: 7.5",
+          "conducao": "EMERGÊNCIA! Gluconato cálcio IV, insulina+dextrose, albuterol, resina trocadora, diálise."
+        },
+        {
+          "titulo": "Caso: Hipocalemia por Diurético",
+          "descricao": "Paciente 60 anos em furosemida para ICC, K+ 2.8, palpitações, fraqueza muscular.",
+          "valores": "K+: 2.8 | Mg: 1.5 | pH: 7.45 (alcalose) | ECG: onda U",
+          "conducao": "Suspender/reduzir diurético, suplementar K+ e Mg oral, reposição IV se sintomático."
+        }
+      ]
+    },
+    {
+      "sigla": "Troponina",
+      "videos": [
+        {
+          "titulo": "Troponina - Marcador de Infarto",
+          "url": "https://www.youtube.com/embed/t6PdMhDn9Qg",
+          "duracao": "8:00"
+        }
+      ],
+      "exemplos": [
+        {
+          "titulo": "Caso: Infarto STEMI",
+          "descricao": "Paciente 55 anos com dor torácica anginosa, sudorese, dispneia. Troponina I 3.2 ng/mL em 3h.",
+          "valores": "Troponina: 3.2 | CK-MB: 6 | ECG: ST elevado em V1-V4",
+          "conducao": "Cateterismo de emergência < 90 min, stent ICP, dupla antiagregação."
+        },
+        {
+          "titulo": "Caso: Miocardite Viral",
+          "descricao": "Paciente 30 anos com febre, tosse, dor torácica, Troponina 1.5, ECG com ST elevado difuso.",
+          "valores": "Troponina: 1.5 | PCR: 45 | Viral: Enterovirus+ | FE: 35%",
+          "conducao": "Repouso, monitor arritmias, considerar imunoglobulina, suporte se IC grave."
+        }
+      ]
+    },
+    {
+      "sigla": "Bilirrubina",
+      "videos": [
+        {
+          "titulo": "Bilirrubina e Icterícia",
+          "url": "https://www.youtube.com/embed/tPX2b1gN7cQ",
+          "duracao": "7:40"
+        }
+      ],
+      "exemplos": [
+        {
+          "titulo": "Caso: Obstrução Biliar por Cálculo",
+          "descricao": "Paciente 70 anos com dor cólica, icterícia, Bilirrubina Total 4.5, direta 4.2, FA 380, GGT 420.",
+          "valores": "Bili Total: 4.5 | Bili Direta: 4.2 | FA: 380 | GGT: 420 | ALT: 50",
+          "conducao": "Ultrassom: dilatação de via biliar. ERCP com esfincterotomia."
+        },
+        {
+          "titulo": "Caso: Hemólise Aguda",
+          "descricao": "Paciente 28 anos após transfusão incompatível. Icterícia rápida, Bili 5.2 (indireta 4.8), LDH 1200.",
+          "valores": "Bili Total: 5.2 | Bili Indireta: 4.8 | LDH: 1200 | Hb: 6.5 | Haptoglobina: < 10",
+          "conducao": "Diurese agressiva, monitorar mioglobinúria, suporte transfusional, investigar compatibilidade."
+        }
+      ]
+    }
+  ]
+}

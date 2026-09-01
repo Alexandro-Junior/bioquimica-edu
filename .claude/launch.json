@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "BioquímicaEDU Desktop (Tkinter)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["main.py"],
+      "port": null,
+      "type": "tkinter"
+    },
+    {
+      "name": "BioquímicaEDU Mobile (Kivy Emulator)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["main_mobile.py"],
+      "port": null,
+      "type": "kivy"
+    }
+  ]
+}
