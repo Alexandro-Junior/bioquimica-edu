@@ -73,5 +73,155 @@
     "explicacao": "Os diuréticos de alça e tiazídicos causam perda urinária de potássio, sódio e cloro. A hipocalemia grave provoca fraqueza muscular, câimbras e risco de arritmias. A alcalose metabólica ocorre pelo desequilíbrio eletrolítico. A diarreia agrava ainda mais as perdas.",
     "alternativas": ["Hipercalemia por Insuficiência Renal", "Hipocalemia e Alcalose Metabólica por Diuréticos", "Acidose Respiratória", "Hipernatremia por Desidratação"],
     "resposta_correta": "Hipocalemia e Alcalose Metabólica por Diuréticos"
+  },
+  {
+    "id": 6,
+    "titulo": "Caso 6 — Palidez, cansaço e falta de ar aos mínimos esforços",
+    "historia": "Paciente feminina, 45 anos, relata cansaço progressivo há 2 meses, palidez de mucosas, falta de ar ao subir escadas. Menstruações muito intensas. Nega sangramento digestivo.",
+    "exames": {
+      "Hemoglobina": {"valor": 7.2, "unidade": "g/dL", "ref_min": 12.0, "ref_max": 16.0},
+      "Hematócrito": {"valor": 21.5, "unidade": "%", "ref_min": 36, "ref_max": 46},
+      "Ferritina": {"valor": 8, "unidade": "ng/mL", "ref_min": 30, "ref_max": 400},
+      "Ferro Sérico": {"valor": 28, "unidade": "µg/dL", "ref_min": 60, "ref_max": 170}
+    },
+    "diagnostico": "Anemia Ferropriva por Perda Crônica",
+    "explicacao": "A hemoglobina muito baixa causa os sintomas de anemia (fadiga, dispneia). A ferritina e ferro sérico muito reduzidos confirmam depleção de ferro. As menstruações intensas causam perda crônica de sangue. Este é o tipo mais comum de anemia em mulheres em idade reprodutiva.",
+    "alternativas": ["Anemia Perniciosa", "Anemia Ferropriva por Perda Crônica", "Talassemia", "Leucemia Aguda"],
+    "resposta_correta": "Anemia Ferropriva por Perda Crônica"
+  },
+  {
+    "id": 7,
+    "titulo": "Caso 7 — Tremor, palpitações e perda de peso",
+    "historia": "Paciente feminina, 38 anos, refere tremor nas mãos, palpitações, ansiedade, insônia e perda de 8 kg em 2 meses. Goitro palpável no pescoço.",
+    "exames": {
+      "TSH": {"valor": 0.05, "unidade": "mU/L", "ref_min": 0.4, "ref_max": 4.0},
+      "T4 Livre": {"valor": 3.2, "unidade": "ng/dL", "ref_min": 0.8, "ref_max": 1.8},
+      "Anticorpo Anti-TPO": {"valor": 450, "unidade": "UI/mL", "ref_min": 0, "ref_max": 35},
+      "Glicose": {"valor": 115, "unidade": "mg/dL", "ref_min": 70, "ref_max": 99}
+    },
+    "diagnostico": "Hipertireoidismo por Doença de Graves",
+    "explicacao": "TSH suprimido com T4 elevado = hipertireoidismo. Anticorpos anti-TPO positivos indicam doença autoimune (Graves). Os sintomas de hipermetabolismo (taquicardia, tremor, perda peso) ocorrem pelo excesso de hormônios tireoides. O goitro é frequente.",
+    "alternativas": ["Hipotireoidismo", "Hipertireoidismo por Doença de Graves", "Síndrome Metabólica", "Ansiedade Generalizada"],
+    "resposta_correta": "Hipertireoidismo por Doença de Graves"
+  },
+  {
+    "id": 8,
+    "titulo": "Caso 8 — Febre alta, confusão mental e rigidez de nuca",
+    "historia": "Paciente masculino, 32 anos, chega à emergência com febre 39.5°C, confusão mental, rigidez de nuca, cefaleia intensa e petéquias na pele. Internação de sepse suspeita.",
+    "exames": {
+      "Proteína C Reativa": {"valor": 45.2, "unidade": "mg/L", "ref_min": 0, "ref_max": 3.0},
+      "Leucócitos": {"valor": 18500, "unidade": "/µL", "ref_min": 4500, "ref_max": 11000},
+      "Lactato": {"valor": 4.2, "unidade": "mmol/L", "ref_min": 0.5, "ref_max": 2.2},
+      "Plaquetas": {"valor": 85000, "unidade": "/µL", "ref_min": 150000, "ref_max": 400000}
+    },
+    "diagnostico": "Meningite Bacteriana com Sepse",
+    "explicacao": "Tríade clássica: febre, rigidez de nuca e confusão mental. PCR muito elevada indica inflamação sistêmica grave. Leucocitose com desvio à esquerda confirma infecção bacteriana. Lactato elevado e trombocitopenia indicam sepse com falência de órgãos. EMERGÊNCIA — necessário antibiótico IV imediato.",
+    "alternativas": ["Meningite Viral Benigna", "Meningite Bacteriana com Sepse", "Encefalite por HSV", "Enxaqueca Grave"],
+    "resposta_correta": "Meningite Bacteriana com Sepse"
+  },
+  {
+    "id": 9,
+    "titulo": "Caso 9 — Dor abdominal aguda no epigástrio",
+    "historia": "Paciente masculino, 52 anos, chega com dor epigástrica intensa, sudorese, vômitos, náuseas. Refere consumo de bebidas alcoólicas a noite anterior. Abdome rígido.",
+    "exames": {
+      "Amilase": {"valor": 580, "unidade": "U/L", "ref_min": 30, "ref_max": 110},
+      "Lipase": {"valor": 620, "unidade": "U/L", "ref_min": 10, "ref_max": 140},
+      "Triglicerídeos": {"valor": 1850, "unidade": "mg/dL", "ref_min": 0, "ref_max": 150},
+      "Cálcio Total": {"valor": 7.2, "unidade": "mg/dL", "ref_min": 8.5, "ref_max": 10.5}
+    },
+    "diagnostico": "Pancreatite Aguda",
+    "explicacao": "Amilase e lipase marcadamente elevadas confirmam necrose pancreática. A lipase é mais específica que amilase para pâncreas. A hipertrigliceridemia extrema é fator de risco para pancreatite. O álcool é causa frequente. A hipocalcemia ocorre por saponificação de gordura.",
+    "alternativas": ["Colecistite Aguda", "Pancreatite Aguda", "Infarto do Miocárdio", "Úlcera Péptica Perfurada"],
+    "resposta_correta": "Pancreatite Aguda"
+  },
+  {
+    "id": 10,
+    "titulo": "Caso 10 — Dor na panturrilha e falta de ar súbita",
+    "historia": "Paciente feminino, 48 anos, em repouso prolongado após cirurgia de joelho há 1 semana. Refere dor e inchaço na panturrilha direita, seguido de falta de ar súbita e dor no peito.",
+    "exames": {
+      "D-Dímero": {"valor": 850, "unidade": "ng/mL", "ref_min": 0, "ref_max": 240},
+      "Troponina": {"valor": 0.15, "unidade": "ng/mL", "ref_min": 0, "ref_max": 0.04},
+      "pO2": {"valor": 68, "unidade": "mmHg", "ref_min": 80, "ref_max": 100},
+      "Lactato": {"valor": 2.8, "unidade": "mmol/L", "ref_min": 0.5, "ref_max": 2.2}
+    },
+    "diagnostico": "Tromboembolismo Pulmonar",
+    "explicacao": "D-Dímero elevado sugere trombose. Troponina elevada indica lesão miocárdica por sobrecarga do ventrículo direito. pO2 baixa com hipoxemia. Repouso prolongado é fator de risco clássico para TVP → TEP. Apresentação: dor torácica + dispneia + taquicardia.",
+    "alternativas": ["Embolia Gordurosa", "Tromboembolismo Pulmonar", "Pneumotórax", "Edema Pulmonar Cardiogênico"],
+    "resposta_correta": "Tromboembolismo Pulmonar"
+  },
+  {
+    "id": 11,
+    "titulo": "Caso 11 — Pressão alta e crises de sudoração",
+    "historia": "Paciente masculino, 45 anos, refere episódios recorrentes de dor de cabeça, palpitações, sudoração profusa e flushing (rubor facial). Pressão arterial oscila entre 140 e 220 mmHg.",
+    "exames": {
+      "Catecolaminas Plasmáticas": {"valor": 850, "unidade": "pg/mL", "ref_min": 0, "ref_max": 400},
+      "Metanefrina 24h": {"valor": 850, "unidade": "µg/24h", "ref_min": 0, "ref_max": 190},
+      "Glicose": {"valor": 180, "unidade": "mg/dL", "ref_min": 70, "ref_max": 99},
+      "Acido Láctico": {"valor": 3.2, "unidade": "mmol/L", "ref_min": 0.5, "ref_max": 2.2}
+    },
+    "diagnostico": "Feocromocitoma",
+    "explicacao": "Catecolaminas e metanefrina 24h muito elevadas confirmam tumor secretor de catecolaminas (feocromocitoma). Os episódios de palpitações, sudoração e hipertensão paroxística são patognomônicos. Hiperglicemia por ação adrenérgica. Risco de infarto ou AVC durante crises.",
+    "alternativas": ["Hipertensão Essencial", "Feocromocitoma", "Hyperthyroidism", "Síndrome de Cushing"],
+    "resposta_correta": "Feocromocitoma"
+  },
+  {
+    "id": 12,
+    "titulo": "Caso 12 — Astenia, ganho de peso e ressecamento de pele",
+    "historia": "Paciente feminina, 55 anos, refere cansaço extremo, ganho de peso apesar de pouca ingestão calórica, pele seca, queda de cabelo, constipação e intolerância ao frio.",
+    "exames": {
+      "TSH": {"valor": 18.5, "unidade": "mU/L", "ref_min": 0.4, "ref_max": 4.0},
+      "T4 Livre": {"valor": 0.5, "unidade": "ng/dL", "ref_min": 0.8, "ref_max": 1.8},
+      "Colesterol Total": {"valor": 285, "unidade": "mg/dL", "ref_min": 0, "ref_max": 200},
+      "Creatina Quinase": {"valor": 420, "unidade": "U/L", "ref_min": 30, "ref_max": 200}
+    },
+    "diagnostico": "Hipotireoidismo Primário",
+    "explicacao": "TSH elevado com T4 baixo = hipotireoidismo. A tireoidite autoimune é a causa mais frequente. O hipometabolismo causa: fadiga, ganho de peso, intolerância ao frio, pele seca. A hipercolesterolemia ocorre pela redução do catabolismo de LDL. Eleva CK.",
+    "alternativas": ["Depressão", "Hipotireoidismo Primário", "Síndrome Metabólica", "Obesidade Idiopática"],
+    "resposta_correta": "Hipotireoidismo Primário"
+  },
+  {
+    "id": 13,
+    "titulo": "Caso 13 — Sangramento pelo nariz e hematomas espontâneos",
+    "historia": "Paciente masculino, 68 anos, refere epistaxe frequente, hematomas espontâneos na pele, sangramento gengival e fadiga. Antecedente de quimioterapia há 3 meses.",
+    "exames": {
+      "Hemoglobina": {"valor": 8.5, "unidade": "g/dL", "ref_min": 13.5, "ref_max": 17.5},
+      "Plaquetas": {"valor": 28000, "unidade": "/µL", "ref_min": 150000, "ref_max": 400000},
+      "Leucócitos": {"valor": 2100, "unidade": "/µL", "ref_min": 4500, "ref_max": 11000},
+      "Tempo de Protrombina": {"valor": 18, "unidade": "segundos", "ref_min": 11, "ref_max": 13.5}
+    },
+    "diagnostico": "Pancitopenia Secundária (Mielossupressão por Quimioterapia)",
+    "explicacao": "Redução em todas as séries sanguíneas: hemácias (anemia), plaquetas (trombocitopenia → sangramento), leucócitos (leucopenia → imunossupressão). Complicação comum e grave da quimioterapia. Risco de infecção oportunista e sangramento exsanguinante. Necessita transfusão e fatores de crescimento.",
+    "alternativas": ["Leucemia Aguda", "Pancitopenia Secundária", "Púrpura Trombocitopênica Imunológica", "Coagulopatia"],
+    "resposta_correta": "Pancitopenia Secundária (Mielossupressão por Quimioterapia)"
+  },
+  {
+    "id": 14,
+    "titulo": "Caso 14 — Espasmos musculares e formigamento perioral",
+    "historia": "Paciente feminina, 62 anos, submetida a tiroidectomia há 2 dias, apresenta espasmos musculares nos membros, formigamento ao redor da boca e parestesias. Sinal de Chvostek positivo.",
+    "exames": {
+      "Cálcio Total": {"valor": 6.8, "unidade": "mg/dL", "ref_min": 8.5, "ref_max": 10.5},
+      "Cálcio Iônico": {"valor": 3.2, "unidade": "mg/dL", "ref_min": 4.5, "ref_max": 5.3},
+      "Fósforo": {"valor": 5.8, "unidade": "mg/dL", "ref_min": 2.5, "ref_max": 4.5},
+      "PTH": {"valor": 12, "unidade": "pg/mL", "ref_min": 10, "ref_max": 65}
+    },
+    "diagnostico": "Hipoparatireoidismo Pós-Cirúrgico",
+    "explicacao": "Lesão/remoção das glândulas paratireoides durante tiroidectomia causa hipocalcemia aguda. PTH baixo confirma disfunção paratireoidiana. A hipocalcemia causa tetania (espasmos, parestesias). Sinal de Chvostek (contração facial ao percutir facial) é patognomônico. EMERGÊNCIA — risco de laringoespasmo fatal.",
+    "alternativas": ["Convulsão por Hemorragia Intracraniana", "Hipoparatireoidismo Pós-Cirúrgico", "Hipercalemia", "Intoxicação por Estricnina"],
+    "resposta_correta": "Hipoparatireoidismo Pós-Cirúrgico"
+  },
+  {
+    "id": 15,
+    "titulo": "Caso 15 — Confusão mental aguda e acidose",
+    "historia": "Paciente masculino, 35 anos, trazido à emergência com confusão mental, respiração profunda (Kussmaul), odor de acetona no hálito. Refere fadiga progressiva. Diabético tipo 1 que parou de tomar insulina.",
+    "exames": {
+      "Glicose": {"valor": 650, "unidade": "mg/dL", "ref_min": 70, "ref_max": 99},
+      "pH": {"valor": 7.18, "unidade": "unidades", "ref_min": 7.35, "ref_max": 7.45},
+      "HCO3-": {"valor": 8, "unidade": "mEq/L", "ref_min": 22, "ref_max": 26},
+      "Cetonas": {"valor": "MASSIVAS", "unidade": "mOsm/kg", "ref_min": "Negativas", "ref_max": "Negativas"}
+    },
+    "diagnostico": "Cetoacidose Diabética",
+    "explicacao": "Tríade: hiperglicemia extrema + acidose metabólica severa + cetonemia massiva. Ausência de insulina causa lipólise acelerada → cetonas → acidose. Respiração de Kussmaul é mecanismo compensatório (aumenta ventilação para eliminar CO2). Odor de acetona patognomônico. EMERGÊNCIA — taxa mortalidade 1-5%.",
+    "alternativas": ["Hiperglicemia Hiperosmolar", "Cetoacidose Diabética", "Coma Hipoglicêmico", "Acidose Lática"],
+    "resposta_correta": "Cetoacidose Diabética"
   }
 ]
