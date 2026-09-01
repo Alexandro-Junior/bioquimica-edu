@@ -1,0 +1,77 @@
+[
+  {
+    "id": 1,
+    "titulo": "Caso 1 — Dor no peito e falta de ar",
+    "historia": "Paciente masculino, 58 anos, hipertenso e diabético, chega à emergência com dor torácica intensa irradiando para o braço esquerdo há 2 horas, sudorese e falta de ar.",
+    "exames": {
+      "Troponina I": {"valor": 2.8, "unidade": "ng/mL", "ref_min": 0, "ref_max": 0.04},
+      "CK-MB": {"valor": 85, "unidade": "U/L", "ref_min": 0, "ref_max": 25},
+      "LDH": {"valor": 420, "unidade": "U/L", "ref_min": 140, "ref_max": 280},
+      "Glicose": {"valor": 210, "unidade": "mg/dL", "ref_min": 70, "ref_max": 99}
+    },
+    "diagnostico": "Infarto Agudo do Miocárdio (IAM)",
+    "explicacao": "A elevação marcante de Troponina I (marcador altamente específico para lesão miocárdica), associada ao aumento de CK-MB e LDH, confirma necrose do músculo cardíaco. A hiperglicemia é comum em situações de estresse agudo e em pacientes diabéticos.",
+    "alternativas": ["Infarto Agudo do Miocárdio (IAM)", "Hepatite Aguda", "Insuficiência Renal Aguda", "Pancreatite Aguda"],
+    "resposta_correta": "Infarto Agudo do Miocárdio (IAM)"
+  },
+  {
+    "id": 2,
+    "titulo": "Caso 2 — Fadiga, poliúria e sede excessiva",
+    "historia": "Paciente feminina, 42 anos, relata cansaço progressivo há 3 meses, urina muito e sente sede constante. Perdeu 6 kg sem dieta. Histórico familiar de diabetes.",
+    "exames": {
+      "Glicose em Jejum": {"valor": 285, "unidade": "mg/dL", "ref_min": 70, "ref_max": 99},
+      "HbA1c": {"valor": 9.8, "unidade": "%", "ref_min": 4.0, "ref_max": 5.6},
+      "Triglicerídeos": {"valor": 310, "unidade": "mg/dL", "ref_min": 0, "ref_max": 150},
+      "Colesterol Total": {"valor": 238, "unidade": "mg/dL", "ref_min": 0, "ref_max": 200}
+    },
+    "diagnostico": "Diabetes Mellitus Tipo 2 com Dislipidemia",
+    "explicacao": "A glicose em jejum muito elevada e HbA1c acima de 9% indicam diabetes descompensado. A HbA1c reflete a média glicêmica dos últimos 3 meses. A dislipidemia (hipertrigliceridemia e hipercolesterolemia) é comorbidade frequente no diabetes tipo 2.",
+    "alternativas": ["Hipotireoidismo", "Diabetes Mellitus Tipo 2 com Dislipidemia", "Insuficiência Suprarrenal", "Anemia Perniciosa"],
+    "resposta_correta": "Diabetes Mellitus Tipo 2 com Dislipidemia"
+  },
+  {
+    "id": 3,
+    "titulo": "Caso 3 — Icterícia e dor abdominal",
+    "historia": "Paciente masculino, 35 anos, etilista crônico, apresenta icterícia (pele e olhos amarelados), dor no quadrante superior direito, náuseas e urina escura há 1 semana.",
+    "exames": {
+      "ALT": {"valor": 520, "unidade": "U/L", "ref_min": 7, "ref_max": 56},
+      "AST": {"valor": 380, "unidade": "U/L", "ref_min": 10, "ref_max": 40},
+      "GGT": {"valor": 290, "unidade": "U/L", "ref_min": 9, "ref_max": 48},
+      "Bilirrubina Total": {"valor": 6.8, "unidade": "mg/dL", "ref_min": 0.2, "ref_max": 1.2}
+    },
+    "diagnostico": "Hepatite Alcoólica Aguda",
+    "explicacao": "A elevação intensa de ALT e AST indica lesão hepatocelular aguda. Na hepatite alcoólica, a AST costuma ser maior que ALT (relação AST/ALT > 2). O GGT muito elevado é marcador sensível para uso crônico de álcool. A hiperbilirrubinemia explica a icterícia.",
+    "alternativas": ["Colecistite Aguda", "Pancreatite Aguda", "Hepatite Alcoólica Aguda", "Insuficiência Cardíaca Congestiva"],
+    "resposta_correta": "Hepatite Alcoólica Aguda"
+  },
+  {
+    "id": 4,
+    "titulo": "Caso 4 — Edema e diminuição da urina",
+    "historia": "Paciente feminina, 67 anos, hipertensa há 20 anos, refere inchaço nas pernas e pés, cansaço, diminuição do volume urinário e coceira na pele há 2 meses.",
+    "exames": {
+      "Creatinina": {"valor": 5.2, "unidade": "mg/dL", "ref_min": 0.6, "ref_max": 1.2},
+      "Ureia": {"valor": 148, "unidade": "mg/dL", "ref_min": 15, "ref_max": 40},
+      "Potássio": {"valor": 6.1, "unidade": "mEq/L", "ref_min": 3.5, "ref_max": 5.0},
+      "pH Sanguíneo": {"valor": 7.28, "unidade": "unidades", "ref_min": 7.35, "ref_max": 7.45}
+    },
+    "diagnostico": "Doença Renal Crônica Avançada",
+    "explicacao": "Creatinina e ureia muito elevadas indicam falência renal grave. A hipercalemia (K⁺ alto) ocorre porque os rins não conseguem excretar potássio — risco de arritmias cardíacas fatais. A acidose metabólica (pH baixo) resulta do acúmulo de ácidos que os rins doentes não conseguem eliminar.",
+    "alternativas": ["Síndrome Nefrótica", "Doença Renal Crônica Avançada", "Insuficiência Cardíaca", "Cirrose Hepática"],
+    "resposta_correta": "Doença Renal Crônica Avançada"
+  },
+  {
+    "id": 5,
+    "titulo": "Caso 5 — Fraqueza muscular e câimbras",
+    "historia": "Paciente masculino, 50 anos, em uso de diuréticos para hipertensão, relata fraqueza muscular intensa, câimbras e palpitações. Refere diarreia frequente nas últimas semanas.",
+    "exames": {
+      "Potássio": {"valor": 2.8, "unidade": "mEq/L", "ref_min": 3.5, "ref_max": 5.0},
+      "Sódio": {"valor": 131, "unidade": "mEq/L", "ref_min": 136, "ref_max": 145},
+      "Cloro": {"valor": 90, "unidade": "mEq/L", "ref_min": 98, "ref_max": 106},
+      "pH Sanguíneo": {"valor": 7.51, "unidade": "unidades", "ref_min": 7.35, "ref_max": 7.45}
+    },
+    "diagnostico": "Hipocalemia e Alcalose Metabólica por Diuréticos",
+    "explicacao": "Os diuréticos de alça e tiazídicos causam perda urinária de potássio, sódio e cloro. A hipocalemia grave provoca fraqueza muscular, câimbras e risco de arritmias. A alcalose metabólica ocorre pelo desequilíbrio eletrolítico. A diarreia agrava ainda mais as perdas.",
+    "alternativas": ["Hipercalemia por Insuficiência Renal", "Hipocalemia e Alcalose Metabólica por Diuréticos", "Acidose Respiratória", "Hipernatremia por Desidratação"],
+    "resposta_correta": "Hipocalemia e Alcalose Metabólica por Diuréticos"
+  }
+]
