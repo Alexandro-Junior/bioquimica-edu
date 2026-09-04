@@ -1,0 +1,124 @@
+{
+  "marcadores_imagens": [
+    {
+      "sigla": "ALT",
+      "imagens": [
+        {
+          "titulo": "Localização da ALT",
+          "descricao": "A ALT está presente principalmente no citoplasma dos hepatócitos, sendo a enzima mais específica para lesão hepática.",
+          "arquivo": "alt_localizacao.png"
+        },
+        {
+          "titulo": "Padrão de elevação ALT",
+          "descricao": "Hepatite viral mostra pico muito elevado de ALT (>1000), em contraste com a cirrose hepática onde ALT é moderadamente elevada.",
+          "arquivo": "alt_padrao.png"
+        }
+      ]
+    },
+    {
+      "sigla": "AST",
+      "imagens": [
+        {
+          "titulo": "Distribuição AST no corpo",
+          "descricao": "AST está em múltiplos tecidos: fígado, coração, músculos, rins. Por isso é menos específica que ALT.",
+          "arquivo": "ast_distribuicao.png"
+        },
+        {
+          "titulo": "Razão AST/ALT na cirrose",
+          "descricao": "Na cirrose hepática, a razão AST/ALT > 1 (AST > ALT) é um padrão clássico que ajuda no diagnóstico diferencial.",
+          "arquivo": "ast_alt_ratio.png"
+        }
+      ]
+    },
+    {
+      "sigla": "Creatinina",
+      "imagens": [
+        {
+          "titulo": "Metabolismo da creatinina",
+          "descricao": "A creatina é sintetizada no fígado e rim, captada pelo músculo e ali convertida espontaneamente em creatinina. O rim não a produz: filtra e excreta na urina.",
+          "arquivo": "creatinina_metabolismo.png"
+        },
+        {
+          "titulo": "Função renal vs Creatinina",
+          "descricao": "Curva exponencial entre taxa de filtração glomerular e creatinina sérica. Pequenas mudanças em creatinina indicam grandes mudanças em função renal.",
+          "arquivo": "creatinina_funcao.png"
+        }
+      ]
+    },
+    {
+      "sigla": "Glicose",
+      "imagens": [
+        {
+          "titulo": "Homeostase da glicose",
+          "descricao": "Insulina promove captação de glicose pelas células. No diabetes tipo 1, falta insulina. No tipo 2, há resistência à insulina.",
+          "arquivo": "glicose_homeostase.png"
+        },
+        {
+          "titulo": "Curva de tolerância oral à glicose",
+          "descricao": "Teste TTOG mostra resposta da glicose após ingestão de 75g de glicose. Diabetes é diagnosticado com glicose > 200 mg/dL em 2h.",
+          "arquivo": "glicose_ttog.png"
+        }
+      ]
+    },
+    {
+      "sigla": "Colesterol",
+      "imagens": [
+        {
+          "titulo": "Estrutura do colesterol",
+          "descricao": "Colesterol é um lipídio esteroide essencial. O excesso se deposita nas artérias formando placas de aterosclerose.",
+          "arquivo": "colesterol_estrutura.png"
+        },
+        {
+          "titulo": "Lipoproteínas e tamanho",
+          "descricao": "LDL pequenas e densas são mais aterogênicas. HDL grandes removem colesterol. Triglicerídeos altos predispõem a LDL pequenas.",
+          "arquivo": "colesterol_lipoproteinas.png"
+        }
+      ]
+    },
+    {
+      "sigla": "Potássio",
+      "imagens": [
+        {
+          "titulo": "Bomba Na+/K+ ATPase",
+          "descricao": "A bomba Na+/K+ ATPase mantém K+ alto dentro das células e Na+ baixo. A digoxina inibe essa bomba (intoxicação causa hipercalemia). Já os diuréticos de alça e tiazídicos aumentam a perda renal de K+, causando hipocalemia.",
+          "arquivo": "potassio_bomba.png"
+        },
+        {
+          "titulo": "ECG em hipercalemia",
+          "descricao": "K+ muito alto causa ondas T apiculadas (em tenda) no ECG, seguidas de achatamento da onda P e alargamento do QRS. Risco de fibrilação ventricular fatal. Já o K+ baixo achata a onda T e faz surgir onda U.",
+          "arquivo": "potassio_ecg.png"
+        }
+      ]
+    },
+    {
+      "sigla": "Troponina",
+      "imagens": [
+        {
+          "titulo": "Estrutura do sarcômero",
+          "descricao": "Troponina é parte do complexo regulador da contração muscular. Sua liberação no sangue indica necrose miocárdica.",
+          "arquivo": "troponina_sarcomero.png"
+        },
+        {
+          "titulo": "Cinética de troponina no infarto",
+          "descricao": "Troponina se eleva 3-4 horas após infarto, pico em 24-48h, normaliza em 7-14 dias. Altamente específica.",
+          "arquivo": "troponina_cinetica.png"
+        }
+      ]
+    },
+    {
+      "sigla": "Bilirrubina",
+      "imagens": [
+        {
+          "titulo": "Metabolismo da bilirrubina",
+          "descricao": "Bilirrubina indireta vem da destruição de hemácias. No fígado é conjugada. Excesso causa icterícia.",
+          "arquivo": "bilirrubina_metabolismo.png"
+        },
+        {
+          "titulo": "Escalas de icterícia",
+          "descricao": "Bilirrubina > 2.0 mg/dL causa icterícia visível. Bilirrubina indireta indica hemólise ou disfunção hepática.",
+          "arquivo": "bilirrubina_ictericia.png"
+        }
+      ]
+    }
+  ]
+}

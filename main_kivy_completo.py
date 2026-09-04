@@ -20,6 +20,7 @@ from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.popup import Popup
 from kivy.core.window import Window
 from kivy.uix.spinner import Spinner
+from kivy.uix.image import Image
 
 import json
 import csv
@@ -90,6 +91,13 @@ def carregar_casos():
             return json.load(f)
     except: return []
 
+def carregar_imagens():
+    try:
+        with open(DATA_DIR / "marcadores_imagens.json", encoding="utf-8") as f:
+            dados = json.load(f)
+            return {m["sigla"]: m for m in dados.get("marcadores_imagens", [])}
+    except: return {}
+
 # ─────────────────────────────────────────────
 # TELA INICIAL
 # ─────────────────────────────────────────────
@@ -141,6 +149,7 @@ class TelaEstudo(BoxLayout):
         self.app = app
         self.marcadores = carregar_marcadores()
         self.extras = carregar_extras()
+        self.imagens = carregar_imagens()
         self.bg_color = COR["fundo"]
 
         header = BoxLayout(size_hint_y=None, height=50, bg_color=COR["primaria"],
@@ -243,6 +252,34 @@ class TelaEstudo(BoxLayout):
             scroll_exemplos.add_widget(ex_box)
             aba_exemplos.content = scroll_exemplos
             tabs.add_widget(aba_exemplos)
+
+        # Aba Imagens
+        if m["sigla"] in self.imagens and self.imagens[m["sigla"]].get("imagens"):
+            aba_imagens = TabbedPanelItem(text='Imagens')
+            scroll_imagens = ScrollView()
+            img_box = BoxLayout(orientation='vertical', size_hint_y=None,
+                               spacing=10, padding=10)
+            img_box.bind(minimum_height=img_box.setter('height'))
+            for i, img in enumerate(self.imagens[m["sigla"]]["imagens"], 1):
+                img_box.add_widget(Label(text=f"📊 {img['titulo']}", size_hint_y=None,
+                                        height=20, font_size="11sp", bold=True))
+                img_box.add_widget(Label(text=img['descricao'], size_hint_y=None,
+                                        height=50, font_size="10sp", text_size=(350, None)))
+                img_path = DATA_DIR / "images" / img['arquivo']
+                if img_path.exists():
+                    try:
+                        img_widget = Image(source=str(img_path), size_hint_y=None, height=180)
+                        img_box.add_widget(img_widget)
+                    except:
+                        img_box.add_widget(Label(text="[Imagem não carregada]", size_hint_y=None,
+                                                height=40, font_size="9sp", color=COR["texto2"]))
+                else:
+                    img_box.add_widget(Label(text=f"🖼 [Arquivo: {img['arquivo']}]\n(Adicione a imagem em data/images/)",
+                                            size_hint_y=None, height=60, font_size="9sp",
+                                            text_size=(350, None), color=COR["bile"]))
+            scroll_imagens.add_widget(img_box)
+            aba_imagens.content = scroll_imagens
+            tabs.add_widget(aba_imagens)
 
         content.add_widget(tabs)
         footer = BoxLayout(size_hint_y=0.1, padding=10)
