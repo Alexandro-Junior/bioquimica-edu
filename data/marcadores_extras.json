@@ -171,7 +171,7 @@
       "exemplos": [
         {
           "titulo": "Caso: Hipercalemia em IRC",
-          "descricao": "Paciente 70 anos com eGFR 8 mL/min, K+ 6.8, ECG com pico de Osborn. Uremia.",
+          "descricao": "Paciente 70 anos com eGFR 8 mL/min, K+ 6.8, ECG com ondas T apiculadas (em tenda). Uremia.",
           "valores": "K+: 6.8 | eGFR: 8 | Ureia: 200 | Cálcio: 7.5",
           "conducao": "EMERGÊNCIA! Gluconato cálcio IV, insulina+dextrose, albuterol, resina trocadora, diálise."
         },
