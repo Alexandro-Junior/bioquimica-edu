@@ -29,6 +29,16 @@ except ImportError:
     print("⚠️ ollama_ia não encontrado. Chat será offline.")
     IA_DISPONIVEL = False
 
+# Telas completas reaproveitadas da versão desktop.
+# Assim esta versão herda flashcards, diagnóstico, imagens e fontes sem
+# duplicar código: o que se corrige em main.py vale aqui também.
+from main import (
+    TelaEstudo as TelaEstudoCompleta,
+    TelaFlashcards as TelaFlashcardsCompleta,
+    TelaQuiz as TelaQuizCompleto,
+    TelaDiagnostico as TelaDiagnosticoCompleto,
+)
+
 # ─────────────────────────────────────────────
 # CORES (MESMO DO MAIN.PY)
 # ─────────────────────────────────────────────
@@ -644,64 +654,67 @@ class TelaInicialEnhanced(tk.Frame):
         self._construir()
 
     def _construir(self):
-        topo = tk.Frame(self, bg=COR["topo"], height=80)
+        topo = tk.Frame(self, bg=COR["topo"], height=84)
         topo.pack(fill=tk.X)
         topo.pack_propagate(False)
 
         tk.Label(topo, text="⚗", font=("Segoe UI", 28),
                  fg=COR["primaria"], bg=COR["topo"]).pack(side=tk.LEFT, padx=20)
-        tk.Label(topo, text="BioquímicaEDU + IA",
-                 font=FONTE["titulo"], fg=COR["branco"],
-                 bg=COR["topo"]).pack(side=tk.LEFT, padx=5)
-        tk.Label(topo, text="com Chat Integrado & Quiz Dinâmico",
+        titulos = tk.Frame(topo, bg=COR["topo"])
+        titulos.pack(side=tk.LEFT)
+        tk.Label(titulos, text="BioquimicaEDU + IA",
+                 font=FONTE["titulo"], fg=COR["texto"],
+                 bg=COR["topo"]).pack(anchor=tk.W)
+        tk.Label(titulos, text="Todos os modos de estudo, com tutor local opcional",
                  font=FONTE["pequeno"], fg=COR["texto2"],
-                 bg=COR["topo"]).pack(side=tk.LEFT, padx=20)
+                 bg=COR["topo"]).pack(anchor=tk.W)
 
         centro = tk.Frame(self, bg=COR["fundo"])
         centro.pack(expand=True, padx=40)
 
         grid = tk.Frame(centro, bg=COR["fundo"])
-        grid.pack(pady=20)
+        grid.pack(pady=10)
 
-        # Card 1: Estudo com Chat
-        c1 = tk.Frame(grid, bg=COR["primaria_light"], width=220, height=180,
-                      relief="solid", bd=1)
-        c1.grid(row=0, column=0, padx=10, pady=10)
-        c1.pack_propagate(False)
-        tk.Label(c1, text="📚  Estudo + Chat",
-                 font=FONTE["subtit"], fg=COR["primaria_dark"],
-                 bg=COR["primaria_light"]).pack(pady=10)
-        tk.Label(c1, text="Explore marcadores\nCom IA para tirar dúvidas",
-                 font=FONTE["pequeno"], fg=COR["texto2"],
-                 bg=COR["primaria_light"], justify=tk.CENTER).pack(pady=10)
-        tk.Button(c1, text="Abrir", bg=COR["primaria"], fg=COR["branco"],
-                  relief="flat", font=FONTE["botao"],
-                  command=lambda: self.controller.mostrar("estudo_enhanced"),
-                  padx=20, pady=8).pack()
+        modos = [
+            ("📚  Estudo", "20 marcadores com fontes,\nexemplos e imagens",
+             "primaria", "estudo"),
+            ("🎴  Flashcards", "Cards de revisao rapida",
+             "bile", "flashcards"),
+            ("🧠  Quiz", "Perguntas com explicacao",
+             "cobalto", "quiz"),
+            ("🩺  Diagnostico", "Casos clinicos para interpretar",
+             "indicador", "diagnostico"),
+            ("💬  Estudo + Chat", "Tire duvidas com o tutor\nlocal (Ollama)",
+             "primaria", "estudo_enhanced"),
+            ("✨  Quiz Dinamico", "Perguntas geradas pela IA",
+             "sangue", "quiz_dinamico"),
+        ]
 
-        # Card 2: Quiz Dinâmico
-        c2 = tk.Frame(grid, bg=COR["cobalto_light"], width=220, height=180,
-                      relief="solid", bd=1)
-        c2.grid(row=0, column=1, padx=10, pady=10)
-        c2.pack_propagate(False)
-        tk.Label(c2, text="🧠  Quiz Dinâmico",
-                 font=FONTE["subtit"], fg=COR["cobalto_dark"],
-                 bg=COR["cobalto_light"]).pack(pady=10)
-        tk.Label(c2, text="Perguntas geradas\npela IA infinitamente",
-                 font=FONTE["pequeno"], fg=COR["texto2"],
-                 bg=COR["cobalto_light"], justify=tk.CENTER).pack(pady=10)
-        tk.Button(c2, text="Abrir", bg=COR["cobalto"], fg=COR["branco"],
-                  relief="flat", font=FONTE["botao"],
-                  command=lambda: self.controller.mostrar("quiz_dinamico"),
-                  padx=20, pady=8).pack()
+        for i, (titulo, descricao, cor, destino) in enumerate(modos):
+            cartao = tk.Frame(grid, bg=COR[f"{cor}_light"], width=250, height=168,
+                              relief="solid", bd=1)
+            cartao.grid(row=i // 3, column=i % 3, padx=9, pady=9)
+            cartao.pack_propagate(False)
 
-        # Nota
+            tk.Label(cartao, text=titulo, font=FONTE["subtit"],
+                     fg=COR[f"{cor}_dark"], bg=COR[f"{cor}_light"]).pack(pady=(16, 6))
+            tk.Label(cartao, text=descricao, font=FONTE["pequeno"],
+                     fg=COR["texto2"], bg=COR[f"{cor}_light"],
+                     justify=tk.CENTER).pack(pady=(0, 10))
+            tk.Button(cartao, text="Abrir", bg=COR[cor], fg=COR["branco"],
+                      relief="flat", font=FONTE["botao"],
+                      command=lambda d=destino: self.controller.mostrar(d),
+                      padx=22, pady=7).pack()
+
+        estado = ("Ollama conectado: chat e quiz dinamico ativos"
+                  if IA_DISPONIVEL else
+                  "Ollama offline: os dois modos com IA respondem pela base local")
         nota = tk.Frame(centro, bg=COR["indicador_light"], relief="solid", bd=1)
-        nota.pack(fill=tk.X, pady=20)
-        tk.Label(nota,
-                 text=f"🤖 Status IA: {'✅ Ollama Conectado' if IA_DISPONIVEL else '⚠️ Ollama offline (modo básico)'}",
-                 font=FONTE["corpo"], fg=COR["indicador_dark"],
-                 bg=COR["indicador_light"]).pack(padx=16, pady=12)
+        nota.pack(fill=tk.X, pady=(14, 4))
+        tk.Label(nota, text=estado, font=FONTE["corpo"],
+                 fg=COR["indicador_dark"], bg=COR["indicador_light"]
+                 ).pack(padx=16, pady=10)
+
 
 # ─────────────────────────────────────────────
 # APP PRINCIPAL
@@ -722,31 +735,40 @@ class AppEnhanced(tk.Tk):
         y = (self.winfo_screenheight() // 2) - (h // 2)
         self.geometry(f"+{x}+{y}")
 
+        # As telas reaproveitadas do main.py leem estes contadores.
+        self.xp = 0
+        self.streak = 0
+
         self.telas = {}
         self._criar_telas()
-        self.mostrar("inicio")
+
+    # Telas recriadas a cada visita, para refletir XP/sequência e sortear
+    # novas perguntas e casos.
+    CLASSES = {
+        "inicio":          TelaInicialEnhanced,
+        "estudo_enhanced": TelaEstudoEnhanced,
+        "quiz_dinamico":   TelaQuizDinamico,
+        "estudo":          TelaEstudoCompleta,
+        "flashcards":      TelaFlashcardsCompleta,
+        "quiz":            TelaQuizCompleto,
+        "diagnostico":     TelaDiagnosticoCompleto,
+    }
 
     def _criar_telas(self):
-        for nome, Classe in [
-            ("inicio", TelaInicialEnhanced),
-            ("estudo_enhanced", TelaEstudoEnhanced),
-            ("quiz_dinamico", TelaQuizDinamico),
-        ]:
-            tela = Classe(self, self)
-            tela.place(relwidth=1, relheight=1)
-            self.telas[nome] = tela
+        self.mostrar("inicio")
 
     def mostrar(self, nome):
-        if nome in ("estudo_enhanced", "quiz_dinamico"):
-            if nome in self.telas:
-                self.telas[nome].destroy()
-            Classe = {"estudo_enhanced": TelaEstudoEnhanced,
-                     "quiz_dinamico": TelaQuizDinamico}[nome]
-            tela = Classe(self, self)
-            tela.place(relwidth=1, relheight=1)
-            self.telas[nome] = tela
-
-        self.telas[nome].tkraise()
+        Classe = self.CLASSES.get(nome)
+        if Classe is None:
+            print(f"[navegacao] tela desconhecida: {nome}")
+            return
+        anterior = self.telas.pop(nome, None)
+        if anterior is not None:
+            anterior.destroy()
+        tela = Classe(self, self)
+        tela.place(relwidth=1, relheight=1)
+        self.telas[nome] = tela
+        tela.tkraise()
 
 if __name__ == "__main__":
     print("BioquímicaEDU Enhanced — Iniciando...")
