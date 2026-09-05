@@ -1632,7 +1632,29 @@ class TelaQuiz(tk.Frame):
         else:
             self.controller.streak = 0
 
+        self._alimentar_memoria(p, acertou)
         self._feedback(p, acertou)
+
+    def _alimentar_memoria(self, p, acertou):
+        """Faz o acerto do quiz contar para o agendamento do marcador.
+
+        Sem isso, responder sobre troponina não teria efeito nenhum na
+        próxima vez que a troponina apareceria para revisão.
+        """
+        progresso = getattr(self.controller, "progresso", None)
+        if progresso is None:
+            return
+        from progresso import marcadores_no_texto
+
+        texto = " ".join([p.get("pergunta", ""), *p.get("alternativas", []),
+                          p.get("explicacao", "")])
+        marcadores = getattr(self.controller, "marcadores", []) or []
+        siglas = [m["sigla"] for m in marcadores]
+        nomes = {m["sigla"]: m["nome"] for m in marcadores}
+
+        alvos = marcadores_no_texto(texto, siglas, nomes)
+        if alvos:
+            progresso.registrar_atividade(alvos, acertou, peso="quiz")
 
     def _feedback(self, p, acertou):
         # Substitui rodapé por painel grande tipo Duo
@@ -1928,6 +1950,29 @@ class TelaDiagnostico(tk.Frame):
             w.bind("<Button-1>", clicar)
         return wrap
 
+    def _alimentar_memoria(self, caso, acertou):
+        """Liga o caso clínico ao agendamento dos marcadores que ele usa.
+
+        Interpretar um caso é prática de recuperação sobre vários
+        marcadores ao mesmo tempo, então todos os que aparecem nos exames
+        entram — com peso de diagnóstico, que pune o erro menos que uma
+        questão direta, já que errar o diagnóstico não prova desconhecer
+        cada marcador isolado.
+        """
+        progresso = getattr(self.controller, "progresso", None)
+        if progresso is None:
+            return
+        from progresso import marcadores_no_texto
+
+        marcadores = getattr(self.controller, "marcadores", []) or []
+        siglas = [m["sigla"] for m in marcadores]
+        nomes = {m["sigla"]: m["nome"] for m in marcadores}
+
+        alvos = marcadores_no_texto(" ".join(caso.get("exames", {}).keys()),
+                                    siglas, nomes)
+        if alvos:
+            progresso.registrar_atividade(alvos, acertou, peso="diagnostico")
+
     def _verificar_diag(self, escolha, caso):
         if self.respondido:
             return
@@ -1950,6 +1995,8 @@ class TelaDiagnostico(tk.Frame):
             self.controller.streak += 1
         else:
             self.controller.streak = 0
+
+        self._alimentar_memoria(caso, acertou)
 
         # Painel de feedback
         cor = COR["sucesso_dark"] if acertou else COR["erro_dark"]
