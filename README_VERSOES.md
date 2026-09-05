@@ -49,12 +49,12 @@ python main.py
 
 ## 📱 VERSÃO MOBILE (Kivy)
 
-### Arquivo: `main_mobile.py`
+### Arquivo: `main_kivy_completo.py`
 
 ### Como executar (emulador local):
 ```bash
 pip install kivy
-python main_mobile.py
+python main_kivy_completo.py
 ```
 
 ### Compilar para Android:
@@ -102,7 +102,7 @@ pip install kivy-ios
 
 | Aspecto | Desktop (Tkinter) | Mobile (Kivy) |
 |---|---|---|
-| **Arquivo** | `main.py` | `main_mobile.py` |
+| **Arquivo** | `main.py` | `main_kivy_completo.py` |
 | **Resolução** | 1100×720 | 480×960 |
 | **Orientação** | Qualquer | Portrait |
 | **Instalação** | Apenas Python | Python + Kivy |
@@ -144,7 +144,7 @@ pip install kivy-ios
 bioquimica_edu/
 │
 ├── main.py                      # Desktop (Tkinter) ⭐
-├── main_mobile.py               # Mobile (Kivy) 📱
+├── main_kivy_completo.py               # Mobile (Kivy) 📱
 │
 ├── data/
 │   ├── marcadores.csv           # 20 marcadores bioquímicos
@@ -180,7 +180,7 @@ Ambas as versões **usam os mesmos arquivos JSON/CSV** em `data/`:
 2. **Mobile (emulador)**: 
    ```bash
    pip install kivy
-   python main_mobile.py
+   python main_kivy_completo.py
    ```
 3. **Mobile (Android APK)**:
    ```bash
@@ -202,7 +202,7 @@ Ambas as versões **usam os mesmos arquivos JSON/CSV** em `data/`:
 - Buildozer requer ~2GB disco (JDK + SDK)
   - **Solução**: Use Kivy Cloud online
 - App pode travar se `data/` não estiver no mesmo dir
-  - **Solução**: `cp -r data main_mobile.py /seu/diretorio/`
+  - **Solução**: `cp -r data main_kivy_completo.py /seu/diretorio/`
 
 ---
 

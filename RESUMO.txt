@@ -11,11 +11,11 @@
 📱 VERSÃO 1: MOBILE (Kivy) — NOVO PARA SMARTPHONES
 ───────────────────────────────────────────────────────────────────────────────
 
-Arquivo: main_mobile.py (36 KB)
+Arquivo: main_kivy_completo.py (36 KB)
 
 ▸ Execução local (Windows/Mac/Linux):
   $ pip install kivy
-  $ python main_mobile.py
+  $ python main_kivy_completo.py
 
 ▸ Compilar para Android (gera APK):
   $ pip install buildozer
@@ -105,7 +105,7 @@ data/casos_clinicos.json (5 casos):
 bioquimica_edu/
 │
 ├── main.py                   ← DESKTOP (Tkinter, Duolingo-style)
-├── main_mobile.py            ← MOBILE (Kivy, touch-optimized)
+├── main_kivy_completo.py            ← MOBILE (Kivy, touch-optimized)
 │
 ├── data/
 │   ├── marcadores.csv        ← 20 marcadores bioquímicos
@@ -129,7 +129,7 @@ OPÇÃO A — Desktop imediato (melhor para laboratório):
 
 OPÇÃO B — Mobile no emulador (testar antes de compilar):
   $ pip install kivy
-  $ python main_mobile.py
+  $ python main_kivy_completo.py
   [Abre emulador 480×960]
 
 OPÇÃO C — Mobile no celular (produção):
@@ -155,7 +155,7 @@ Mobile (Kivy):
   ✓ Estrutura de classes: OK
   ✓ Data loading functions: OK
   ✓ Color palette: OK
-  ✓ Pronto para: python main_mobile.py (após pip install kivy)
+  ✓ Pronto para: python main_kivy_completo.py (após pip install kivy)
 
 ═══════════════════════════════════════════════════════════════════════════════
 
@@ -216,7 +216,7 @@ Desktop não funciona?
 
 Mobile (Kivy) não funciona?
   → pip install kivy --upgrade
-  → Certifique-se: data/ no mesmo dir que main_mobile.py
+  → Certifique-se: data/ no mesmo dir que main_kivy_completo.py
 
 Android APK não compila?
   → Siga INSTALAR_MOBILE.md

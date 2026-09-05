@@ -13,7 +13,7 @@ python -m pip install kivy
 #### Passo 2 — Executar no emulador
 ```bash
 cd caminho/para/bioquimica_edu
-python main_mobile.py
+python main_kivy_completo.py
 ```
 
 ---
@@ -64,7 +64,7 @@ adb install -r bin/bioquimiaedu-0.1-debug.apk
 
 ```bash
 pip install kivy-ios
-toolchain create BioquimicaEDU /caminho/para/main_mobile.py
+toolchain create BioquimicaEDU /caminho/para/main_kivy_completo.py
 toolchain build BioquimicaEDU
 ```
 
@@ -73,7 +73,7 @@ toolchain build BioquimicaEDU
 ### Opção 4: Usar Kivy Cloud (Nuvem — Sem Setup Local)
 
 1. Acesse: https://kivy.org/doc/stable/guide/packaging.html
-2. Faça upload do `main_mobile.py` e `data/`
+2. Faça upload do `main_kivy_completo.py` e `data/`
 3. Kivy Cloud compila e gera `.apk` e `.ipa`
 
 ---
@@ -92,7 +92,7 @@ toolchain build BioquimicaEDU
 
 ```
 bioquimica_edu/
-├── main_mobile.py           # App Kivy (execute este)
+├── main_kivy_completo.py           # App Kivy (execute este)
 ├── data/
 │   ├── marcadores.csv
 │   ├── casos_clinicos.json
@@ -128,8 +128,8 @@ buildozer android debug -- --permit-no-manifest
 ```
 
 ### ❌ App trava ao abrir
-- Certifique-se que `data/` está no mesmo diretório de `main_mobile.py`
-- Verifique permissões de arquivo: `chmod 755 main_mobile.py`
+- Certifique-se que `data/` está no mesmo diretório de `main_kivy_completo.py`
+- Verifique permissões de arquivo: `chmod 755 main_kivy_completo.py`
 
 ---
 
