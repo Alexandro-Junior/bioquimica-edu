@@ -78,7 +78,7 @@
       ]
     },
     {
-      "sigla": "Creatinina",
+      "sigla": "CREA",
       "videos": [
         {
           "titulo": "Creatinina e Função Renal",
@@ -102,7 +102,7 @@
       ]
     },
     {
-      "sigla": "Glicose",
+      "sigla": "GLI",
       "videos": [
         {
           "titulo": "Glicose e Diabetes Mellitus",
@@ -131,7 +131,7 @@
       ]
     },
     {
-      "sigla": "Colesterol",
+      "sigla": "CT",
       "videos": [
         {
           "titulo": "Colesterol e Doença Cardiovascular",
@@ -155,7 +155,7 @@
       ]
     },
     {
-      "sigla": "Potássio",
+      "sigla": "K",
       "videos": [
         {
           "titulo": "Hipercalemia - Emergência Potássio Alto",
@@ -184,7 +184,7 @@
       ]
     },
     {
-      "sigla": "Troponina",
+      "sigla": "TropI",
       "videos": [
         {
           "titulo": "Troponina - Marcador de Infarto",
@@ -208,7 +208,7 @@
       ]
     },
     {
-      "sigla": "Bilirrubina",
+      "sigla": "BT",
       "videos": [
         {
           "titulo": "Bilirrubina e Icterícia",

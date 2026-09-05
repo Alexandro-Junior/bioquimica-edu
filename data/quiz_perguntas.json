@@ -26,7 +26,7 @@
   {
     "id": 4,
     "categoria": "Renal",
-    "pergunta": "Por que pacientes com insuficiência renal crônica avançada desenvolvem hipercalemia (K⁺ elevado)?",
+    "pergunta": "Por que pacientes com insuficiência renal crônica avançada desenvolvem hipercalemia (K+ elevado)?",
     "alternativas": [
       "Porque ingerem mais alimentos ricos em potássio",
       "Porque os rins doentes não conseguem excretar potássio adequadamente",
@@ -34,7 +34,7 @@
       "Porque a insulina diminui a captação celular de potássio"
     ],
     "resposta_correta": 1,
-    "explicacao": "O rim é o principal órgão responsável pela excreção de potássio. Na insuficiência renal, essa capacidade está comprometida, levando ao acúmulo de K⁺ no sangue (hipercalemia), com risco de arritmias cardíacas fatais."
+    "explicacao": "O rim é o principal órgão responsável pela excreção de potássio. Na insuficiência renal, essa capacidade está comprometida, levando ao acúmulo de K+ no sangue (hipercalemia), com risco de arritmias cardíacas fatais."
   },
   {
     "id": 5,
@@ -55,7 +55,7 @@
     "pergunta": "Uma paciente chega com pH sanguíneo de 7.28. Esse achado indica:",
     "alternativas": ["Alcalose respiratória", "Equilíbrio ácido-base normal", "Acidose (respiratória ou metabólica)", "Hipernatremia"],
     "resposta_correta": 2,
-    "explicacao": "O pH normal do sangue é de 7.35 a 7.45. Valores abaixo de 7.35 indicam acidose. As causas incluem insuficiência renal, cetoacidose diabética, acidose lática e retenção de CO₂ (acidose respiratória)."
+    "explicacao": "O pH normal do sangue é de 7.35 a 7.45. Valores abaixo de 7.35 indicam acidose. As causas incluem insuficiência renal, cetoacidose diabética, acidose lática e retenção de CO2 (acidose respiratória)."
   },
   {
     "id": 7,
@@ -77,9 +77,9 @@
     "id": 9,
     "categoria": "Glicêmico",
     "pergunta": "Qual valor de glicose em jejum confirma diagnóstico de Diabetes Mellitus?",
-    "alternativas": ["≥ 100 mg/dL", "≥ 126 mg/dL em duas ocasiões", "≥ 150 mg/dL", "≥ 200 mg/dL apenas"],
+    "alternativas": [">= 100 mg/dL", ">= 126 mg/dL em duas ocasiões", ">= 150 mg/dL", ">= 200 mg/dL apenas"],
     "resposta_correta": 1,
-    "explicacao": "Glicose em jejum ≥ 126 mg/dL confirmada em duas ocasiões distintas diagnostica Diabetes Mellitus. Valores entre 100-125 mg/dL indicam pré-diabetes (glicemia de jejum alterada)."
+    "explicacao": "Glicose em jejum >= 126 mg/dL confirmada em duas ocasiões distintas diagnostica Diabetes Mellitus. Valores entre 100-125 mg/dL indicam pré-diabetes (glicemia de jejum alterada)."
   },
   {
     "id": 10,
@@ -92,10 +92,10 @@
   {
     "id": 11,
     "categoria": "Eletrólito",
-    "pergunta": "Paciente em uso de diuréticos apresenta K⁺ = 2.8 mEq/L. Qual o principal risco imediato?",
+    "pergunta": "Paciente em uso de diuréticos apresenta K+ = 2.8 mEq/L. Qual o principal risco imediato?",
     "alternativas": ["Hipertensão grave", "Arritmias cardíacas potencialmente fatais", "Insuficiência renal aguda", "Hiperglicemia"],
     "resposta_correta": 1,
-    "explicacao": "A hipocalemia grave (K⁺ < 3.0 mEq/L) altera o potencial de membrana das células cardíacas, podendo causar arritmias graves como fibrilação ventricular. É uma emergência eletrolítica."
+    "explicacao": "A hipocalemia grave (K+ < 3.0 mEq/L) altera o potencial de membrana das células cardíacas, podendo causar arritmias graves como fibrilação ventricular. É uma emergência eletrolítica."
   },
   {
     "id": 12,

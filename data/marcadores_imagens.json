@@ -31,7 +31,7 @@
       ]
     },
     {
-      "sigla": "Creatinina",
+      "sigla": "CREA",
       "imagens": [
         {
           "titulo": "Metabolismo da creatinina",
@@ -46,7 +46,7 @@
       ]
     },
     {
-      "sigla": "Glicose",
+      "sigla": "GLI",
       "imagens": [
         {
           "titulo": "Homeostase da glicose",
@@ -61,7 +61,7 @@
       ]
     },
     {
-      "sigla": "Colesterol",
+      "sigla": "CT",
       "imagens": [
         {
           "titulo": "Estrutura do colesterol",
@@ -76,7 +76,7 @@
       ]
     },
     {
-      "sigla": "Potássio",
+      "sigla": "K",
       "imagens": [
         {
           "titulo": "Bomba Na+/K+ ATPase",
@@ -91,7 +91,7 @@
       ]
     },
     {
-      "sigla": "Troponina",
+      "sigla": "TropI",
       "imagens": [
         {
           "titulo": "Estrutura do sarcômero",
@@ -106,7 +106,7 @@
       ]
     },
     {
-      "sigla": "Bilirrubina",
+      "sigla": "BT",
       "imagens": [
         {
           "titulo": "Metabolismo da bilirrubina",
