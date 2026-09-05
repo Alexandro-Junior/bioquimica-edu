@@ -405,6 +405,17 @@ def carregar_marcadores_extras():
         return {}
 
 
+def carregar_marcadores_imagens():
+    """Carrega os diagramas de cada marcador (aba Imagens)"""
+    try:
+        with open(DATA_DIR / "marcadores_imagens.json", encoding="utf-8") as f:
+            dados = json.load(f)
+            return {m["sigla"]: m for m in dados.get("marcadores_imagens", [])}
+    except Exception as e:
+        print(f"Aviso: Imagens não disponíveis: {e}")
+        return {}
+
+
 # ─────────────────────────────────────────────
 # BARRA SUPERIOR comum (com indicadores XP/sequência)
 # ─────────────────────────────────────────────
@@ -734,7 +745,9 @@ class TelaEstudo(tk.Frame):
         self.cat_selecionada = tk.StringVar(value="Todas")
         self.busca_var = tk.StringVar()
         self.busca_var.trace("w", lambda *_: self._filtrar())
-        self.extras = carregar_marcadores_extras()  # Vídeos + exemplos
+        self.extras = carregar_marcadores_extras()   # Vídeos + exemplos
+        self.imagens = carregar_marcadores_imagens()  # Diagramas
+        self._refs_imagens = []  # evita coleta das PhotoImage pelo GC
         self._construir()
 
     def _construir(self):
@@ -891,11 +904,19 @@ class TelaEstudo(tk.Frame):
         abas_frame.pack(fill=tk.X)
         abas_frame.pack_propagate(False)
 
+        extras_m = self.extras.get(m["sigla"], {})
+        disponivel = {
+            "info": True,
+            "videos": bool(extras_m.get("videos")),
+            "exemplos": bool(extras_m.get("exemplos")),
+            "imagens": bool(self.imagens.get(m["sigla"], {}).get("imagens")),
+        }
+
         for aba, icone, label in [("info", "ℹ️", "Info"),
                                    ("videos", "🎥", "Vídeos"),
-                                   ("exemplos", "📋", "Exemplos")]:
-            tem_conteudo = (aba == "info") or (m["sigla"] in self.extras)
-            if tem_conteudo:
+                                   ("exemplos", "📋", "Exemplos"),
+                                   ("imagens", "📊", "Imagens")]:
+            if disponivel[aba]:
                 def sel_aba(a=aba):
                     self.aba_atual.set(a)
                     self._atualizar_detalhe(m)
@@ -943,6 +964,8 @@ class TelaEstudo(tk.Frame):
             self._detalhe_videos(m, cor_cat)
         elif aba == "exemplos":
             self._detalhe_exemplos(m, cor_cat)
+        elif aba == "imagens":
+            self._detalhe_imagens(m, cor_cat)
 
     def _detalhe_info(self, m, cor_cat):
         """Aba Info - valores e interpretações"""
@@ -1190,6 +1213,78 @@ class TelaEstudo(tk.Frame):
                                  fg=cor, bg=clarear(cor, 0.85),
                                  padx=10, pady=4).pack()
                 tk.Frame(c.miolo, bg=COR["superficie"], height=10).pack()
+
+    def _detalhe_imagens(self, m, cor_cat):
+        """Aba Imagens - diagramas do marcador"""
+        interior = self.detalhe_interior
+        imagens = self.imagens.get(m["sigla"], {}).get("imagens", [])
+
+        if not imagens:
+            tk.Label(interior, text="Sem imagens disponíveis para este marcador",
+                     font=FONTE["corpo"], fg=COR["texto2"],
+                     bg=COR["fundo"]).pack(pady=20)
+            return
+
+        tk.Label(interior, text=f"📊 {len(imagens)} diagramas",
+                 font=FONTE["subtit"], fg=COR["texto"],
+                 bg=COR["fundo"]).pack(pady=(12, 8), padx=18, anchor=tk.W)
+
+        self._refs_imagens.clear()
+
+        for img in imagens:
+            c = card(interior, cor_topo=cor_cat)
+            c.pack(fill=tk.X, padx=18, pady=8)
+
+            tk.Label(c.miolo, text=img["titulo"],
+                     font=FONTE["medio"], fg=COR["texto"],
+                     bg=COR["superficie"]).pack(anchor=tk.W, padx=18, pady=(10, 4))
+
+            tk.Label(c.miolo, text=img["descricao"],
+                     font=FONTE["corpo"], fg=COR["texto"],
+                     bg=COR["superficie"], wraplength=480,
+                     justify=tk.LEFT).pack(anchor=tk.W, padx=18, pady=(0, 8))
+
+            self._montar_imagem(c.miolo, img["arquivo"])
+
+    def _montar_imagem(self, parent, arquivo):
+        """Exibe o PNG redimensionado, ou uma mensagem se nao for possivel."""
+        caminho = DATA_DIR / "images" / arquivo
+
+        if not caminho.exists():
+            tk.Label(parent,
+                     text=f"Imagem nao encontrada: {arquivo}\n"
+                          f"Gere os diagramas com: python criar_imagens.py",
+                     font=FONTE["pequeno"], fg=COR["bile"],
+                     bg=COR["superficie"], justify=tk.LEFT
+                     ).pack(anchor=tk.W, padx=18, pady=(0, 12))
+            return
+
+        try:
+            from PIL import Image, ImageTk
+        except ImportError:
+            tk.Label(parent,
+                     text="Instale o Pillow para ver os diagramas:  pip install pillow",
+                     font=FONTE["pequeno"], fg=COR["texto2"],
+                     bg=COR["superficie"]).pack(anchor=tk.W, padx=18, pady=(0, 12))
+            return
+
+        try:
+            imagem = Image.open(caminho)
+            largura_max = 520
+            if imagem.width > largura_max:
+                proporcao = largura_max / imagem.width
+                imagem = imagem.resize(
+                    (largura_max, int(imagem.height * proporcao)),
+                    Image.LANCZOS)
+            foto = ImageTk.PhotoImage(imagem)
+            self._refs_imagens.append(foto)  # sem isso o Tk descarta a imagem
+            tk.Label(parent, image=foto, bg=COR["superficie"]
+                     ).pack(padx=18, pady=(0, 12))
+        except Exception as e:
+            tk.Label(parent, text=f"Nao foi possivel abrir {arquivo}: {e}",
+                     font=FONTE["pequeno"], fg=COR["erro"],
+                     bg=COR["superficie"], wraplength=480, justify=tk.LEFT
+                     ).pack(anchor=tk.W, padx=18, pady=(0, 12))
 
     def _barra_referencia(self, parent, m, cor):
         frame = tk.Frame(parent, bg=COR["superficie"], pady=10)
