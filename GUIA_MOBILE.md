@@ -27,7 +27,7 @@ pip install pillow  # Para imagens
 ### Executar no PC/Mac/Linux
 ```bash
 cd caminho/para/bioquimica_edu
-python main_kivy.py
+python main_kivy_completo.py
 ```
 
 Abre emulador **480×960** (mobile portrait)
@@ -123,7 +123,7 @@ toolchain build BioquimicaEDU
 ## 📊 Estrutura de Arquivos
 
 ```
-main_kivy.py          ← App Kivy (execute este)
+main_kivy_completo.py          ← App Kivy (execute este)
 
 data/
 ├── marcadores.csv
@@ -196,7 +196,7 @@ pip install kivy --upgrade
 ## ⚙️ Customizações
 
 ### Mudar tamanho de tela
-Edit `main_kivy.py` linha 36:
+Edit `main_kivy_completo.py` linha 36:
 ```python
 Window.size = (480, 960)  # Mudar para (1080, 1920) para tablets
 ```

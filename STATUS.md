@@ -63,7 +63,6 @@ Versão: 0.2 (COMPLETA)
 - [x] `main.py` (Desktop puro - 1800+ linhas)
 - [x] `main_enhanced.py` (Desktop + IA - 900+ linhas)
 - [x] `main_kivy_completo.py` (Mobile - 700+ linhas)
-- [x] `main_kivy.py` (Mobile básico - estudos)
 - [x] `ollama_ia.py` (Módulo IA compartilhado - 300+ linhas)
 
 ### Dados

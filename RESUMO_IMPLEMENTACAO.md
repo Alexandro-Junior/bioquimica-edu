@@ -50,7 +50,6 @@ bioquimica_edu/
 ├── main.py                    ← Desktop puro (Tkinter)
 ├── main_enhanced.py           ← Desktop + IA (Tkinter + Ollama)
 ├── main_kivy_completo.py      ← Mobile completo (Kivy)
-├── main_kivy.py              ← Mobile básico (estudos anteriores)
 │
 ├── ollama_ia.py              ← Módulo IA compartilhado
 │

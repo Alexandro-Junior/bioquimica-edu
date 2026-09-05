@@ -46,7 +46,7 @@
 
 ### FASE 4 — Integração Mobile (2-3 semanas)
 ```
-[ ] Versão mobile (main_mobile.py) com chat
+[ ] Versão mobile (main_kivy_completo.py) com chat
 [ ] Compilação APK com Ollama integrado
 [ ] Compilação iOS
 [ ] Push notifications (estude hoje!)

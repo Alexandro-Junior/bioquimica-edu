@@ -11,7 +11,7 @@
     {
       "name": "BioquímicaEDU Mobile (Kivy Emulator)",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["main_mobile.py"],
+      "runtimeArgs": ["main_kivy_completo.py"],
       "port": null,
       "type": "kivy"
     }
