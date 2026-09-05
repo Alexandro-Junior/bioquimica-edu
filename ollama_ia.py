@@ -27,15 +27,40 @@ class OllamaIA:
         self._verificar_conexao()
 
     def _verificar_conexao(self):
-        """Verifica se Ollama está disponível"""
+        """Verifica se Ollama está no ar E se há um modelo utilizável.
+
+        O servidor pode estar rodando sem nenhum modelo baixado: nesse caso
+        toda geração falha com 404. Por isso só marcamos como disponível
+        quando existe um modelo de fato instalado.
+        """
         try:
             r = requests.get(f"{self.base_url}/api/tags", timeout=2)
-            self.disponivel = r.status_code == 200
-            if self.disponivel:
-                print(f"✓ Ollama conectado em {self.base_url}")
-                # Lista modelos disponíveis
-                modelos = [m.get("name", "?") for m in r.json().get("models", [])]
-                print(f"  Modelos: {modelos}")
+            if r.status_code != 200:
+                self.disponivel = False
+                print(f"⚠️  Ollama respondeu {r.status_code}; usando modo offline")
+                return
+
+            modelos = [m.get("name", "") for m in r.json().get("models", [])]
+
+            if not modelos:
+                self.disponivel = False
+                print(f"⚠️  Ollama está rodando em {self.base_url}, "
+                      f"mas nenhum modelo foi baixado.")
+                print(f"   Execute:  ollama pull {self.model}")
+                print(f"   Enquanto isso, o app responde pela base local.\n")
+                return
+
+            # Se o modelo pedido não está instalado, usa o primeiro disponível
+            # em vez de falhar com 404 na primeira pergunta.
+            nomes_base = {m.split(":")[0] for m in modelos}
+            if self.model not in nomes_base and self.model not in modelos:
+                print(f"⚠️  Modelo '{self.model}' não encontrado. "
+                      f"Usando '{modelos[0]}'.")
+                self.model = modelos[0]
+
+            self.disponivel = True
+            print(f"✓ Ollama conectado em {self.base_url}")
+            print(f"  Modelos: {modelos}  |  em uso: {self.model}")
         except Exception as e:
             self.disponivel = False
             print(f"\n⚠️  Ollama não disponível")
