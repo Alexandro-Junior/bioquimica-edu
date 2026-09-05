@@ -405,6 +405,11 @@ def carregar_marcadores_extras():
         return {}
 
 
+from painel_inicio import COR as COR_PAINEL  # paleta da tela inicial
+from tela_painel import PainelInicio
+from tela_revisao import TelaRevisao
+
+
 def carregar_marcadores_imagens():
     """Carrega os diagramas de cada marcador (aba Imagens)"""
     try:
@@ -838,6 +843,15 @@ class TelaEstudo(tk.Frame):
             and (busca in m["nome"].lower() or busca in m["sigla"].lower())
         ]
         self._popular(filtrados)
+
+    def focar_marcador(self, sigla):
+        """Abre direto no marcador pedido — usado pelo atalho 'Onde focar'."""
+        alvo = next((m for m in self.marcadores if m["sigla"] == sigla), None)
+        if alvo is None:
+            return
+        self.cat_selecionada.set("Todas")
+        self.busca_var.set(sigla)
+        self._detalhe(alvo)
 
     def _popular(self, marcadores):
         for w in self.lista_interior.winfo_children():
@@ -1981,7 +1995,12 @@ class App(tk.Tk):
         self.minsize(960, 640)
         self.configure(bg=COR["fundo"])
 
-        # Estado de gamificação (em sessão)
+        # Estado de aprendizado, persistido entre sessões
+        from progresso import Progresso
+        self.progresso = Progresso()
+        self.marcadores = carregar_marcadores()
+
+        # Mantidos porque telas antigas ainda leem estes contadores
         self.xp = 0
         self.streak = 0
 
@@ -1997,29 +2016,41 @@ class App(tk.Tk):
         self._criar_telas()
         self.mostrar("inicio")
 
-    def _criar_telas(self):
-        for nome, Classe in [
-            ("inicio",      TelaInicial),
-            ("estudo",      TelaEstudo),
-            ("flashcards",  TelaFlashcards),
-            ("quiz",        TelaQuiz),
-            ("diagnostico", TelaDiagnostico),
-        ]:
-            tela = Classe(self, self)
-            tela.place(relwidth=1, relheight=1)
-            self.telas[nome] = tela
+    CLASSES = {
+        "inicio":      PainelInicio,
+        "revisao":     TelaRevisao,
+        "estudo":      TelaEstudo,
+        "flashcards":  TelaFlashcards,
+        "quiz":        TelaQuiz,
+        "diagnostico": TelaDiagnostico,
+    }
 
-    def mostrar(self, nome):
-        # Recriar telas com estado para refletir XP/streak atualizados
-        if nome in self.telas:
-            self.telas[nome].destroy()
-        Classe = {"inicio": TelaInicial, "estudo": TelaEstudo,
-                  "flashcards": TelaFlashcards,
-                  "quiz": TelaQuiz, "diagnostico": TelaDiagnostico}[nome]
+    def _criar_telas(self):
+        self.mostrar("inicio")
+
+    def mostrar(self, nome, foco=None):
+        """Troca de tela. `foco` abre o Estudo já em um marcador."""
+        Classe = self.CLASSES.get(nome)
+        if Classe is None:
+            print(f"[navegacao] tela desconhecida: {nome}")
+            return
+
+        anterior = self.telas.pop(nome, None)
+        if anterior is not None:
+            anterior.destroy()
+
+        # Telas recriadas a cada visita: o painel precisa refletir o
+        # progresso que acabou de mudar na sessão de revisão.
         tela = Classe(self, self)
         tela.place(relwidth=1, relheight=1)
         self.telas[nome] = tela
-        self.telas[nome].tkraise()
+        tela.tkraise()
+
+        if foco and nome == "estudo":
+            try:
+                tela.focar_marcador(foco)
+            except Exception as e:
+                print(f"[navegacao] não foi possível focar {foco}: {e}")
 
 
 # ─────────────────────────────────────────────
