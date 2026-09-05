@@ -1,26 +1,29 @@
 """
-BioquímicaEDU — Versão Mobile COMPLETA (Kivy)
-Android/iOS - 5 Modos de Estudo + IA Integrada
+BioquímicaEDU — Versão Mobile (Kivy)
+Android / iOS — 5 modos de estudo
 
-✅ Modo Estudo (20 marcadores + vídeos + exemplos)
-✅ Flashcards (50 cards que viram)
-✅ Quiz (10+ perguntas dinâmicas)
-✅ Diagnóstico (5 casos clínicos)
-✅ Tutor IA (chat conversacional offline)
+- Estudo: 20 marcadores, com abas Info / Vídeos / Exemplos / Imagens
+- Flashcards: cards que viram ao toque
+- Quiz: perguntas de múltipla escolha com explicação
+- Diagnóstico: casos clínicos com interpretação de exames
+- Tutor: chat sobre marcadores (usa Ollama local se disponível, senão offline)
+
+Executar:  python main_kivy_completo.py
 """
 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.popup import Popup
-from kivy.core.window import Window
-from kivy.uix.spinner import Spinner
 from kivy.uix.image import Image
+from kivy.core.window import Window
+from kivy.graphics import Color, Rectangle
+from kivy.metrics import dp
+from kivy.clock import Clock
 
 import json
 import csv
@@ -33,674 +36,866 @@ Window.size = (480, 960)
 
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
+IMG_DIR = DATA_DIR / "images"
 
 # ─────────────────────────────────────────────
-# CORES
+# PALETA (inspirada em reagentes bioquímicos)
 # ─────────────────────────────────────────────
 COR = {
-    "fundo":       (0.98, 0.96, 0.93, 1),
-    "superficie":  (1.0, 1.0, 1.0, 1),
-    "primaria":    (0.086, 0.639, 0.290, 1),
-    "sangue":      (0.882, 0.114, 0.282, 1),
-    "bile":        (0.961, 0.620, 0.063, 1),
-    "cobalto":     (0.118, 0.533, 0.690, 1),
-    "indicador":   (0.486, 0.231, 0.929, 1),
-    "texto":       (0.122, 0.165, 0.216, 1),
-    "texto2":      (0.420, 0.447, 0.502, 1),
-    "sucesso":     (0.086, 0.639, 0.290, 1),
-    "erro":        (0.863, 0.149, 0.149, 1),
-    "branco":      (1.0, 1.0, 1.0, 1),
+    "fundo":      (0.98, 0.96, 0.93, 1),
+    "superficie": (1.00, 1.00, 1.00, 1),
+    "primaria":   (0.086, 0.639, 0.290, 1),   # verde de Fehling
+    "sangue":     (0.882, 0.114, 0.282, 1),   # vermelho do heme
+    "bile":       (0.961, 0.620, 0.063, 1),   # âmbar biliar
+    "cobalto":    (0.118, 0.533, 0.690, 1),   # azul de biureto
+    "indicador":  (0.486, 0.231, 0.929, 1),   # violeta de fenolftaleína
+    "texto":      (0.122, 0.165, 0.216, 1),
+    "texto2":     (0.420, 0.447, 0.502, 1),
+    "sucesso":    (0.086, 0.639, 0.290, 1),
+    "erro":       (0.863, 0.149, 0.149, 1),
+    "branco":     (1.00, 1.00, 1.00, 1),
+    "borda":      (0.88, 0.86, 0.83, 1),
 }
 
+
 # ─────────────────────────────────────────────
-# CARREGAMENTO
+# WIDGETS DE APOIO
 # ─────────────────────────────────────────────
+class Painel(BoxLayout):
+    """BoxLayout que realmente pinta um fundo colorido."""
+
+    def __init__(self, cor=None, **kwargs):
+        super().__init__(**kwargs)
+        self._ret = None
+        if cor is not None:
+            with self.canvas.before:
+                Color(*cor)
+                self._ret = Rectangle(pos=self.pos, size=self.size)
+            self.bind(pos=self._redesenhar, size=self._redesenhar)
+
+    def _redesenhar(self, *_):
+        if self._ret is not None:
+            self._ret.pos = self.pos
+            self._ret.size = self.size
+
+
+class Texto(Label):
+    """Label que quebra linha e cresce em altura conforme o conteúdo."""
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault("size_hint_y", None)
+        kwargs.setdefault("halign", "left")
+        kwargs.setdefault("valign", "top")
+        kwargs.setdefault("color", COR["texto"])
+        kwargs.setdefault("font_size", "13sp")
+        super().__init__(**kwargs)
+        self.bind(width=self._ajustar_largura, texture_size=self._ajustar_altura)
+
+    def _ajustar_largura(self, *_):
+        self.text_size = (self.width, None)
+
+    def _ajustar_altura(self, *_):
+        self.height = self.texture_size[1]
+
+
+class Botao(Button):
+    """Botão com cor sólida (sem a textura cinza padrão do Kivy)."""
+
+    def __init__(self, cor=None, **kwargs):
+        kwargs.setdefault("background_normal", "")
+        kwargs.setdefault("background_down", "")
+        kwargs.setdefault("background_color", cor or COR["primaria"])
+        kwargs.setdefault("color", COR["branco"])
+        kwargs.setdefault("font_size", "14sp")
+        super().__init__(**kwargs)
+
+
+class BotaoClaro(Botao):
+    """Botão de listagem: fundo branco, texto escuro, alinhado à esquerda."""
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault("cor", COR["superficie"])
+        kwargs.setdefault("color", COR["texto"])
+        kwargs.setdefault("halign", "left")
+        kwargs.setdefault("valign", "middle")
+        super().__init__(**kwargs)
+        self.bind(size=self._ajustar)
+
+    def _ajustar(self, *_):
+        self.text_size = (self.width - dp(24), None)
+
+
+def cabecalho(app, titulo, cor):
+    """Barra superior com botão voltar."""
+    barra = Painel(cor=cor, size_hint_y=None, height=dp(56),
+                   padding=(dp(8), dp(6)), spacing=dp(4))
+    voltar = Botao(text="<", cor=cor, size_hint_x=None, width=dp(44),
+                   font_size="20sp", bold=True)
+    voltar.bind(on_press=lambda _: app.ir_para("inicio"))
+    barra.add_widget(voltar)
+    barra.add_widget(Label(text=titulo, font_size="17sp",
+                           color=COR["branco"], bold=True))
+    return barra
+
+
+def coluna_rolavel(padding=dp(12), spacing=dp(8), fundo=None):
+    """Retorna (raiz, coluna) já ligados para conteúdo de altura variável.
+
+    Se `fundo` for informado, a área rolável ganha esse fundo — necessário
+    dentro de Popup, cujo fundo padrão é escuro e deixaria o texto ilegível.
+    """
+    scroll = ScrollView()
+    coluna = BoxLayout(orientation="vertical", size_hint_y=None,
+                       padding=padding, spacing=spacing)
+    coluna.bind(minimum_height=coluna.setter("height"))
+    scroll.add_widget(coluna)
+    if fundo is None:
+        return scroll, coluna
+    moldura = Painel(cor=fundo)
+    moldura.add_widget(scroll)
+    return moldura, coluna
+
+
+# ─────────────────────────────────────────────
+# CARREGAMENTO DE DADOS
+# ─────────────────────────────────────────────
+def _ler_json(nome, default):
+    try:
+        with open(DATA_DIR / nome, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, json.JSONDecodeError) as e:
+        print(f"[dados] falha ao ler {nome}: {e}")
+        return default
+
+
 def carregar_marcadores():
     marcadores = []
     try:
         with open(DATA_DIR / "marcadores.csv", encoding="utf-8") as f:
-            for row in csv.DictReader(f):
-                row["valor_ref_min"] = float(row["valor_ref_min"])
-                row["valor_ref_max"] = float(row["valor_ref_max"])
-                marcadores.append(row)
-    except: pass
+            for linha in csv.DictReader(f):
+                try:
+                    linha["valor_ref_min"] = float(linha["valor_ref_min"])
+                    linha["valor_ref_max"] = float(linha["valor_ref_max"])
+                except (TypeError, ValueError):
+                    continue
+                marcadores.append(linha)
+    except OSError as e:
+        print(f"[dados] falha ao ler marcadores.csv: {e}")
     return marcadores
 
+
 def carregar_flashcards():
-    try:
-        with open(DATA_DIR / "flashcards.json", encoding="utf-8") as f:
-            return json.load(f).get("flashcards", [])
-    except: return []
+    return _ler_json("flashcards.json", {}).get("flashcards", [])
+
 
 def carregar_extras():
-    try:
-        with open(DATA_DIR / "marcadores_extras.json", encoding="utf-8") as f:
-            dados = json.load(f)
-            return {m["sigla"]: m for m in dados.get("marcadores_extras", [])}
-    except: return {}
+    dados = _ler_json("marcadores_extras.json", {})
+    return {m["sigla"]: m for m in dados.get("marcadores_extras", [])}
 
-def carregar_quiz():
-    try:
-        with open(DATA_DIR / "quiz_perguntas.json", encoding="utf-8") as f:
-            return json.load(f)
-    except: return []
-
-def carregar_casos():
-    try:
-        with open(DATA_DIR / "casos_clinicos.json", encoding="utf-8") as f:
-            return json.load(f)
-    except: return []
 
 def carregar_imagens():
-    try:
-        with open(DATA_DIR / "marcadores_imagens.json", encoding="utf-8") as f:
-            dados = json.load(f)
-            return {m["sigla"]: m for m in dados.get("marcadores_imagens", [])}
-    except: return {}
+    dados = _ler_json("marcadores_imagens.json", {})
+    return {m["sigla"]: m for m in dados.get("marcadores_imagens", [])}
+
+
+def carregar_quiz():
+    return _ler_json("quiz_perguntas.json", [])
+
+
+def carregar_casos():
+    return _ler_json("casos_clinicos.json", [])
+
 
 # ─────────────────────────────────────────────
 # TELA INICIAL
 # ─────────────────────────────────────────────
-class TelaInicial(BoxLayout):
+class TelaInicial(Painel):
     def __init__(self, app, **kwargs):
-        super().__init__(orientation='vertical', **kwargs)
+        super().__init__(cor=COR["fundo"], orientation="vertical", **kwargs)
         self.app = app
-        self.bg_color = COR["fundo"]
 
-        header = BoxLayout(orientation='vertical', size_hint_y=None, height=140,
-                          bg_color=COR["primaria"], padding=20, spacing=8)
-        header.add_widget(Label(text="⚗  BioquímicaEDU", size_hint_y=None,
-                               height=40, color=COR["branco"], bold=True, font_size="24sp"))
-        header.add_widget(Label(text=f"⚡ XP: {app.xp}  🔥 Streak: {app.streak}",
-                               size_hint_y=None, height=30, color=(1, 1, 1, 0.8),
-                               font_size="13sp"))
-        header.add_widget(Label(text="5 modos interativos", size_hint_y=None,
-                               height=25, color=(1, 1, 1, 0.6), font_size="12sp"))
-        self.add_widget(header)
+        topo = Painel(cor=COR["primaria"], orientation="vertical",
+                      size_hint_y=None, height=dp(130),
+                      padding=dp(16), spacing=dp(4))
+        topo.add_widget(Label(text="BioquimicaEDU", size_hint_y=None, height=dp(42),
+                              color=COR["branco"], bold=True, font_size="26sp"))
+        topo.add_widget(Label(text=f"XP {app.xp}    Sequencia {app.streak}",
+                              size_hint_y=None, height=dp(26),
+                              color=(1, 1, 1, 0.85), font_size="14sp"))
+        topo.add_widget(Label(text="Marcadores bioquimicos no diagnostico clinico",
+                              size_hint_y=None, height=dp(24),
+                              color=(1, 1, 1, 0.7), font_size="12sp"))
+        self.add_widget(topo)
 
-        scroll = ScrollView()
-        container = BoxLayout(orientation='vertical', size_hint_y=None, spacing=12, padding=16)
-        container.bind(minimum_height=container.setter('height'))
+        scroll, coluna = coluna_rolavel(padding=dp(14), spacing=dp(10))
 
         modos = [
-            ("📚 Estudo", "20 marcadores\ncom vídeos", COR["primaria"], "estudo"),
-            ("🎴 Flashcards", "50 cards flip", COR["bile"], "flashcards"),
-            ("🧠 Quiz", "Teste dinâmico\ncom IA", COR["cobalto"], "quiz"),
-            ("🩺 Diagnóstico", "5 casos\nclínicos", COR["indicador"], "diagnostico"),
-            ("💬 Tutor IA", "Chat com\ntutor offline", COR["sangue"], "tutor"),
+            ("Estudo",      f"{len(app.marcadores)} marcadores: valores, videos,\nexemplos e imagens", COR["primaria"],  "estudo"),
+            ("Flashcards",  f"{len(app.flashcards)} cards que viram ao toque",                          COR["bile"],      "flashcards"),
+            ("Quiz",        f"{len(app.quiz)} perguntas com explicacao",                                COR["cobalto"],   "quiz"),
+            ("Diagnostico", f"{len(app.casos)} casos clinicos para interpretar",                        COR["indicador"], "diagnostico"),
+            ("Tutor",       "Tire duvidas sobre qualquer marcador",                                     COR["sangue"],    "tutor"),
         ]
 
-        for titulo, desc, cor, modo in modos:
-            btn = Button(text=f"{titulo}\n{desc}", size_hint_y=None, height=100,
-                        background_color=cor, color=COR["branco"],
-                        bold=True, font_size="13sp")
-            btn.bind(on_press=lambda _, m=modo: self.app.ir_para(m))
-            container.add_widget(btn)
+        for titulo, descricao, cor, destino in modos:
+            botao = Botao(text=f"{titulo}\n{descricao}", cor=cor,
+                          size_hint_y=None, height=dp(92),
+                          halign="center", valign="middle",
+                          bold=True, font_size="15sp")
+            botao.bind(size=lambda b, *_: setattr(b, "text_size", (b.width - dp(20), None)))
+            botao.bind(on_press=lambda _, d=destino: self.app.ir_para(d))
+            coluna.add_widget(botao)
 
-        scroll.add_widget(container)
         self.add_widget(scroll)
 
+
 # ─────────────────────────────────────────────
-# MODO ESTUDO (Integrado com vídeos/exemplos)
+# ESTUDO
 # ─────────────────────────────────────────────
-class TelaEstudo(BoxLayout):
+class TelaEstudo(Painel):
     def __init__(self, app, **kwargs):
-        super().__init__(orientation='vertical', **kwargs)
+        super().__init__(cor=COR["fundo"], orientation="vertical", **kwargs)
         self.app = app
-        self.marcadores = carregar_marcadores()
-        self.extras = carregar_extras()
-        self.imagens = carregar_imagens()
-        self.bg_color = COR["fundo"]
+        self.marcadores = app.marcadores
+        self.extras = app.extras
+        self.imagens = app.imagens
 
-        header = BoxLayout(size_hint_y=None, height=50, bg_color=COR["primaria"],
-                          padding=12, spacing=8)
-        btn_voltar = Button(text="←", size_hint_x=None, width=50,
-                           background_color=COR["primaria"],
-                           on_press=lambda _: self.app.ir_para("inicio"))
-        header.add_widget(btn_voltar)
-        header.add_widget(Label(text="📚 Estudo", font_size="16sp",
-                               color=COR["branco"], bold=True))
-        self.add_widget(header)
+        self.add_widget(cabecalho(app, "Estudo", COR["primaria"]))
 
-        busca = BoxLayout(size_hint_y=None, height=50, padding=8)
-        self.busca_input = TextInput(text="", multiline=False,
-                                      hint_text="🔍 Buscar...",
-                                      background_color=COR["superficie"])
-        self.busca_input.bind(text=lambda *_: self._popular_lista())
-        busca.add_widget(self.busca_input)
-        self.add_widget(busca)
+        faixa = Painel(cor=COR["superficie"], size_hint_y=None, height=dp(52),
+                       padding=dp(8))
+        self.busca = TextInput(hint_text="Buscar marcador...", multiline=False,
+                               font_size="15sp", padding=(dp(10), dp(10)))
+        self.busca.bind(text=lambda *_: self._listar())
+        faixa.add_widget(self.busca)
+        self.add_widget(faixa)
 
-        scroll = ScrollView()
-        self.lista = BoxLayout(orientation='vertical', size_hint_y=None,
-                              spacing=4, padding=8)
-        self.lista.bind(minimum_height=self.lista.setter('height'))
-        scroll.add_widget(self.lista)
+        scroll, self.lista = coluna_rolavel(padding=dp(10), spacing=dp(6))
         self.add_widget(scroll)
-        self._popular_lista()
+        self._listar()
 
-    def _popular_lista(self):
+    def _listar(self):
         self.lista.clear_widgets()
-        busca = self.busca_input.text.lower()
+        termo = self.busca.text.strip().lower()
+        achou = False
         for m in self.marcadores:
-            if busca in m["nome"].lower() or busca in m["sigla"].lower():
-                btn = Button(text=f"{m['sigla']} — {m['nome']}", size_hint_y=None,
-                            height=60, background_color=COR["superficie"],
-                            color=COR["texto"], font_size="12sp")
-                btn.bind(on_press=lambda _, marc=m: self._detalhe(marc))
-                self.lista.add_widget(btn)
+            if termo and termo not in m["nome"].lower() and termo not in m["sigla"].lower():
+                continue
+            achou = True
+            marcas = []
+            if m["sigla"] in self.extras:
+                if self.extras[m["sigla"]].get("videos"):
+                    marcas.append("video")
+                if self.extras[m["sigla"]].get("exemplos"):
+                    marcas.append("casos")
+            if m["sigla"] in self.imagens:
+                marcas.append("imagens")
+            sufixo = f"\n[{'  '.join(marcas)}]" if marcas else ""
 
+            botao = BotaoClaro(text=f"{m['sigla']} - {m['nome']}{sufixo}",
+                               size_hint_y=None, height=dp(64), font_size="13sp")
+            botao.bind(on_press=lambda _, mm=m: self._detalhe(mm))
+            self.lista.add_widget(botao)
+
+        if not achou:
+            self.lista.add_widget(Texto(text="Nenhum marcador encontrado.",
+                                        color=COR["texto2"], halign="center"))
+
+    # ---------- detalhe em abas ----------
     def _detalhe(self, m):
-        content = BoxLayout(orientation='vertical', padding=10, spacing=8)
-        tabs = TabbedPanel(size_hint_y=0.9, default_tab_text='Info')
+        conteudo = BoxLayout(orientation="vertical", padding=dp(6), spacing=dp(6))
+        abas = TabbedPanel(do_default_tab=False, tab_width=dp(96))
 
-        # Aba Info
-        aba_info = TabbedPanelItem(text='Info')
-        scroll_info = ScrollView()
-        info_box = BoxLayout(orientation='vertical', size_hint_y=None, spacing=8, padding=10)
-        info_box.bind(minimum_height=info_box.setter('height'))
-        info_box.add_widget(Label(text=m["nome"], size_hint_y=None, height=30,
-                                  bold=True, font_size="16sp", color=COR["texto"]))
-        info_box.add_widget(Label(text=f"Ref: {m['valor_ref_min']}–{m['valor_ref_max']} {m['unidade']}",
-                                  size_hint_y=None, height=25, font_size="12sp"))
-        info_box.add_widget(Label(text="Elevado:", size_hint_y=None, height=20,
-                                  bold=True, font_size="11sp", color=COR["erro"]))
-        info_box.add_widget(Label(text=m['interpretacao_alta'], size_hint_y=None,
-                                  height=80, font_size="10sp", text_size=(350, None)))
-        info_box.add_widget(Label(text="Baixo:", size_hint_y=None, height=20,
-                                  bold=True, font_size="11sp", color=COR["cobalto"]))
-        info_box.add_widget(Label(text=m['interpretacao_baixa'], size_hint_y=None,
-                                  height=80, font_size="10sp", text_size=(350, None)))
-        scroll_info.add_widget(info_box)
-        aba_info.content = scroll_info
-        tabs.add_widget(aba_info)
+        abas.add_widget(self._aba_info(m))
+        extras = self.extras.get(m["sigla"], {})
+        if extras.get("videos"):
+            abas.add_widget(self._aba_videos(extras["videos"]))
+        if extras.get("exemplos"):
+            abas.add_widget(self._aba_exemplos(extras["exemplos"]))
+        imgs = self.imagens.get(m["sigla"], {}).get("imagens")
+        if imgs:
+            abas.add_widget(self._aba_imagens(imgs))
 
-        # Aba Vídeos
-        if m["sigla"] in self.extras and self.extras[m["sigla"]].get("videos"):
-            aba_videos = TabbedPanelItem(text='Vídeos')
-            scroll_videos = ScrollView()
-            videos_box = BoxLayout(orientation='vertical', size_hint_y=None,
-                                  spacing=8, padding=10)
-            videos_box.bind(minimum_height=videos_box.setter('height'))
-            for vid in self.extras[m["sigla"]]["videos"]:
-                videos_box.add_widget(Label(text=f"🎥 {vid['titulo']}", size_hint_y=None,
-                                           height=25, font_size="11sp", bold=True))
-                btn = Button(text=f"▶ {vid.get('duracao', '?')}", size_hint_y=None,
-                            height=40, background_color=COR["sangue"])
-                btn.bind(on_press=lambda _, u=vid["url"]:
-                        webbrowser.open(u.replace("/embed/", "/watch?v=")))
-                videos_box.add_widget(btn)
-            scroll_videos.add_widget(videos_box)
-            aba_videos.content = scroll_videos
-            tabs.add_widget(aba_videos)
+        conteudo.add_widget(abas)
+        fechar = Botao(text="Fechar", cor=COR["texto2"],
+                       size_hint_y=None, height=dp(46))
+        conteudo.add_widget(fechar)
 
-        # Aba Exemplos
-        if m["sigla"] in self.extras and self.extras[m["sigla"]].get("exemplos"):
-            aba_exemplos = TabbedPanelItem(text='Exemplos')
-            scroll_exemplos = ScrollView()
-            ex_box = BoxLayout(orientation='vertical', size_hint_y=None,
-                              spacing=8, padding=10)
-            ex_box.bind(minimum_height=ex_box.setter('height'))
-            for i, ex in enumerate(self.extras[m["sigla"]]["exemplos"], 1):
-                ex_box.add_widget(Label(text=f"Caso {i}: {ex['titulo']}", size_hint_y=None,
-                                       height=20, font_size="11sp", bold=True))
-                ex_box.add_widget(Label(text=ex['descricao'], size_hint_y=None,
-                                       height=50, font_size="10sp", text_size=(350, None)))
-                ex_box.add_widget(Label(text=f"Valores: {ex['valores']}", size_hint_y=None,
-                                       height=40, font_size="9sp", text_size=(350, None)))
-                ex_box.add_widget(Label(text=f"💊 {ex['conducao']}", size_hint_y=None,
-                                       height=50, font_size="9sp", text_size=(350, None)))
-            scroll_exemplos.add_widget(ex_box)
-            aba_exemplos.content = scroll_exemplos
-            tabs.add_widget(aba_exemplos)
-
-        # Aba Imagens
-        if m["sigla"] in self.imagens and self.imagens[m["sigla"]].get("imagens"):
-            aba_imagens = TabbedPanelItem(text='Imagens')
-            scroll_imagens = ScrollView()
-            img_box = BoxLayout(orientation='vertical', size_hint_y=None,
-                               spacing=10, padding=10)
-            img_box.bind(minimum_height=img_box.setter('height'))
-            for i, img in enumerate(self.imagens[m["sigla"]]["imagens"], 1):
-                img_box.add_widget(Label(text=f"📊 {img['titulo']}", size_hint_y=None,
-                                        height=20, font_size="11sp", bold=True))
-                img_box.add_widget(Label(text=img['descricao'], size_hint_y=None,
-                                        height=50, font_size="10sp", text_size=(350, None)))
-                img_path = DATA_DIR / "images" / img['arquivo']
-                if img_path.exists():
-                    try:
-                        img_widget = Image(source=str(img_path), size_hint_y=None, height=180)
-                        img_box.add_widget(img_widget)
-                    except:
-                        img_box.add_widget(Label(text="[Imagem não carregada]", size_hint_y=None,
-                                                height=40, font_size="9sp", color=COR["texto2"]))
-                else:
-                    img_box.add_widget(Label(text=f"🖼 [Arquivo: {img['arquivo']}]\n(Adicione a imagem em data/images/)",
-                                            size_hint_y=None, height=60, font_size="9sp",
-                                            text_size=(350, None), color=COR["bile"]))
-            scroll_imagens.add_widget(img_box)
-            aba_imagens.content = scroll_imagens
-            tabs.add_widget(aba_imagens)
-
-        content.add_widget(tabs)
-        footer = BoxLayout(size_hint_y=0.1, padding=10)
-        btn_fechar = Button(text="Fechar", background_color=COR["texto2"])
-        footer.add_widget(btn_fechar)
-        content.add_widget(footer)
-
-        popup = Popup(title=m["nome"], content=content, size_hint=(0.95, 0.9))
-        btn_fechar.bind(on_press=popup.dismiss)
+        popup = Popup(title=f"{m['sigla']} - {m['nome']}", content=conteudo,
+                      size_hint=(0.96, 0.9), title_size="15sp")
+        fechar.bind(on_press=popup.dismiss)
         popup.open()
+
+    def _aba_info(self, m):
+        aba = TabbedPanelItem(text="Info")
+        scroll, col = coluna_rolavel(fundo=COR["superficie"])
+
+        col.add_widget(Texto(text=f"[b]{m['nome']}[/b]", markup=True, font_size="17sp"))
+        col.add_widget(Texto(text=f"Categoria: {m.get('categoria', '-')}",
+                             color=COR["texto2"], font_size="12sp"))
+        col.add_widget(Texto(
+            text=f"[b]Referencia:[/b] {m['valor_ref_min']} - {m['valor_ref_max']} {m['unidade']}",
+            markup=True, font_size="14sp"))
+
+        col.add_widget(Texto(text="[b]Quando esta ELEVADO[/b]", markup=True,
+                             color=COR["erro"], font_size="14sp"))
+        col.add_widget(Texto(text=m.get("interpretacao_alta", "-"), font_size="12sp"))
+        if m.get("doencas_associadas_alta"):
+            col.add_widget(Texto(text=f"Associado a: {m['doencas_associadas_alta']}",
+                                 color=COR["texto2"], font_size="12sp"))
+
+        col.add_widget(Texto(text="[b]Quando esta BAIXO[/b]", markup=True,
+                             color=COR["cobalto"], font_size="14sp"))
+        col.add_widget(Texto(text=m.get("interpretacao_baixa", "-"), font_size="12sp"))
+        if m.get("doencas_associadas_baixa"):
+            col.add_widget(Texto(text=f"Associado a: {m['doencas_associadas_baixa']}",
+                                 color=COR["texto2"], font_size="12sp"))
+
+        aba.add_widget(scroll)
+        return aba
+
+    def _aba_videos(self, videos):
+        aba = TabbedPanelItem(text="Videos")
+        scroll, col = coluna_rolavel(fundo=COR["superficie"])
+        for v in videos:
+            col.add_widget(Texto(text=f"[b]{v['titulo']}[/b]", markup=True, font_size="14sp"))
+            col.add_widget(Texto(text=f"Duracao: {v.get('duracao', '-')}",
+                                 color=COR["texto2"], font_size="12sp"))
+            botao = Botao(text="Assistir no YouTube", cor=COR["sangue"],
+                          size_hint_y=None, height=dp(44))
+            botao.bind(on_press=lambda _, u=v["url"]: self._abrir_video(u))
+            col.add_widget(botao)
+        aba.add_widget(scroll)
+        return aba
+
+    @staticmethod
+    def _abrir_video(url):
+        try:
+            webbrowser.open(url.replace("/embed/", "/watch?v="))
+        except Exception as e:
+            print(f"[video] nao foi possivel abrir: {e}")
+
+    def _aba_exemplos(self, exemplos):
+        aba = TabbedPanelItem(text="Exemplos")
+        scroll, col = coluna_rolavel(fundo=COR["superficie"])
+        for i, ex in enumerate(exemplos, 1):
+            col.add_widget(Texto(text=f"[b]{i}. {ex['titulo']}[/b]", markup=True,
+                                 font_size="14sp"))
+            col.add_widget(Texto(text=ex["descricao"], font_size="12sp"))
+            col.add_widget(Texto(text=f"[b]Valores:[/b] {ex['valores']}", markup=True,
+                                 color=COR["cobalto"], font_size="12sp"))
+            col.add_widget(Texto(text=f"[b]Conduta:[/b] {ex['conducao']}", markup=True,
+                                 color=COR["primaria"], font_size="12sp"))
+            col.add_widget(Texto(text="", size_hint_y=None, height=dp(6)))
+        aba.add_widget(scroll)
+        return aba
+
+    def _aba_imagens(self, imagens):
+        aba = TabbedPanelItem(text="Imagens")
+        scroll, col = coluna_rolavel(fundo=COR["superficie"])
+        for img in imagens:
+            col.add_widget(Texto(text=f"[b]{img['titulo']}[/b]", markup=True,
+                                 font_size="14sp"))
+            col.add_widget(Texto(text=img["descricao"], font_size="12sp"))
+            caminho = IMG_DIR / img["arquivo"]
+            if caminho.exists():
+                col.add_widget(Image(source=str(caminho), size_hint_y=None,
+                                     height=dp(190), allow_stretch=True,
+                                     keep_ratio=True))
+            else:
+                col.add_widget(Texto(
+                    text=f"Imagem ausente: {img['arquivo']}\n"
+                         f"Gere com: python criar_imagens.py",
+                    color=COR["bile"], font_size="11sp"))
+            col.add_widget(Texto(text="", size_hint_y=None, height=dp(6)))
+        aba.add_widget(scroll)
+        return aba
+
 
 # ─────────────────────────────────────────────
 # FLASHCARDS
 # ─────────────────────────────────────────────
-class TelaFlashcards(BoxLayout):
+class TelaFlashcards(Painel):
     def __init__(self, app, **kwargs):
-        super().__init__(orientation='vertical', **kwargs)
+        super().__init__(cor=COR["fundo"], orientation="vertical", **kwargs)
         self.app = app
-        self.flashcards = carregar_flashcards()
+        self.cards = list(app.flashcards)
         self.indice = 0
         self.virado = False
-        self.bg_color = COR["fundo"]
 
-        header = BoxLayout(size_hint_y=None, height=50, bg_color=COR["bile"],
-                          padding=12, spacing=8)
-        btn_voltar = Button(text="←", size_hint_x=None, width=50,
-                           background_color=COR["bile"],
-                           on_press=lambda _: self.app.ir_para("inicio"))
-        header.add_widget(btn_voltar)
-        header.add_widget(Label(text="🎴 Flashcards", font_size="16sp",
-                               color=COR["branco"], bold=True))
-        self.add_widget(header)
+        self.add_widget(cabecalho(app, "Flashcards", COR["bile"]))
 
-        prog = BoxLayout(size_hint_y=None, height=40, padding=10)
-        prog.add_widget(Label(text=f"{self.indice + 1}/{len(self.flashcards)}",
-                             bold=True, font_size="16sp"))
-        self.add_widget(prog)
+        self.progresso = Label(text="", size_hint_y=None, height=dp(36),
+                               color=COR["texto2"], font_size="14sp", bold=True)
+        self.add_widget(self.progresso)
 
-        self.card = Button(text="❓\n\nClique para virar", size_hint_y=0.6,
-                          background_color=COR["primaria"],
-                          color=COR["branco"], bold=True, font_size="18sp")
+        corpo = BoxLayout(orientation="vertical", padding=dp(14), spacing=dp(10))
+        self.card = Botao(text="", cor=COR["primaria"], halign="center",
+                          valign="middle", font_size="16sp", bold=True)
+        self.card.bind(size=lambda b, *_: setattr(b, "text_size", (b.width - dp(28), None)))
         self.card.bind(on_press=lambda _: self._virar())
-        self.add_widget(self.card)
+        corpo.add_widget(self.card)
 
-        nav = BoxLayout(size_hint_y=None, height=60, spacing=10, padding=10)
-        btn_ant = Button(text="← Anterior", background_color=COR["texto2"])
-        btn_ant.bind(on_press=lambda _: self._anterior())
-        nav.add_widget(btn_ant)
-        btn_prox = Button(text="Próximo →", background_color=COR["primaria"])
-        btn_prox.bind(on_press=lambda _: self._proximo())
-        nav.add_widget(btn_prox)
-        self.add_widget(nav)
+        navegacao = BoxLayout(size_hint_y=None, height=dp(52), spacing=dp(8))
+        anterior = Botao(text="Anterior", cor=COR["texto2"])
+        anterior.bind(on_press=lambda _: self._mover(-1))
+        navegacao.add_widget(anterior)
+        embaralhar = Botao(text="Embaralhar", cor=COR["cobalto"])
+        embaralhar.bind(on_press=lambda _: self._embaralhar())
+        navegacao.add_widget(embaralhar)
+        proximo = Botao(text="Proximo", cor=COR["primaria"])
+        proximo.bind(on_press=lambda _: self._mover(1))
+        navegacao.add_widget(proximo)
+        corpo.add_widget(navegacao)
+
+        self.add_widget(corpo)
         self._atualizar()
 
     def _virar(self):
-        self.virado = not self.virado
+        if self.cards:
+            self.virado = not self.virado
+            self._atualizar()
+
+    def _mover(self, passo):
+        if not self.cards:
+            return
+        self.indice = (self.indice + passo) % len(self.cards)
+        self.virado = False
         self._atualizar()
 
-    def _anterior(self):
-        if self.indice > 0:
-            self.indice -= 1
-            self.virado = False
-            self._atualizar()
-
-    def _proximo(self):
-        if self.indice < len(self.flashcards) - 1:
-            self.indice += 1
-            self.virado = False
-            self._atualizar()
+    def _embaralhar(self):
+        random.shuffle(self.cards)
+        self.indice = 0
+        self.virado = False
+        self._atualizar()
 
     def _atualizar(self):
-        card = self.flashcards[self.indice]
+        if not self.cards:
+            self.progresso.text = "Nenhum flashcard disponivel"
+            self.card.text = "Verifique data/flashcards.json"
+            return
+        card = self.cards[self.indice]
+        self.progresso.text = f"{self.indice + 1} de {len(self.cards)}"
         if self.virado:
-            self.card.text = f"✅\n\n{card['resposta']}"
-            self.card.background_color = (0.083, 0.502, 0.243, 1)
+            self.card.text = f"RESPOSTA\n\n{card['resposta']}"
+            self.card.background_color = COR["cobalto"]
         else:
-            self.card.text = f"❓\n\n{card['pergunta']}"
+            self.card.text = f"PERGUNTA\n\n{card['pergunta']}\n\n(toque para virar)"
             self.card.background_color = COR["primaria"]
+
 
 # ─────────────────────────────────────────────
 # QUIZ
 # ─────────────────────────────────────────────
-class TelaQuiz(BoxLayout):
+class TelaQuiz(Painel):
     def __init__(self, app, **kwargs):
-        super().__init__(orientation='vertical', **kwargs)
+        super().__init__(cor=COR["fundo"], orientation="vertical", **kwargs)
         self.app = app
-        self.quiz = carregar_quiz()
-        self.perguntas = random.sample(self.quiz, min(10, len(self.quiz)))
+        banco = list(app.quiz)
+        random.shuffle(banco)
+        self.perguntas = banco[:10]
         self.indice = 0
         self.acertos = 0
-        self.respondido = False
-        self.bg_color = COR["fundo"]
 
-        header = BoxLayout(size_hint_y=None, height=50, bg_color=COR["cobalto"],
-                          padding=12, spacing=8)
-        btn_voltar = Button(text="←", size_hint_x=None, width=50,
-                           background_color=COR["cobalto"],
-                           on_press=lambda _: self.app.ir_para("inicio"))
-        header.add_widget(btn_voltar)
-        header.add_widget(Label(text="🧠 Quiz", font_size="16sp",
-                               color=COR["branco"], bold=True))
-        self.add_widget(header)
-
-        self.area = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        self.add_widget(cabecalho(app, "Quiz", COR["cobalto"]))
+        self.area = BoxLayout(orientation="vertical")
         self.add_widget(self.area)
-        self._pergunta()
+        self._mostrar_pergunta()
 
-    def _pergunta(self):
+    def _mostrar_pergunta(self):
         self.area.clear_widgets()
+
+        if not self.perguntas:
+            self.area.add_widget(Texto(text="Nenhuma pergunta disponivel.",
+                                       halign="center", color=COR["texto2"]))
+            return
         if self.indice >= len(self.perguntas):
-            self._resultado()
+            self._mostrar_resultado()
             return
 
-        self.respondido = False
         p = self.perguntas[self.indice]
+        scroll, col = coluna_rolavel(padding=dp(14), spacing=dp(10))
 
-        self.area.add_widget(Label(text=f"{self.indice + 1}/{len(self.perguntas)}",
-                                   size_hint_y=None, height=20, font_size="12sp",
-                                   color=COR["texto2"]))
-        self.area.add_widget(Label(text=p["pergunta"], size_hint_y=None, height=80,
-                                   font_size="13sp", bold=True,
-                                   text_size=(400, None), color=COR["texto"]))
+        col.add_widget(Texto(text=f"Pergunta {self.indice + 1} de {len(self.perguntas)}"
+                                  f"    Acertos: {self.acertos}",
+                             color=COR["texto2"], font_size="12sp"))
+        col.add_widget(Texto(text=f"[b]{p['pergunta']}[/b]", markup=True, font_size="15sp"))
 
-        self.escolha = None
-        alts_container = BoxLayout(orientation='vertical', size_hint_y=0.6, spacing=8)
-        for i, alt in enumerate(p["alternativas"]):
-            btn = Button(text=alt, size_hint_y=None, height=60,
-                        background_color=COR["superficie"],
-                        color=COR["texto"], font_size="11sp")
-            def sel(_, i_=i, p_=p):
-                if not self.respondido:
-                    self.escolha = i_
-                    self._responder(i_, p_)
-            btn.bind(on_press=sel)
-            alts_container.add_widget(btn)
+        for i, alternativa in enumerate(p["alternativas"]):
+            botao = BotaoClaro(text=alternativa, size_hint_y=None, height=dp(58),
+                               font_size="13sp")
+            botao.bind(on_press=lambda _, idx=i, perg=p: self._responder(idx, perg))
+            col.add_widget(botao)
 
-        self.area.add_widget(alts_container)
+        self.area.add_widget(scroll)
 
-    def _responder(self, indice, p):
-        self.respondido = True
-        correto = p["resposta_correta"] == indice
+    def _responder(self, escolha, pergunta):
+        correta = pergunta["resposta_correta"]
+        acertou = escolha == correta
 
-        if correto:
+        if acertou:
             self.acertos += 1
-            self.app.xp += 10
-            self.app.streak += 1
+            self.app.registrar_acerto(10)
         else:
-            self.app.streak = 0
+            self.app.registrar_erro()
 
-        fb = BoxLayout(orientation='vertical', size_hint_y=None, height=80, padding=10)
-        titulo = "✅ Correto!" if correto else "❌ Errado"
-        cor = COR["sucesso"] if correto else COR["erro"]
-        fb.add_widget(Label(text=titulo, size_hint_y=None, height=30,
-                           font_size="14sp", bold=True, color=cor))
-        fb.add_widget(Label(text=p["explicacao"], size_hint_y=None, height=50,
-                           font_size="10sp", text_size=(400, None),
-                           color=COR["texto"]))
-
-        btn_prox = Button(text="Próxima →", size_hint_y=None, height=40,
-                         background_color=COR["primaria"])
-        def prox_pergunta(_):
-            self.indice += 1
-            self._pergunta()
-        btn_prox.bind(on_press=prox_pergunta)
-        fb.add_widget(btn_prox)
-        self.area.add_widget(fb)
-
-    def _resultado(self):
         self.area.clear_widgets()
-        pct = (self.acertos / len(self.perguntas) * 100) if self.perguntas else 0
-        self.area.add_widget(Label(text="🏆 Resultado Final", size_hint_y=None,
-                                   height=40, font_size="18sp", bold=True,
-                                   color=COR["texto"]))
-        self.area.add_widget(Label(text=f"{self.acertos}/{len(self.perguntas)} corretas",
-                                   size_hint_y=None, height=30, font_size="14sp",
-                                   color=COR["texto2"]))
-        self.area.add_widget(Label(text=f"{pct:.0f}%", size_hint_y=None, height=50,
-                                   font_size="32sp", bold=True,
-                                   color=COR["primaria"]))
-        btn_novo = Button(text="Novo Quiz", size_hint_y=None, height=50,
-                         background_color=COR["primaria"])
-        btn_novo.bind(on_press=lambda _: self.app.ir_para("quiz"))
-        self.area.add_widget(btn_novo)
+        scroll, col = coluna_rolavel(padding=dp(14), spacing=dp(10))
+
+        col.add_widget(Texto(text="[b]Correto[/b]" if acertou else "[b]Incorreto[/b]",
+                             markup=True, font_size="20sp",
+                             color=COR["sucesso"] if acertou else COR["erro"]))
+        if not acertou:
+            col.add_widget(Texto(
+                text=f"Resposta certa: {pergunta['alternativas'][correta]}",
+                color=COR["sucesso"], font_size="14sp"))
+        col.add_widget(Texto(text=pergunta.get("explicacao", ""), font_size="13sp"))
+
+        avancar = Botao(text="Continuar", cor=COR["cobalto"],
+                        size_hint_y=None, height=dp(50))
+        avancar.bind(on_press=lambda _: self._avancar())
+        col.add_widget(avancar)
+
+        self.area.add_widget(scroll)
+
+    def _avancar(self):
+        self.indice += 1
+        self._mostrar_pergunta()
+
+    def _mostrar_resultado(self):
+        self.area.clear_widgets()
+        total = len(self.perguntas)
+        pct = self.acertos / total * 100 if total else 0
+
+        scroll, col = coluna_rolavel(padding=dp(20), spacing=dp(12))
+        col.add_widget(Texto(text="[b]Resultado[/b]", markup=True,
+                             font_size="24sp", halign="center"))
+        col.add_widget(Texto(text=f"[b]{pct:.0f}%[/b]", markup=True, font_size="46sp",
+                             halign="center",
+                             color=COR["sucesso"] if pct >= 70 else COR["bile"]))
+        col.add_widget(Texto(text=f"{self.acertos} de {total} corretas",
+                             halign="center", color=COR["texto2"], font_size="15sp"))
+
+        if pct >= 70:
+            recado = "Bom dominio do conteudo."
+        elif pct >= 50:
+            recado = "Revise os marcadores que errou no modo Estudo."
+        else:
+            recado = "Vale revisar os flashcards antes de tentar de novo."
+        col.add_widget(Texto(text=recado, halign="center", font_size="13sp"))
+
+        de_novo = Botao(text="Novo quiz", cor=COR["cobalto"],
+                        size_hint_y=None, height=dp(50))
+        de_novo.bind(on_press=lambda _: self.app.ir_para("quiz"))
+        col.add_widget(de_novo)
+
+        voltar = Botao(text="Voltar ao inicio", cor=COR["texto2"],
+                       size_hint_y=None, height=dp(50))
+        voltar.bind(on_press=lambda _: self.app.ir_para("inicio"))
+        col.add_widget(voltar)
+
+        self.area.add_widget(scroll)
+
 
 # ─────────────────────────────────────────────
 # DIAGNÓSTICO
 # ─────────────────────────────────────────────
-class TelaDiagnostico(BoxLayout):
+class TelaDiagnostico(Painel):
     def __init__(self, app, **kwargs):
-        super().__init__(orientation='vertical', **kwargs)
+        super().__init__(cor=COR["fundo"], orientation="vertical", **kwargs)
         self.app = app
-        self.casos = carregar_casos()
-        self.respondido = False
-        self.bg_color = COR["fundo"]
+        self.casos = app.casos
 
-        header = BoxLayout(size_hint_y=None, height=50, bg_color=COR["indicador"],
-                          padding=12, spacing=8)
-        btn_voltar = Button(text="←", size_hint_x=None, width=50,
-                           background_color=COR["indicador"],
-                           on_press=lambda _: self.app.ir_para("inicio"))
-        header.add_widget(btn_voltar)
-        header.add_widget(Label(text="🩺 Diagnóstico", font_size="16sp",
-                               color=COR["branco"], bold=True))
-        self.add_widget(header)
+        self.add_widget(cabecalho(app, "Diagnostico", COR["indicador"]))
+        self.area = BoxLayout(orientation="vertical")
+        self.add_widget(self.area)
+        self._listar()
 
-        scroll = ScrollView()
-        container = BoxLayout(orientation='vertical', size_hint_y=None, spacing=10, padding=12)
-        container.bind(minimum_height=container.setter('height'))
+    def _listar(self):
+        self.area.clear_widgets()
+        scroll, col = coluna_rolavel(padding=dp(10), spacing=dp(8))
 
-        for i, caso in enumerate(self.casos, 1):
-            btn = Button(text=f"Caso {i}: {caso['titulo']}\n{caso['historia'][:60]}...",
-                        size_hint_y=None, height=90, background_color=COR["superficie"],
-                        color=COR["texto"], font_size="11sp")
-            btn.bind(on_press=lambda _, c=caso: self._abrir(c))
-            container.add_widget(btn)
+        if not self.casos:
+            col.add_widget(Texto(text="Nenhum caso disponivel.", color=COR["texto2"]))
 
-        scroll.add_widget(container)
-        self.add_widget(scroll)
+        for caso in self.casos:
+            resumo = caso["historia"]
+            if len(resumo) > 90:
+                resumo = resumo[:90].rstrip() + "..."
+            marca = "  [resolvido]" if caso["id"] in self.app.casos_resolvidos else ""
+            botao = BotaoClaro(text=f"{caso['titulo']}{marca}\n{resumo}",
+                               size_hint_y=None, height=dp(96), font_size="12sp")
+            botao.bind(on_press=lambda _, c=caso: self._abrir(c))
+            col.add_widget(botao)
+
+        self.area.add_widget(scroll)
 
     def _abrir(self, caso):
-        content = BoxLayout(orientation='vertical', padding=10, spacing=8)
+        self.area.clear_widgets()
+        scroll, col = coluna_rolavel(padding=dp(12), spacing=dp(8))
 
-        scroll = ScrollView()
-        inner = BoxLayout(orientation='vertical', size_hint_y=None, spacing=8, padding=10)
-        inner.bind(minimum_height=inner.setter('height'))
+        col.add_widget(Texto(text=f"[b]{caso['titulo']}[/b]", markup=True, font_size="16sp"))
+        col.add_widget(Texto(text=caso["historia"], font_size="13sp"))
 
-        inner.add_widget(Label(text=caso["titulo"], size_hint_y=None, height=25,
-                              bold=True, font_size="14sp", color=COR["texto"]))
-        inner.add_widget(Label(text=caso["historia"], size_hint_y=None, height=80,
-                              font_size="11sp", text_size=(350, None),
-                              color=COR["texto"]))
-
-        inner.add_widget(Label(text="Exames:", size_hint_y=None, height=15,
-                              bold=True, font_size="10sp", color=COR["texto2"]))
+        col.add_widget(Texto(text="[b]Exames[/b]", markup=True, font_size="15sp"))
         for nome, dados in caso["exames"].items():
-            val = dados["valor"]
-            if val > dados["ref_max"]:
-                status, cor = "⬆ ALTO", COR["erro"]
-            elif val < dados["ref_min"]:
-                status, cor = "⬇ BAIXO", COR["cobalto"]
-            else:
-                status, cor = "✓ NORMAL", COR["sucesso"]
-            inner.add_widget(Label(text=f"{nome}: {val} {status}",
-                                  size_hint_y=None, height=20, font_size="10sp",
-                                  color=cor))
+            col.add_widget(self._linha_exame(nome, dados))
 
-        inner.add_widget(Label(text="Diagnóstico?", size_hint_y=None, height=20,
-                              bold=True, font_size="11sp", color=COR["texto"]))
+        col.add_widget(Texto(text="[b]Qual o diagnostico?[/b]", markup=True,
+                             font_size="15sp"))
 
-        self.diag_buttons = []
-        alts = caso["alternativas"][:]
-        random.shuffle(alts)
-        for alt in alts:
-            btn = Button(text=alt, size_hint_y=None, height=50,
-                        background_color=COR["superficie"],
-                        color=COR["texto"], font_size="10sp")
-            def verif(_, a=alt, c=caso):
-                self._verificar(a, c)
-            btn.bind(on_press=verif)
-            inner.add_widget(btn)
-            self.diag_buttons.append(btn)
+        alternativas = list(caso["alternativas"])
+        random.shuffle(alternativas)
+        for alternativa in alternativas:
+            botao = BotaoClaro(text=alternativa, size_hint_y=None, height=dp(56),
+                               font_size="13sp")
+            botao.bind(on_press=lambda _, a=alternativa, c=caso: self._responder(a, c))
+            col.add_widget(botao)
 
-        scroll.add_widget(inner)
-        content.add_widget(scroll)
+        voltar = Botao(text="Escolher outro caso", cor=COR["texto2"],
+                       size_hint_y=None, height=dp(46))
+        voltar.bind(on_press=lambda _: self._listar())
+        col.add_widget(voltar)
 
-        footer = BoxLayout(size_hint_y=0.1, padding=10)
-        btn_fechar = Button(text="Fechar", background_color=COR["texto2"])
-        footer.add_widget(btn_fechar)
-        content.add_widget(footer)
+        self.area.add_widget(scroll)
 
-        self.popup = Popup(title="Caso Clínico", content=content, size_hint=(0.95, 0.9))
-        btn_fechar.bind(on_press=self.popup.dismiss)
-        self.popup.open()
+    @staticmethod
+    def _linha_exame(nome, dados):
+        valor = dados["valor"]
+        unidade = dados.get("unidade", "")
+        minimo, maximo = dados.get("ref_min"), dados.get("ref_max")
 
-    def _verificar(self, escolha, caso):
-        correto = escolha == caso["resposta_correta"]
-
-        if correto:
-            self.app.xp += 25
-            self.app.streak += 1
+        situacao, cor = "normal", COR["sucesso"]
+        if isinstance(valor, (int, float)) and isinstance(minimo, (int, float)) \
+                and isinstance(maximo, (int, float)):
+            if valor > maximo:
+                situacao, cor = "ALTO", COR["erro"]
+            elif valor < minimo:
+                situacao, cor = "BAIXO", COR["cobalto"]
+            referencia = f"(ref {minimo} - {maximo})"
         else:
-            self.app.streak = 0
+            # exames qualitativos, ex.: cetonas "MASSIVAS"
+            situacao, cor = "alterado", COR["erro"]
+            referencia = f"(ref {minimo})" if minimo else ""
 
-        for btn in self.diag_buttons:
-            btn.disabled = True
+        return Texto(text=f"{nome}: [b]{valor} {unidade}[/b]  {situacao}  {referencia}",
+                     markup=True, color=cor, font_size="13sp")
 
-        from kivy.uix.boxlayout import BoxLayout as BL
-        from kivy.uix.label import Label as Lbl
-        fb = BL(orientation='vertical', size_hint_y=None, height=120, padding=10, spacing=8)
-        titulo = "✅ Correto!" if correto else "❌ Errado"
-        cor = COR["sucesso"] if correto else COR["erro"]
-        fb.add_widget(Lbl(text=titulo, size_hint_y=None, height=25, font_size="13sp",
-                         bold=True, color=cor))
-        if not correto:
-            fb.add_widget(Lbl(text=f"Resposta: {caso['resposta_correta']}",
-                             size_hint_y=None, height=20, font_size="10sp",
-                             color=COR["sucesso"]))
-        fb.add_widget(Lbl(text=caso["explicacao"][:100], size_hint_y=None, height=75,
-                         font_size="9sp", text_size=(330, None),
-                         color=COR["texto"]))
+    def _responder(self, escolha, caso):
+        acertou = escolha == caso["resposta_correta"]
+        ja_resolvido = caso["id"] in self.app.casos_resolvidos
 
-        from kivy.uix.button import Button as Btn
-        btn_ok = Btn(text="OK", size_hint_y=None, height=40, background_color=COR["primaria"])
-        btn_ok.bind(on_press=self.popup.dismiss)
-        fb.add_widget(btn_ok)
+        if acertou:
+            if not ja_resolvido:
+                self.app.casos_resolvidos.add(caso["id"])
+                self.app.registrar_acerto(25)
+        else:
+            self.app.registrar_erro()
 
-        self.popup.content.add_widget(fb)
+        self.area.clear_widgets()
+        scroll, col = coluna_rolavel(padding=dp(14), spacing=dp(10))
+
+        col.add_widget(Texto(text="[b]Diagnostico correto[/b]" if acertou
+                                  else "[b]Nao e esse[/b]",
+                             markup=True, font_size="20sp",
+                             color=COR["sucesso"] if acertou else COR["erro"]))
+        col.add_widget(Texto(text=f"Sua resposta: {escolha}",
+                             color=COR["texto2"], font_size="13sp"))
+        if not acertou:
+            col.add_widget(Texto(text=f"[b]Correto:[/b] {caso['resposta_correta']}",
+                                 markup=True, color=COR["sucesso"], font_size="14sp"))
+        col.add_widget(Texto(text=caso.get("explicacao", ""), font_size="13sp"))
+
+        se_errou = Botao(text="Tentar este caso de novo", cor=COR["bile"],
+                         size_hint_y=None, height=dp(48))
+        se_errou.bind(on_press=lambda _, c=caso: self._abrir(c))
+        if not acertou:
+            col.add_widget(se_errou)
+
+        lista = Botao(text="Voltar aos casos", cor=COR["indicador"],
+                      size_hint_y=None, height=dp(48))
+        lista.bind(on_press=lambda _: self._listar())
+        col.add_widget(lista)
+
+        self.area.add_widget(scroll)
+
 
 # ─────────────────────────────────────────────
-# TUTOR IA (Chat offline)
+# TUTOR
 # ─────────────────────────────────────────────
-class TelaTutor(BoxLayout):
+class TelaTutor(Painel):
     def __init__(self, app, **kwargs):
-        super().__init__(orientation='vertical', **kwargs)
+        super().__init__(cor=COR["fundo"], orientation="vertical", **kwargs)
         self.app = app
-        self.bg_color = COR["fundo"]
-        self.marcadores = carregar_marcadores()
+        self.marcadores = app.marcadores
 
-        header = BoxLayout(size_hint_y=None, height=50, bg_color=COR["sangue"],
-                          padding=12, spacing=8)
-        btn_voltar = Button(text="←", size_hint_x=None, width=50,
-                           background_color=COR["sangue"],
-                           on_press=lambda _: self.app.ir_para("inicio"))
-        header.add_widget(btn_voltar)
-        header.add_widget(Label(text="💬 Tutor IA", font_size="16sp",
-                               color=COR["branco"], bold=True))
-        self.add_widget(header)
+        self.add_widget(cabecalho(app, "Tutor", COR["sangue"]))
 
-        scroll = ScrollView()
-        self.chat_box = BoxLayout(orientation='vertical', size_hint_y=None, spacing=8, padding=10)
-        self.chat_box.bind(minimum_height=self.chat_box.setter('height'))
-        scroll.add_widget(self.chat_box)
+        scroll, self.conversa = coluna_rolavel(padding=dp(10), spacing=dp(8))
+        self.scroll = scroll
         self.add_widget(scroll)
 
-        input_box = BoxLayout(size_hint_y=None, height=60, spacing=8, padding=10)
-        self.input = TextInput(text="", multiline=False, hint_text="Pergunte ao tutor...",
-                              background_color=COR["superficie"])
-        input_box.add_widget(self.input)
-        btn_enviar = Button(text="→", size_hint_x=None, width=50,
-                           background_color=COR["sangue"])
-        btn_enviar.bind(on_press=lambda _: self._enviar())
-        input_box.add_widget(btn_enviar)
-        self.add_widget(input_box)
+        entrada = Painel(cor=COR["superficie"], size_hint_y=None, height=dp(60),
+                         padding=dp(8), spacing=dp(6))
+        self.campo = TextInput(hint_text="Pergunte sobre um marcador...",
+                               multiline=False, font_size="14sp",
+                               padding=(dp(10), dp(10)))
+        self.campo.bind(on_text_validate=lambda _: self._enviar())
+        entrada.add_widget(self.campo)
+        enviar = Botao(text="Enviar", cor=COR["sangue"],
+                       size_hint_x=None, width=dp(84))
+        enviar.bind(on_press=lambda _: self._enviar())
+        entrada.add_widget(enviar)
+        self.add_widget(entrada)
 
-        self._msg_inicial()
+        siglas = ", ".join(m["sigla"] for m in self.marcadores[:6])
+        self._responder(
+            "Ola. Pergunte sobre qualquer marcador e eu explico os valores de "
+            f"referencia e o significado clinico.\n\nExemplos: {siglas}...")
 
-    def _msg_inicial(self):
-        msg = Label(text="🤖 Olá! Sou seu tutor IA. Pergunta-me sobre marcadores bioquímicos.",
-                   size_hint_y=None, height=60, font_size="11sp",
-                   text_size=(400, None), color=COR["cobalto"])
-        self.chat_box.add_widget(msg)
+    def _mensagem(self, texto, cor, alinhamento):
+        self.conversa.add_widget(Texto(text=texto, color=cor, halign=alinhamento,
+                                       font_size="13sp"))
+        Clock.schedule_once(lambda _: setattr(self.scroll, "scroll_y", 0), 0.05)
+
+    def _responder(self, texto):
+        self._mensagem(texto, COR["cobalto"], "left")
 
     def _enviar(self):
-        pergunta = self.input.text.strip()
+        pergunta = self.campo.text.strip()
         if not pergunta:
             return
+        self.campo.text = ""
+        self._mensagem(f"Voce: {pergunta}", COR["texto"], "right")
 
-        self.input.text = ""
+        marcador = self._identificar_marcador(pergunta)
+        if self.app.ia is not None and marcador is not None:
+            self._responder("Consultando o tutor local...")
+            threading.Thread(target=self._perguntar_ia,
+                             args=(marcador, pergunta), daemon=True).start()
+        else:
+            self._responder(self._resposta_local(pergunta, marcador))
 
-        # Mostra pergunta
-        msg_user = Label(text=f"👤 {pergunta}", size_hint_y=None, height=60,
-                        font_size="11sp", text_size=(400, None),
-                        color=COR["texto"])
-        self.chat_box.add_widget(msg_user)
+    def _perguntar_ia(self, marcador, pergunta):
+        """Consulta o Ollama em segundo plano; cai para a base local se falhar."""
+        try:
+            resposta = self.app.ia.chat_marcador(marcador["nome"], pergunta)
+        except Exception as e:
+            resposta = ""
+            print(f"[tutor] falha na consulta: {type(e).__name__}: {e}")
 
-        # Gera resposta offline (simples pattern matching)
-        resposta = self._gerar_resposta(pergunta)
+        if not self._resposta_util(resposta):
+            # Ollama no ar mas sem modelo instalado, ou resposta vazia.
+            self.app.ia = None  # nao insiste nas proximas perguntas
+            resposta = ("O tutor local nao esta disponivel (verifique se o modelo "
+                        "foi baixado com 'ollama pull mistral'). "
+                        "Respondendo pela base do app:\n\n"
+                        + self._resumo(marcador))
 
-        # Mostra resposta
-        msg_bot = Label(text=f"🤖 {resposta}", size_hint_y=None, height=80,
-                       font_size="11sp", text_size=(400, None),
-                       color=COR["cobalto"])
-        self.chat_box.add_widget(msg_bot)
+        Clock.schedule_once(lambda _: self._responder(resposta), 0)
 
-    def _gerar_resposta(self, pergunta):
-        pergunta_lower = pergunta.lower()
+    @staticmethod
+    def _resposta_util(texto):
+        if not texto or not texto.strip():
+            return False
+        inicio = texto.strip().lower()
+        return not inicio.startswith(("erro", "error", "[erro"))
 
-        # Busca marcador mencionado
+    def _identificar_marcador(self, pergunta):
+        texto = pergunta.lower()
         for m in self.marcadores:
-            if m["sigla"].lower() in pergunta_lower or m["nome"].lower() in pergunta_lower:
-                return f"{m['nome']} ({m['sigla']}):\nReferência: {m['valor_ref_min']}-{m['valor_ref_max']} {m['unidade']}\nElevado indica: {m['interpretacao_alta'][:100]}..."
+            if m["sigla"].lower() in texto or m["nome"].lower() in texto:
+                return m
+        return None
 
-        # Respostas genéricas
-        respostas = {
-            "oi": "Olá! Posso ajudar com informações sobre marcadores bioquímicos.",
-            "ajuda": "Pergunte sobre qualquer marcador (ALT, AST, Glicose, etc) e te darei as informações clínicas.",
-            "obrigado": "De nada! Continue estudando! 📚",
-            "oi": "Olá! Como posso ajudar no seu estudo de bioquímica?",
-        }
+    @staticmethod
+    def _resumo(m):
+        return (f"{m['nome']} ({m['sigla']})\n"
+                f"Referencia: {m['valor_ref_min']} - {m['valor_ref_max']} {m['unidade']}\n\n"
+                f"Elevado: {m.get('interpretacao_alta', '-')}\n"
+                f"Associado a: {m.get('doencas_associadas_alta', '-')}\n\n"
+                f"Baixo: {m.get('interpretacao_baixa', '-')}\n"
+                f"Associado a: {m.get('doencas_associadas_baixa', '-')}")
 
-        for palavra, resp in respostas.items():
-            if palavra in pergunta_lower:
-                return resp
+    def _resposta_local(self, pergunta, marcador):
+        if marcador is not None:
+            return self._resumo(marcador)
 
-        return "Pergunta sobre um marcador específico (ex: ALT, Glicose, Potássio) para receber mais informações!"
+        texto = pergunta.lower()
+        if any(p in texto for p in ("oi", "ola", "bom dia", "boa tarde", "boa noite")):
+            return "Ola. Digite o nome ou a sigla de um marcador para comecar."
+        if "obrigad" in texto:
+            return "De nada. Bons estudos."
+        if any(p in texto for p in ("ajuda", "como", "o que voce faz")):
+            return ("Digite a sigla de um marcador (por exemplo ALT, Glicose, "
+                    "Potassio) e eu mostro a faixa de referencia e o que significa "
+                    "estar alto ou baixo.")
+
+        disponiveis = ", ".join(m["sigla"] for m in self.marcadores)
+        return ("Nao encontrei esse marcador na base.\n\n"
+                f"Marcadores disponiveis: {disponiveis}")
+
 
 # ─────────────────────────────────────────────
-# APP PRINCIPAL
+# APLICATIVO
 # ─────────────────────────────────────────────
 class BioquimicaApp(App):
+    title = "BioquimicaEDU"
+
+    TELAS = {
+        "inicio": TelaInicial,
+        "estudo": TelaEstudo,
+        "flashcards": TelaFlashcards,
+        "quiz": TelaQuiz,
+        "diagnostico": TelaDiagnostico,
+        "tutor": TelaTutor,
+    }
+
     def build(self):
-        Window.size = (480, 960)
         self.xp = 0
         self.streak = 0
-        self.container = BoxLayout()
+        self.casos_resolvidos = set()
+
+        self.marcadores = carregar_marcadores()
+        self.flashcards = carregar_flashcards()
+        self.extras = carregar_extras()
+        self.imagens = carregar_imagens()
+        self.quiz = carregar_quiz()
+        self.casos = carregar_casos()
+        self.ia = self._iniciar_ia()
+
+        self.raiz = BoxLayout()
         self.ir_para("inicio")
-        return self.container
+        return self.raiz
 
-    def ir_para(self, modo):
-        self.container.clear_widgets()
+    @staticmethod
+    def _iniciar_ia():
+        """Usa Ollama local se estiver rodando; caso contrario segue offline."""
+        try:
+            from ollama_ia import OllamaIA
+        except ImportError:
+            return None
+        try:
+            ia = OllamaIA()
+            if getattr(ia, "disponivel", False) or getattr(ia, "conectado", False):
+                print("[tutor] Ollama local disponivel")
+                return ia
+        except Exception as e:
+            print(f"[tutor] Ollama indisponivel ({type(e).__name__}), usando modo offline")
+        return None
 
-        telas = {
-            "inicio": TelaInicial(self),
-            "estudo": TelaEstudo(self),
-            "flashcards": TelaFlashcards(self),
-            "quiz": TelaQuiz(self),
-            "diagnostico": TelaDiagnostico(self),
-            "tutor": TelaTutor(self),
-        }
+    def registrar_acerto(self, pontos):
+        self.xp += pontos
+        self.streak += 1
 
-        self.container.add_widget(telas.get(modo, TelaInicial(self)))
+    def registrar_erro(self):
+        self.streak = 0
+
+    def ir_para(self, destino):
+        self.raiz.clear_widgets()
+        tela = self.TELAS.get(destino, TelaInicial)
+        self.raiz.add_widget(tela(self))
+
 
 if __name__ == "__main__":
     BioquimicaApp().run()

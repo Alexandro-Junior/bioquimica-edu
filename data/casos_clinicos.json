@@ -55,7 +55,7 @@
       "pH Sanguíneo": {"valor": 7.28, "unidade": "unidades", "ref_min": 7.35, "ref_max": 7.45}
     },
     "diagnostico": "Doença Renal Crônica Avançada",
-    "explicacao": "Creatinina e ureia muito elevadas indicam falência renal grave. A hipercalemia (K⁺ alto) ocorre porque os rins não conseguem excretar potássio — risco de arritmias cardíacas fatais. A acidose metabólica (pH baixo) resulta do acúmulo de ácidos que os rins doentes não conseguem eliminar.",
+    "explicacao": "Creatinina e ureia muito elevadas indicam falência renal grave. A hipercalemia (K+ alto) ocorre porque os rins não conseguem excretar potássio — risco de arritmias cardíacas fatais. A acidose metabólica (pH baixo) resulta do acúmulo de ácidos que os rins doentes não conseguem eliminar.",
     "alternativas": ["Síndrome Nefrótica", "Doença Renal Crônica Avançada", "Insuficiência Cardíaca", "Cirrose Hepática"],
     "resposta_correta": "Doença Renal Crônica Avançada"
   },
@@ -145,7 +145,7 @@
       "Lactato": {"valor": 2.8, "unidade": "mmol/L", "ref_min": 0.5, "ref_max": 2.2}
     },
     "diagnostico": "Tromboembolismo Pulmonar",
-    "explicacao": "D-Dímero elevado sugere trombose. Troponina elevada indica lesão miocárdica por sobrecarga do ventrículo direito. pO2 baixa com hipoxemia. Repouso prolongado é fator de risco clássico para TVP → TEP. Apresentação: dor torácica + dispneia + taquicardia.",
+    "explicacao": "D-Dímero elevado sugere trombose. Troponina elevada indica lesão miocárdica por sobrecarga do ventrículo direito. pO2 baixa com hipoxemia. Repouso prolongado é fator de risco clássico para TVP -> TEP. Apresentação: dor torácica + dispneia + taquicardia.",
     "alternativas": ["Embolia Gordurosa", "Tromboembolismo Pulmonar", "Pneumotórax", "Edema Pulmonar Cardiogênico"],
     "resposta_correta": "Tromboembolismo Pulmonar"
   },
@@ -190,7 +190,7 @@
       "Tempo de Protrombina": {"valor": 18, "unidade": "segundos", "ref_min": 11, "ref_max": 13.5}
     },
     "diagnostico": "Pancitopenia Secundária (Mielossupressão por Quimioterapia)",
-    "explicacao": "Redução em todas as séries sanguíneas: hemácias (anemia), plaquetas (trombocitopenia → sangramento), leucócitos (leucopenia → imunossupressão). Complicação comum e grave da quimioterapia. Risco de infecção oportunista e sangramento exsanguinante. Necessita transfusão e fatores de crescimento.",
+    "explicacao": "Redução em todas as séries sanguíneas: hemácias (anemia), plaquetas (trombocitopenia -> sangramento), leucócitos (leucopenia -> imunossupressão). Complicação comum e grave da quimioterapia. Risco de infecção oportunista e sangramento exsanguinante. Necessita transfusão e fatores de crescimento.",
     "alternativas": ["Leucemia Aguda", "Pancitopenia Secundária", "Púrpura Trombocitopênica Imunológica", "Coagulopatia"],
     "resposta_correta": "Pancitopenia Secundária (Mielossupressão por Quimioterapia)"
   },
@@ -220,7 +220,7 @@
       "Cetonas": {"valor": "MASSIVAS", "unidade": "mOsm/kg", "ref_min": "Negativas", "ref_max": "Negativas"}
     },
     "diagnostico": "Cetoacidose Diabética",
-    "explicacao": "Tríade: hiperglicemia extrema + acidose metabólica severa + cetonemia massiva. Ausência de insulina causa lipólise acelerada → cetonas → acidose. Respiração de Kussmaul é mecanismo compensatório (aumenta ventilação para eliminar CO2). Odor de acetona patognomônico. EMERGÊNCIA — taxa mortalidade 1-5%.",
+    "explicacao": "Tríade: hiperglicemia extrema + acidose metabólica severa + cetonemia massiva. Ausência de insulina causa lipólise acelerada -> cetonas -> acidose. Respiração de Kussmaul é mecanismo compensatório (aumenta ventilação para eliminar CO2). Odor de acetona patognomônico. EMERGÊNCIA — taxa mortalidade 1-5%.",
     "alternativas": ["Hiperglicemia Hiperosmolar", "Cetoacidose Diabética", "Coma Hipoglicêmico", "Acidose Lática"],
     "resposta_correta": "Cetoacidose Diabética"
   }
