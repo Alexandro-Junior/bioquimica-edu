@@ -2,7 +2,7 @@
 BioquímicaEDU — Versão Mobile (Kivy)
 Android / iOS — 5 modos de estudo
 
-- Estudo: 20 marcadores, com abas Info / Vídeos / Exemplos / Imagens
+- Estudo: 20 marcadores, com abas Info / Fontes / Vídeos / Exemplos / Imagens
 - Flashcards: cards que viram ao toque
 - Quiz: perguntas de múltipla escolha com explicação
 - Diagnóstico: casos clínicos com interpretação de exames
@@ -284,6 +284,8 @@ class TelaEstudo(Painel):
             achou = True
             marcas = []
             if m["sigla"] in self.extras:
+                if self.extras[m["sigla"]].get("referencias"):
+                    marcas.append("fontes")
                 if self.extras[m["sigla"]].get("videos"):
                     marcas.append("video")
                 if self.extras[m["sigla"]].get("exemplos"):
@@ -308,6 +310,8 @@ class TelaEstudo(Painel):
 
         abas.add_widget(self._aba_info(m))
         extras = self.extras.get(m["sigla"], {})
+        if extras.get("referencias"):
+            abas.add_widget(self._aba_referencias(extras["referencias"]))
         if extras.get("videos"):
             abas.add_widget(self._aba_videos(extras["videos"]))
         if extras.get("exemplos"):
@@ -353,6 +357,32 @@ class TelaEstudo(Painel):
 
         aba.add_widget(scroll)
         return aba
+
+    def _aba_referencias(self, referencias):
+        """Bibliografia academica verificada (StatPearls / NCBI Bookshelf)."""
+        aba = TabbedPanelItem(text="Fontes")
+        scroll, col = coluna_rolavel(fundo=COR["superficie"])
+        for ref in referencias:
+            col.add_widget(Texto(text=f"[b]{ref['titulo']}[/b]", markup=True,
+                                 font_size="14sp"))
+            col.add_widget(Texto(text=ref["fonte"], color=COR["texto2"],
+                                 font_size="11sp"))
+            if ref.get("nota"):
+                col.add_widget(Texto(text=ref["nota"], font_size="12sp"))
+            botao = Botao(text="Abrir referencia", cor=COR["cobalto"],
+                          size_hint_y=None, height=dp(42), font_size="13sp")
+            botao.bind(on_press=lambda _, u=ref["url"]: self._abrir_link(u))
+            col.add_widget(botao)
+            col.add_widget(Texto(text="", size_hint_y=None, height=dp(6)))
+        aba.add_widget(scroll)
+        return aba
+
+    @staticmethod
+    def _abrir_link(url):
+        try:
+            webbrowser.open(url)
+        except Exception as e:
+            print(f"[link] nao foi possivel abrir: {e}")
 
     def _aba_videos(self, videos):
         aba = TabbedPanelItem(text="Videos")
