@@ -21,9 +21,12 @@ from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.popup import Popup
 from kivy.uix.image import Image
 from kivy.core.window import Window
-from kivy.graphics import Color, Rectangle
+from kivy.graphics import Color, Rectangle, Ellipse
 from kivy.metrics import dp
 from kivy.clock import Clock
+from kivy.uix.widget import Widget
+from kivy.animation import Animation
+from kivy.properties import NumericProperty
 
 import json
 import csv
@@ -55,6 +58,21 @@ COR = {
     "erro":       (0.863, 0.149, 0.149, 1),
     "branco":     (1.00, 1.00, 1.00, 1),
     "borda":      (0.88, 0.86, 0.83, 1),
+}
+
+# Estágios de memória: progressão fria para quente conforme o item fixa
+COR_ESTAGIO = {
+    "novo":        (0.78, 0.81, 0.79, 1),
+    "aprendendo":  (0.88, 0.64, 0.35, 1),
+    "firmando":    (0.36, 0.61, 0.84, 1),
+    "consolidado": (0.055, 0.486, 0.353, 1),
+}
+
+ROTULO_ESTAGIO = {
+    "novo": "Nao estudados",
+    "aprendendo": "Aprendendo",
+    "firmando": "Firmando",
+    "consolidado": "Consolidados",
 }
 
 
@@ -123,6 +141,131 @@ class BotaoClaro(Botao):
 
     def _ajustar(self, *_):
         self.text_size = (self.width - dp(24), None)
+
+
+class AnelDia(Widget):
+    """Anel de progresso do dia: fração da fila já revisada.
+
+    O número no centro é o que falta, não o total — é isso que o
+    estudante precisa para decidir se começa agora.
+    """
+
+    fracao = NumericProperty(0.0)
+
+    def __init__(self, restante=0, cor=None, **kwargs):
+        super().__init__(**kwargs)
+        self.restante = restante
+        self.cor = cor or COR["primaria"]
+        self.bind(pos=self._redesenhar, size=self._redesenhar, fracao=self._redesenhar)
+
+    def animar(self, fracao, restante, cor=None):
+        self.restante = restante
+        self.cor = cor or COR["primaria"]
+        self.fracao = 0.0
+        Animation(fracao=max(0.0, min(1.0, fracao)),
+                  duration=0.8, t="out_cubic").start(self)
+
+    def _redesenhar(self, *_):
+        self.canvas.clear()
+        lado = min(self.width, self.height)
+        if lado <= 1:
+            return
+        cx = self.center_x
+        cy = self.center_y
+        raio = lado / 2
+        espessura = dp(9)
+
+        with self.canvas:
+            Color(*COR["borda"])
+            Ellipse(pos=(cx - raio, cy - raio), size=(raio * 2, raio * 2))
+            # angle_end=0 faria o Kivy desenhar a elipse inteira, então o
+            # arco só entra quando há progresso de fato.
+            if self.fracao > 0.002:
+                Color(*self.cor)
+                Ellipse(pos=(cx - raio, cy - raio), size=(raio * 2, raio * 2),
+                        angle_start=0, angle_end=360 * self.fracao)
+            Color(*COR["superficie"])
+            r2 = raio - espessura
+            Ellipse(pos=(cx - r2, cy - r2), size=(r2 * 2, r2 * 2))
+
+
+class BarraEstagios(Widget):
+    """Barra única dividida pelos quatro estágios de memória.
+
+    Empilhada, e não quatro barras separadas: o que importa é a proporção
+    entre estágios, e proporção se lê melhor num todo dividido.
+    """
+
+    avanco = NumericProperty(0.0)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.contagem = {}
+        self.bind(pos=self._redesenhar, size=self._redesenhar,
+                  avanco=self._redesenhar)
+
+    def animar(self, contagem):
+        self.contagem = contagem
+        self.avanco = 0.0
+        Animation(avanco=1.0, duration=0.75, t="out_cubic").start(self)
+
+    def _redesenhar(self, *_):
+        self.canvas.clear()
+        if not self.contagem or self.width <= 1:
+            return
+        total = sum(self.contagem.values()) or 1
+        x = self.x
+        with self.canvas:
+            Color(*COR["borda"])
+            Rectangle(pos=self.pos, size=self.size)
+            for chave in ("consolidado", "firmando", "aprendendo", "novo"):
+                n = self.contagem.get(chave, 0)
+                if not n:
+                    continue
+                w = (n / total) * self.width * self.avanco
+                if w < 1:
+                    continue
+                Color(*COR_ESTAGIO[chave])
+                Rectangle(pos=(x, self.y), size=(w, self.height))
+                x += w
+
+
+class BarraDominio(Widget):
+    """Barra fina de domínio, usada por categoria."""
+
+    avanco = NumericProperty(0.0)
+
+    def __init__(self, valor=0.0, cor=None, **kwargs):
+        super().__init__(**kwargs)
+        self.valor = valor
+        self.cor = cor or COR["primaria"]
+        self.bind(pos=self._redesenhar, size=self._redesenhar,
+                  avanco=self._redesenhar)
+
+    def animar(self, valor, atraso=0.0):
+        self.valor = max(0.0, min(1.0, valor))
+        self.avanco = 0.0
+        Animation(avanco=1.0, duration=0.7, t="out_cubic").start(self)
+
+    def _redesenhar(self, *_):
+        self.canvas.clear()
+        if self.width <= 1:
+            return
+        with self.canvas:
+            Color(*COR["borda"])
+            Rectangle(pos=self.pos, size=self.size)
+            Color(*self.cor)
+            Rectangle(pos=self.pos,
+                      size=(self.width * self.valor * self.avanco, self.height))
+
+
+def cartao(cor=None, altura=None):
+    """Superfície branca — a unidade visual do painel."""
+    kw = {"orientation": "vertical", "padding": dp(14), "spacing": dp(6)}
+    if altura is not None:
+        kw["size_hint_y"] = None
+        kw["height"] = altura
+    return Painel(cor=cor or COR["superficie"], **kw)
 
 
 def cabecalho(app, titulo, cor):
@@ -210,43 +353,200 @@ def carregar_casos():
 # TELA INICIAL
 # ─────────────────────────────────────────────
 class TelaInicial(Painel):
+    """Painel de estudo.
+
+    Mesma lógica da versão desktop, adaptada à tela estreita: a decisão
+    do dia ocupa a dobra inicial, e o contexto vem abaixo, por rolagem.
+    """
+
     def __init__(self, app, **kwargs):
         super().__init__(cor=COR["fundo"], orientation="vertical", **kwargs)
         self.app = app
+        self.siglas = [m["sigla"] for m in app.marcadores]
+        self.categorias = {m["sigla"]: m["categoria"] for m in app.marcadores}
+        self.nomes = {m["sigla"]: m["nome"] for m in app.marcadores}
+        self.resumo = app.progresso.resumo(self.siglas, self.categorias)
 
-        topo = Painel(cor=COR["primaria"], orientation="vertical",
-                      size_hint_y=None, height=dp(130),
-                      padding=dp(16), spacing=dp(4))
-        topo.add_widget(Label(text="BioquimicaEDU", size_hint_y=None, height=dp(42),
-                              color=COR["branco"], bold=True, font_size="26sp"))
-        topo.add_widget(Label(text=f"XP {app.xp}    Sequencia {app.streak}",
-                              size_hint_y=None, height=dp(26),
-                              color=(1, 1, 1, 0.85), font_size="14sp"))
-        topo.add_widget(Label(text="Marcadores bioquimicos no diagnostico clinico",
-                              size_hint_y=None, height=dp(24),
-                              color=(1, 1, 1, 0.7), font_size="12sp"))
+        self._topo()
+        scroll, coluna = coluna_rolavel(padding=dp(12), spacing=dp(10))
+        self._cartao_hoje(coluna)
+        self._cartao_memoria(coluna)
+        self._cartao_focar(coluna)
+        self._cartao_sistemas(coluna)
+        self._modos(coluna)
+        self.add_widget(scroll)
+
+    def _topo(self):
+        dias = self.resumo["sequencia"]
+        seq = "primeiro dia" if dias <= 1 else f"{dias} dias seguidos"
+        topo = Painel(cor=COR["superficie"], orientation="vertical",
+                      size_hint_y=None, height=dp(74),
+                      padding=(dp(14), dp(10)), spacing=dp(2))
+        topo.add_widget(Label(text="BioquimicaEDU", size_hint_y=None, height=dp(30),
+                              color=COR["texto"], bold=True, font_size="21sp",
+                              halign="left", valign="middle",
+                              text_size=(Window.width - dp(28), None)))
+        topo.add_widget(Label(
+            text=f"{seq}  ·  {self.resumo['revisados_hoje']} revisoes hoje",
+            size_hint_y=None, height=dp(20), color=COR["texto2"],
+            font_size="12sp", halign="left", valign="middle",
+            text_size=(Window.width - dp(28), None)))
         self.add_widget(topo)
 
-        scroll, coluna = coluna_rolavel(padding=dp(14), spacing=dp(10))
+    # ── 1. hoje ─────────────────────────────────────────────────────
+    def _cartao_hoje(self, coluna):
+        fila = self.resumo["fila"]
+        vencidos = self.resumo["vencidos"]
+        reforco = self.resumo["reforco"]
+        novos = self.resumo["novos"]
+        feitos = self.resumo["revisados_hoje"]
+        primeiro_uso = novos == len(self.siglas)
 
-        modos = [
-            ("Estudo",      f"{len(app.marcadores)} marcadores: valores, videos,\nexemplos e imagens", COR["primaria"],  "estudo"),
-            ("Flashcards",  f"{len(app.flashcards)} cards que viram ao toque",                          COR["bile"],      "flashcards"),
-            ("Quiz",        f"{len(app.quiz)} perguntas com explicacao",                                COR["cobalto"],   "quiz"),
-            ("Diagnostico", f"{len(app.casos)} casos clinicos para interpretar",                        COR["indicador"], "diagnostico"),
-            ("Tutor",       "Tire duvidas sobre qualquer marcador",                                     COR["sangue"],    "tutor"),
-        ]
+        cor_acao = COR["bile"] if vencidos else COR["primaria"]
 
-        for titulo, descricao, cor, destino in modos:
-            botao = Botao(text=f"{titulo}\n{descricao}", cor=cor,
-                          size_hint_y=None, height=dp(92),
-                          halign="center", valign="middle",
+        if primeiro_uso:
+            titulo, acao = "Comece por aqui", "Estudar os primeiros"
+            detalhe = (f"Sao {len(self.siglas)} marcadores. O app mostra poucos "
+                       "por vez e traz cada um de volta pouco antes de voce esquecer.")
+        elif reforco:
+            titulo, acao = "Corrija o que errou hoje", "Retomar os que errei"
+            detalhe = (f"{reforco} marcador(es) errados nesta sessao. Rever agora, "
+                       "com o erro fresco, e o que fixa a correcao.")
+        elif vencidos:
+            titulo, acao = "Revisao de hoje pronta", "Comecar revisao"
+            detalhe = (f"{vencidos} marcador(es) chegaram ao ponto de revisao, "
+                       "no limite entre lembrar e esquecer.")
+        elif fila:
+            titulo, acao = "Revisoes em dia", "Aprender algo novo"
+            detalhe = f"Nada vencido. Da para avancar em {min(len(fila), novos)} novo(s)."
+        else:
+            titulo, acao = "Tudo revisado", ""
+            detalhe = ("Nenhum marcador venceu hoje. O app chama de volta quando "
+                       "a memoria precisar.")
+
+        c = cartao()
+        c.size_hint_y = None
+        c.bind(minimum_height=c.setter("height"))
+
+        linha = BoxLayout(size_hint_y=None, height=dp(104), spacing=dp(12))
+        anel = AnelDia(size_hint_x=None, width=dp(104))
+        linha.add_widget(anel)
+
+        lado = BoxLayout(orientation="vertical", spacing=dp(2))
+        lado.add_widget(Texto(text=f"[b]{titulo}[/b]", markup=True, font_size="18sp"))
+        lado.add_widget(Texto(text=detalhe, font_size="12sp", color=COR["texto2"]))
+        linha.add_widget(lado)
+        c.add_widget(linha)
+
+        total = feitos + len(fila)
+        fracao = (feitos / total) if total else 1.0
+        Clock.schedule_once(
+            lambda _: anel.animar(fracao, max(0, len(fila)), cor_acao), 0.15)
+        Clock.schedule_once(
+            lambda _: self._centro_anel(anel, len(fila)), 0.05)
+
+        if fila:
+            c.add_widget(Texto(
+                text=f"{len(fila)} itens · cerca de {self.resumo['minutos_estimados']} min",
+                font_size="11sp", color=COR["texto2"]))
+            botao = Botao(text=acao, cor=cor_acao, size_hint_y=None, height=dp(50),
                           bold=True, font_size="15sp")
-            botao.bind(size=lambda b, *_: setattr(b, "text_size", (b.width - dp(20), None)))
-            botao.bind(on_press=lambda _, d=destino: self.app.ir_para(d))
-            coluna.add_widget(botao)
+            botao.bind(on_press=lambda _: self.app.ir_para("revisao"))
+            c.add_widget(botao)
 
-        self.add_widget(scroll)
+        coluna.add_widget(c)
+
+    def _centro_anel(self, anel, restante):
+        """Número dentro do anel: o que falta, que é o que decide a ação."""
+        rotulo = Label(text=f"[b]{restante}[/b]\n[size=10]{'a revisar' if restante else 'em dia'}[/size]",
+                       markup=True, color=COR["texto"], font_size="24sp",
+                       halign="center", valign="middle")
+        rotulo.size = anel.size
+        rotulo.pos = anel.pos
+        rotulo.text_size = anel.size
+        anel.add_widget(rotulo)
+        anel.bind(pos=lambda *_: setattr(rotulo, "pos", anel.pos),
+                  size=lambda *_: (setattr(rotulo, "size", anel.size),
+                                   setattr(rotulo, "text_size", anel.size)))
+
+    # ── 2. memória ──────────────────────────────────────────────────
+    def _cartao_memoria(self, coluna):
+        c = cartao(altura=dp(120))
+        dominio = self.resumo["dominio_geral"]
+        c.add_widget(Texto(text="[b]ESTADO DA MEMORIA[/b]", markup=True,
+                           font_size="12sp", color=COR["texto2"]))
+        c.add_widget(Texto(text=f"{dominio * 100:.0f}% de dominio",
+                           font_size="11sp", color=COR["texto2"]))
+
+        barra = BarraEstagios(size_hint_y=None, height=dp(20))
+        c.add_widget(barra)
+        Clock.schedule_once(lambda _: barra.animar(self.resumo["estagios"]), 0.25)
+
+        legenda = " · ".join(
+            f"{ROTULO_ESTAGIO[k]}: {self.resumo['estagios'].get(k, 0)}"
+            for k in ("consolidado", "firmando", "aprendendo", "novo"))
+        c.add_widget(Texto(text=legenda, font_size="10sp", color=COR["texto2"]))
+        coluna.add_widget(c)
+
+    # ── 3. onde focar ───────────────────────────────────────────────
+    def _cartao_focar(self, coluna):
+        fracos = self.resumo["pontos_fracos"]
+        if not fracos:
+            return
+        c = cartao()
+        c.size_hint_y = None
+        c.bind(minimum_height=c.setter("height"))
+        c.add_widget(Texto(text="[b]ONDE FOCAR[/b]", markup=True,
+                           font_size="12sp", color=COR["texto2"]))
+        c.add_widget(Texto(text="Seus marcadores mais frageis agora",
+                           font_size="11sp", color=COR["texto2"]))
+
+        for sigla, dominio in fracos:
+            b = BotaoClaro(
+                text=f"{sigla} · {self.nomes.get(sigla, '')}\n{dominio * 100:.0f}% de dominio",
+                size_hint_y=None, height=dp(54), font_size="12sp")
+            b.bind(on_press=lambda _, s=sigla: self.app.ir_para("estudo", foco=s))
+            c.add_widget(b)
+        coluna.add_widget(c)
+
+    # ── 4. sistemas ─────────────────────────────────────────────────
+    def _cartao_sistemas(self, coluna):
+        itens = sorted(self.resumo["dominio_categoria"].items(),
+                       key=lambda kv: -kv[1])
+        c = cartao(altura=dp(56 + 26 * len(itens)))
+        c.add_widget(Texto(text="[b]POR SISTEMA[/b]", markup=True,
+                           font_size="12sp", color=COR["texto2"]))
+        for i, (categoria, valor) in enumerate(itens):
+            linha = BoxLayout(size_hint_y=None, height=dp(22), spacing=dp(8))
+            linha.add_widget(Label(text=categoria, font_size="11sp",
+                                   color=COR["texto"], size_hint_x=None,
+                                   width=dp(84), halign="left", valign="middle",
+                                   text_size=(dp(84), dp(22))))
+            barra = BarraDominio(size_hint_y=None, height=dp(7),
+                                 pos_hint={"center_y": 0.5})
+            linha.add_widget(barra)
+            linha.add_widget(Label(text=f"{valor * 100:.0f}%", font_size="10sp",
+                                   color=COR["texto2"], size_hint_x=None,
+                                   width=dp(34)))
+            c.add_widget(linha)
+            Clock.schedule_once(
+                lambda _, b=barra, v=valor: b.animar(v), 0.3 + i * 0.06)
+        coluna.add_widget(c)
+
+    # ── acesso aos modos ────────────────────────────────────────────
+    def _modos(self, coluna):
+        modos = [
+            ("Estudo", COR["primaria"], "estudo"),
+            ("Flashcards", COR["bile"], "flashcards"),
+            ("Quiz", COR["cobalto"], "quiz"),
+            ("Diagnostico", COR["indicador"], "diagnostico"),
+            ("Tutor", COR["sangue"], "tutor"),
+        ]
+        for titulo, cor, destino in modos:
+            b = Botao(text=titulo, cor=cor, size_hint_y=None, height=dp(46),
+                      font_size="14sp", bold=True)
+            b.bind(on_press=lambda _, d=destino: self.app.ir_para(d))
+            coluna.add_widget(b)
 
 
 # ─────────────────────────────────────────────
@@ -867,6 +1167,203 @@ class TelaTutor(Painel):
 
 
 # ─────────────────────────────────────────────
+# REVISÃO
+# ─────────────────────────────────────────────
+class TelaRevisao(Painel):
+    """Sessão de estudo: pergunta, confiança, resposta, autoavaliação.
+
+    A confiança é pedida ANTES de revelar a resposta. Depois de ver, todo
+    mundo acha que sabia — perguntar antes é o que torna a medida honesta.
+
+    A autoavaliação tem quatro níveis, e não certo/errado, porque o SM-2
+    precisa de graduação: "lembrei com esforço" e "lembrei na hora" levam
+    a intervalos diferentes.
+    """
+
+    AVALIACOES = [
+        ("De novo", 0, COR["erro"]),
+        ("Dificil", 3, COR["bile"]),
+        ("Bom",     4, COR["primaria"]),
+        ("Facil",   5, COR["cobalto"]),
+    ]
+
+    CONFIANCA = [(1, "Nenhuma"), (2, "Pouca"), (3, "Media"), (4, "Boa"), (5, "Total")]
+
+    def __init__(self, app, **kwargs):
+        super().__init__(cor=COR["fundo"], orientation="vertical", **kwargs)
+        self.app = app
+        self.progresso = app.progresso
+        self.por_sigla = {m["sigla"]: m for m in app.marcadores}
+        self.fila = self.progresso.fila_do_dia(list(self.por_sigla))
+        self.posicao = 0
+        self.acertos = 0
+        self.confianca = None
+
+        self.add_widget(cabecalho(app, "Revisao", COR["primaria"]))
+        self.area = BoxLayout(orientation="vertical")
+        self.add_widget(self.area)
+        self._mostrar()
+
+    def _mostrar(self):
+        self.area.clear_widgets()
+        self.confianca = None
+
+        if not self.fila:
+            self._vazio()
+            return
+        if self.posicao >= len(self.fila):
+            self._fim()
+            return
+
+        sigla = self.fila[self.posicao]
+        m = self.por_sigla[sigla]
+        scroll, col = coluna_rolavel(padding=dp(14), spacing=dp(8))
+
+        col.add_widget(Texto(text=f"{self.posicao + 1} de {len(self.fila)}",
+                             font_size="11sp", color=COR["texto2"]))
+        col.add_widget(Texto(text=m["categoria"].upper(), font_size="10sp",
+                             color=COR["texto2"]))
+        col.add_widget(Texto(text=f"[b]{m['nome']}[/b]", markup=True,
+                             font_size="20sp"))
+        col.add_widget(Texto(text=f"Sigla: {sigla}", font_size="11sp",
+                             color=COR["texto2"]))
+        col.add_widget(Texto(
+            text="Qual a faixa de referencia e o que significa estar alterado?",
+            font_size="14sp"))
+
+        self.col = col
+        self._pedir_confianca()
+        self.area.add_widget(scroll)
+
+    def _pedir_confianca(self):
+        self.col.add_widget(Texto(text="Antes de ver: o quanto voce acha que sabe?",
+                                  font_size="12sp", color=COR["texto2"]))
+        grade = BoxLayout(size_hint_y=None, height=dp(42), spacing=dp(4))
+        for valor, rotulo in self.CONFIANCA:
+            b = Botao(text=rotulo, cor=COR["superficie"], color=COR["texto"],
+                      font_size="10sp")
+            b.bind(on_press=lambda _, v=valor: self._definir_confianca(v))
+            grade.add_widget(b)
+        self.grade_confianca = grade
+        self.col.add_widget(grade)
+
+    def _definir_confianca(self, valor):
+        self.confianca = valor
+        for (v, _), b in zip(self.CONFIANCA, self.grade_confianca.children[::-1]):
+            marcado = v == valor
+            b.background_color = COR["primaria"] if marcado else COR["superficie"]
+            b.color = COR["branco"] if marcado else COR["texto"]
+        self.botao_revelar = Botao(text="Ver resposta", cor=COR["primaria"],
+                                   size_hint_y=None, height=dp(48), bold=True)
+        self.botao_revelar.bind(on_press=lambda _: self._revelar())
+        self.col.add_widget(self.botao_revelar)
+
+    def _revelar(self):
+        sigla = self.fila[self.posicao]
+        m = self.por_sigla[sigla]
+
+        # o botao cumpriu a funcao; deixa-lo na tela so ocupa espaco
+        botao = getattr(self, "botao_revelar", None)
+        if botao is not None and botao.parent is not None:
+            self.col.remove_widget(botao)
+        for _, b in zip(self.CONFIANCA, self.grade_confianca.children):
+            b.disabled = True
+
+        self.col.add_widget(Texto(
+            text=f"[b]{m['valor_ref_min']} a {m['valor_ref_max']} {m['unidade']}[/b]",
+            markup=True, font_size="18sp", color=COR["primaria"]))
+        self.col.add_widget(Texto(text="[b]Elevado[/b]", markup=True,
+                                  font_size="13sp", color=COR["erro"]))
+        self.col.add_widget(Texto(text=m.get("interpretacao_alta", "-"),
+                                  font_size="12sp"))
+        self.col.add_widget(Texto(text="[b]Baixo[/b]", markup=True,
+                                  font_size="13sp", color=COR["cobalto"]))
+        self.col.add_widget(Texto(text=m.get("interpretacao_baixa", "-"),
+                                  font_size="12sp"))
+
+        self.col.add_widget(Texto(text="Como foi lembrar disso?",
+                                  font_size="12sp", color=COR["texto2"]))
+        grade = BoxLayout(size_hint_y=None, height=dp(56), spacing=dp(5))
+        for rotulo, qualidade, cor in self.AVALIACOES:
+            b = Botao(text=f"{rotulo}\n{self._previsao(sigla, qualidade)}",
+                      cor=cor, font_size="11sp", halign="center", valign="middle")
+            b.bind(size=lambda w, *_: setattr(w, "text_size", (w.width - dp(6), None)))
+            b.bind(on_press=lambda _, q=qualidade: self._responder(q))
+            grade.add_widget(b)
+        self.col.add_widget(grade)
+        self.col.add_widget(Texto(
+            text="A escolha define quando este marcador volta a aparecer.",
+            font_size="10sp", color=COR["texto2"]))
+
+    def _previsao(self, sigla, qualidade):
+        from progresso import (INTERVALO_1, INTERVALO_2,
+                               INTERVALO_FACIL_INICIAL)
+        e = self.progresso.estado(sigla)
+        if qualidade < 3:
+            dias = INTERVALO_1
+        elif e["repeticoes"] == 0:
+            dias = INTERVALO_FACIL_INICIAL if qualidade == 5 else INTERVALO_1
+        elif e["repeticoes"] == 1:
+            dias = INTERVALO_2
+        else:
+            dias = max(1, round(e["intervalo"] * e["facilidade"]))
+        if dias == 1:
+            return "amanha"
+        return f"{dias}d" if dias < 30 else f"{dias // 30}m"
+
+    def _responder(self, qualidade):
+        sigla = self.fila[self.posicao]
+        self.progresso.registrar_resposta(sigla, qualidade, confianca=self.confianca)
+        if qualidade >= 3:
+            self.acertos += 1
+        self.posicao += 1
+        self._mostrar()
+
+    def _vazio(self):
+        scroll, col = coluna_rolavel(padding=dp(18), spacing=dp(10))
+        col.add_widget(Texto(text="[b]Nada para revisar agora[/b]", markup=True,
+                             font_size="18sp"))
+        col.add_widget(Texto(
+            text="Todos os marcadores estao em dia. Voltar antes da hora reforca "
+                 "menos do que esperar o intervalo certo.",
+            font_size="12sp", color=COR["texto2"]))
+        b = Botao(text="Voltar ao inicio", cor=COR["primaria"],
+                  size_hint_y=None, height=dp(48))
+        b.bind(on_press=lambda _: self.app.ir_para("inicio"))
+        col.add_widget(b)
+        self.area.add_widget(scroll)
+
+    def _fim(self):
+        scroll, col = coluna_rolavel(padding=dp(18), spacing=dp(10))
+        col.add_widget(Texto(text="[b]Sessao concluida[/b]", markup=True,
+                             font_size="20sp"))
+        col.add_widget(Texto(text=f"{self.acertos} de {len(self.fila)} lembrados",
+                             font_size="13sp", color=COR["texto2"]))
+
+        restante = self.progresso.fila_do_dia(list(self.por_sigla))
+        if restante:
+            col.add_widget(Texto(
+                text=f"Ainda ha {len(restante)} item(ns) para hoje, incluindo os "
+                     "que voce marcou como 'de novo'.",
+                font_size="12sp", color=COR["texto2"]))
+            b = Botao(text="Continuar revisando", cor=COR["primaria"],
+                      size_hint_y=None, height=dp(48))
+            b.bind(on_press=lambda _: self.app.ir_para("revisao"))
+            col.add_widget(b)
+        else:
+            col.add_widget(Texto(
+                text="Sua fila de hoje acabou. Os itens voltam sozinhos quando a "
+                     "memoria comecar a ceder.",
+                font_size="12sp", color=COR["texto2"]))
+
+        b2 = Botao(text="Voltar ao inicio", cor=COR["texto2"],
+                   size_hint_y=None, height=dp(48))
+        b2.bind(on_press=lambda _: self.app.ir_para("inicio"))
+        col.add_widget(b2)
+        self.area.add_widget(scroll)
+
+
+# ─────────────────────────────────────────────
 # APLICATIVO
 # ─────────────────────────────────────────────
 class BioquimicaApp(App):
@@ -874,6 +1371,7 @@ class BioquimicaApp(App):
 
     TELAS = {
         "inicio": TelaInicial,
+        "revisao": TelaRevisao,
         "estudo": TelaEstudo,
         "flashcards": TelaFlashcards,
         "quiz": TelaQuiz,
@@ -882,6 +1380,10 @@ class BioquimicaApp(App):
     }
 
     def build(self):
+        from progresso import Progresso
+        self.progresso = Progresso()
+
+        # Mantidos porque quiz e diagnostico ainda leem estes contadores
         self.xp = 0
         self.streak = 0
         self.casos_resolvidos = set()
@@ -921,10 +1423,20 @@ class BioquimicaApp(App):
     def registrar_erro(self):
         self.streak = 0
 
-    def ir_para(self, destino):
+    def ir_para(self, destino, foco=None):
+        """Troca de tela. `foco` abre o Estudo direto em um marcador."""
         self.raiz.clear_widgets()
-        tela = self.TELAS.get(destino, TelaInicial)
-        self.raiz.add_widget(tela(self))
+        Classe = self.TELAS.get(destino, TelaInicial)
+        tela = Classe(self)
+        self.raiz.add_widget(tela)
+        if foco and destino == "estudo":
+            Clock.schedule_once(lambda _: self._focar(tela, foco), 0.1)
+
+    @staticmethod
+    def _focar(tela, sigla):
+        alvo = next((m for m in tela.marcadores if m["sigla"] == sigla), None)
+        if alvo is not None:
+            tela._detalhe(alvo)
 
 
 if __name__ == "__main__":

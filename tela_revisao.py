@@ -260,13 +260,15 @@ class TelaRevisao(tk.Frame):
 
     def _previsao(self, sigla, qualidade):
         """Mostra no botão quando o item voltaria — torna o efeito visível."""
+        from progresso import (INTERVALO_1, INTERVALO_2,
+                               INTERVALO_FACIL_INICIAL)
         e = self.progresso.estado(sigla)
         if qualidade < 3:
-            dias = 1
+            dias = INTERVALO_1
         elif e["repeticoes"] == 0:
-            dias = 1
+            dias = INTERVALO_FACIL_INICIAL if qualidade == 5 else INTERVALO_1
         elif e["repeticoes"] == 1:
-            dias = 6
+            dias = INTERVALO_2
         else:
             dias = max(1, round(e["intervalo"] * e["facilidade"]))
         if dias == 1:

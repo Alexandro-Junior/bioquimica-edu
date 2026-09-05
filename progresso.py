@@ -38,6 +38,7 @@ FACILIDADE_INICIAL = 2.5
 FACILIDADE_MINIMA = 1.3   # abaixo disso o item volta cedo demais para ser útil
 INTERVALO_1 = 1           # dias, após o primeiro acerto
 INTERVALO_2 = 6           # dias, após o segundo acerto
+INTERVALO_FACIL_INICIAL = 4   # atalho quando o item já sai fácil de primeira
 
 # Estágios de memória, por intervalo de revisão já alcançado
 ESTAGIOS = [
@@ -143,7 +144,11 @@ class Progresso:
         else:
             e["repeticoes"] += 1
             if e["repeticoes"] == 1:
-                e["intervalo"] = INTERVALO_1
+                # "Fácil" logo de cara pula o passo de 1 dia. Sem isso, as
+                # quatro notas dariam o mesmo agendamento no primeiro
+                # contato, e a escolha do estudante pareceria não valer
+                # nada. É o mesmo atalho que o Anki usa.
+                e["intervalo"] = INTERVALO_FACIL_INICIAL if qualidade == 5 else INTERVALO_1
             elif e["repeticoes"] == 2:
                 e["intervalo"] = INTERVALO_2
             else:
