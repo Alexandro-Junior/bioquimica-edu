@@ -49,6 +49,93 @@ ESTAGIOS = [
 ]
 
 
+# Nomes que aparecem em quiz e casos clínicos, mas não batem com o CSV.
+# Sem isso, "Troponina" num caso não reagendaria "TropI".
+APELIDOS = {
+    "troponina": "TropI",
+    "troponina i": "TropI",
+    "ck-mb": "CKMB",
+    "ckmb": "CKMB",
+    "glicose": "GLI",
+    "glicose em jejum": "GLI",
+    "glicemia": "GLI",
+    "hemoglobina glicada": "HbA1c",
+    "hba1c": "HbA1c",
+    "bilirrubina": "BT",
+    "bilirrubina total": "BT",
+    "creatinina": "CREA",
+    "ureia": "UREIA",
+    "ácido úrico": "AU",
+    "acido urico": "AU",
+    "colesterol total": "CT",
+    "colesterol": "CT",
+    "hdl": "HDL",
+    "hdl colesterol": "HDL",
+    "ldl": "LDL",
+    "ldl colesterol": "LDL",
+    "triglicerídeos": "TG",
+    "triglicerideos": "TG",
+    "sódio": "Na",
+    "sodio": "Na",
+    "potássio": "K",
+    "potassio": "K",
+    "cloro": "Cl",
+    "ph": "pH",
+    "ph sanguíneo": "pH",
+    "ph sanguineo": "pH",
+    "lactato desidrogenase": "LDH",
+    "ldh": "LDH",
+}
+
+
+# Siglas curtas que também são palavras comuns do português. "Na" é
+# preposição, e sem esta lista "Na hepatite alcoólica..." reagendaria
+# sódio. Estas só casam pelo nome completo ou pela forma iônica (Na+).
+SIGLAS_AMBIGUAS = {"Na", "K", "Cl"}
+
+
+def marcadores_no_texto(texto: str, siglas: list[str],
+                        nomes: dict[str, str] | None = None) -> list[str]:
+    """Descobre a quais marcadores um texto se refere.
+
+    Usado para ligar perguntas de quiz e casos clínicos ao motor de
+    memória: sem isso, acertar uma questão sobre troponina não teria
+    efeito nenhum no agendamento da troponina.
+
+    Casa por sigla, por nome completo e pelos apelidos acima. Quando nada
+    casa, devolve lista vazia — é melhor não registrar do que reagendar
+    o marcador errado.
+    """
+    import re
+
+    achados = []
+    minusculo = texto.lower()
+    nomes = nomes or {}
+
+    for sigla in siglas:
+        if sigla in SIGLAS_AMBIGUAS:
+            # exige a forma iônica: Na+, K+, Cl-
+            padrao = rf"\b{re.escape(sigla.lower())}\s*[+-]"
+        else:
+            # \b evita casar dentro de outra palavra
+            padrao = rf"\b{re.escape(sigla.lower())}\b"
+
+        if re.search(padrao, minusculo):
+            achados.append(sigla)
+            continue
+
+        nome = nomes.get(sigla, "").lower()
+        if nome and nome in minusculo:
+            achados.append(sigla)
+
+    for apelido, sigla in APELIDOS.items():
+        if sigla in siglas and sigla not in achados:
+            if re.search(rf"\b{re.escape(apelido)}\b", minusculo):
+                achados.append(sigla)
+
+    return achados
+
+
 def _hoje() -> date:
     return date.today()
 
@@ -176,6 +263,35 @@ class Progresso:
         self._registrar_sessao(acertou)
         self.salvar()
         return e
+
+    def registrar_atividade(self, siglas: list[str], acertou: bool,
+                            peso: str = "quiz") -> list[str]:
+        """Registra um acerto/erro vindo do quiz ou do diagnóstico.
+
+        A nota não é a mesma da revisão, e por bons motivos:
+
+        quiz — múltipla escolha permite acerto por eliminação, então um
+          acerto vale 4 ("lembrei"), nunca 5. O erro vale 1, e não 0,
+          porque ter visto as alternativas já é alguma exposição.
+
+        diagnóstico — um caso envolve vários marcadores de uma vez.
+          Acertar demonstra saber interpretar aquele conjunto, então vale
+          4. Mas errar o diagnóstico não prova desconhecer cada marcador
+          isolado: vale 2, que ainda conta como falha e reagenda para
+          breve, sem derrubar tanto a facilidade quanto um erro direto.
+
+        Devolve as siglas efetivamente registradas.
+        """
+        if acertou:
+            qualidade = 4
+        else:
+            qualidade = 1 if peso == "quiz" else 2
+
+        registrados = []
+        for sigla in siglas:
+            self.registrar_resposta(sigla, qualidade)
+            registrados.append(sigla)
+        return registrados
 
     def _registrar_sessao(self, acertou: bool) -> None:
         hoje = _iso(_hoje())

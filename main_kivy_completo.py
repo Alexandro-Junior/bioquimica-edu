@@ -869,6 +869,13 @@ class TelaQuiz(Painel):
         else:
             self.app.registrar_erro()
 
+        # Faz o acerto contar para o agendamento do marcador: sem isso,
+        # responder sobre troponina nao afetaria quando ela volta.
+        texto = " ".join([pergunta.get("pergunta", ""),
+                          *pergunta.get("alternativas", []),
+                          pergunta.get("explicacao", "")])
+        self.app.alimentar_memoria(texto, acertou, peso="quiz")
+
         self.area.clear_widgets()
         scroll, col = coluna_rolavel(padding=dp(14), spacing=dp(10))
 
@@ -1021,6 +1028,12 @@ class TelaDiagnostico(Painel):
                 self.app.registrar_acerto(25)
         else:
             self.app.registrar_erro()
+
+        # Interpretar um caso e recuperacao sobre varios marcadores ao
+        # mesmo tempo: todos os dos exames entram, com peso de
+        # diagnostico (erro pune menos que numa questao direta).
+        self.app.alimentar_memoria(" ".join(caso.get("exames", {}).keys()),
+                                   acertou, peso="diagnostico")
 
         self.area.clear_widgets()
         scroll, col = coluna_rolavel(padding=dp(14), spacing=dp(10))
@@ -1415,6 +1428,16 @@ class BioquimicaApp(App):
         except Exception as e:
             print(f"[tutor] Ollama indisponivel ({type(e).__name__}), usando modo offline")
         return None
+
+    def alimentar_memoria(self, texto, acertou, peso):
+        """Liga quiz e diagnostico ao motor de repeticao espacada."""
+        from progresso import marcadores_no_texto
+        siglas = [m["sigla"] for m in self.marcadores]
+        nomes = {m["sigla"]: m["nome"] for m in self.marcadores}
+        alvos = marcadores_no_texto(texto, siglas, nomes)
+        if alvos:
+            self.progresso.registrar_atividade(alvos, acertou, peso=peso)
+        return alvos
 
     def registrar_acerto(self, pontos):
         self.xp += pontos
