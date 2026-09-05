@@ -907,12 +907,14 @@ class TelaEstudo(tk.Frame):
         extras_m = self.extras.get(m["sigla"], {})
         disponivel = {
             "info": True,
+            "fontes": bool(extras_m.get("referencias")),
             "videos": bool(extras_m.get("videos")),
             "exemplos": bool(extras_m.get("exemplos")),
             "imagens": bool(self.imagens.get(m["sigla"], {}).get("imagens")),
         }
 
         for aba, icone, label in [("info", "ℹ️", "Info"),
+                                   ("fontes", "📚", "Fontes"),
                                    ("videos", "🎥", "Vídeos"),
                                    ("exemplos", "📋", "Exemplos"),
                                    ("imagens", "📊", "Imagens")]:
@@ -966,6 +968,8 @@ class TelaEstudo(tk.Frame):
             self._detalhe_exemplos(m, cor_cat)
         elif aba == "imagens":
             self._detalhe_imagens(m, cor_cat)
+        elif aba == "fontes":
+            self._detalhe_fontes(m, cor_cat)
 
     def _detalhe_info(self, m, cor_cat):
         """Aba Info - valores e interpretações"""
@@ -1213,6 +1217,50 @@ class TelaEstudo(tk.Frame):
                                  fg=cor, bg=clarear(cor, 0.85),
                                  padx=10, pady=4).pack()
                 tk.Frame(c.miolo, bg=COR["superficie"], height=10).pack()
+
+    def _detalhe_fontes(self, m, cor_cat):
+        """Aba Fontes - bibliografia academica verificada"""
+        import webbrowser
+        interior = self.detalhe_interior
+        referencias = self.extras.get(m["sigla"], {}).get("referencias", [])
+
+        if not referencias:
+            tk.Label(interior, text="Sem referencias cadastradas para este marcador",
+                     font=FONTE["corpo"], fg=COR["texto2"],
+                     bg=COR["fundo"]).pack(pady=20)
+            return
+
+        tk.Label(interior, text=f"📚 {len(referencias)} referencias revisadas por pares",
+                 font=FONTE["subtit"], fg=COR["texto"],
+                 bg=COR["fundo"]).pack(pady=(12, 8), padx=18, anchor=tk.W)
+
+        for ref in referencias:
+            c = card(interior, cor_topo=cor_cat)
+            c.pack(fill=tk.X, padx=18, pady=8)
+
+            tk.Label(c.miolo, text=ref["titulo"],
+                     font=FONTE["medio"], fg=COR["texto"],
+                     bg=COR["superficie"], wraplength=480, justify=tk.LEFT
+                     ).pack(anchor=tk.W, padx=18, pady=(10, 2))
+
+            tk.Label(c.miolo, text=ref["fonte"],
+                     font=FONTE["pequeno"], fg=COR["texto2"],
+                     bg=COR["superficie"]).pack(anchor=tk.W, padx=18)
+
+            if ref.get("nota"):
+                tk.Label(c.miolo, text=ref["nota"],
+                         font=FONTE["corpo"], fg=COR["texto"],
+                         bg=COR["superficie"], wraplength=480, justify=tk.LEFT
+                         ).pack(anchor=tk.W, padx=18, pady=(6, 0))
+
+            def abrir(url=ref["url"]):
+                webbrowser.open(url)
+
+            tk.Button(c.miolo, text="Abrir referencia",
+                      bg=COR["cobalto"], fg=COR["branco"],
+                      relief="flat", font=FONTE["botao"],
+                      command=abrir, padx=14, pady=6
+                      ).pack(anchor=tk.W, padx=18, pady=10)
 
     def _detalhe_imagens(self, m, cor_cat):
         """Aba Imagens - diagramas do marcador"""
