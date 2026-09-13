@@ -759,12 +759,23 @@ class TelaFlashcards(Painel):
                                color=COR["texto2"], font_size="14sp", bold=True)
         self.add_widget(self.progresso)
 
+        # efeito da ultima autoavaliacao: quando o marcador volta
+        self.aviso = Label(text="", size_hint_y=None, height=dp(20),
+                           color=COR["texto2"], font_size="11sp")
+        self.add_widget(self.aviso)
+        self.avaliados = set()  # cards ja avaliados nesta sessao
+
         corpo = BoxLayout(orientation="vertical", padding=dp(14), spacing=dp(10))
         self.card = Botao(text="", cor=COR["primaria"], halign="center",
                           valign="middle", font_size="16sp", bold=True)
         self.card.bind(size=lambda b, *_: setattr(b, "text_size", (b.width - dp(28), None)))
         self.card.bind(on_press=lambda _: self._virar())
         corpo.add_widget(self.card)
+
+        # Autoavaliacao: so aparece depois de virar o card
+        self.area_avaliacao = BoxLayout(orientation="vertical", size_hint_y=None,
+                                        height=0, spacing=dp(6))
+        corpo.add_widget(self.area_avaliacao)
 
         navegacao = BoxLayout(size_hint_y=None, height=dp(52), spacing=dp(8))
         anterior = Botao(text="Anterior", cor=COR["texto2"])
@@ -785,6 +796,71 @@ class TelaFlashcards(Painel):
         if self.cards:
             self.virado = not self.virado
             self._atualizar()
+
+    def _alvos(self, card):
+        """Marcadores que o card cobre (vazio se for de exame fora da base)."""
+        from progresso import marcadores_no_texto
+        siglas = [m["sigla"] for m in self.app.marcadores]
+        nomes = {m["sigla"]: m["nome"] for m in self.app.marcadores}
+        return marcadores_no_texto(card["pergunta"] + " " + card["resposta"],
+                                   siglas, nomes)
+
+    def _montar_avaliacao(self):
+        """Depois de virar, pergunta se o estudante lembrou.
+
+        Sem isso o flashcard e so leitura e nao informa quando o marcador
+        deve voltar. Dois botoes, e nao quatro como na revisao, para manter
+        o ritmo rapido que e a razao de ser deste modo.
+        """
+        area = self.area_avaliacao
+        area.clear_widgets()
+        area.height = 0
+        if not (self.cards and self.virado):
+            return
+
+        card = self.cards[self.indice]
+        alvos = self._alvos(card)
+
+        if not alvos:
+            area.add_widget(Texto(
+                text="Card sobre exame fora dos 20 marcadores da base: nao entra nas revisoes.",
+                font_size="11sp", color=COR["texto2"], halign="center"))
+            area.height = dp(34)
+            return
+
+        if card["pergunta"] in self.avaliados:
+            area.add_widget(Texto(text="Voce ja avaliou este card nesta sessao.",
+                                  font_size="11sp", color=COR["texto2"],
+                                  halign="center"))
+            area.height = dp(24)
+            return
+
+        area.add_widget(Texto(text="Voce lembrou antes de virar?",
+                              font_size="13sp", halign="center"))
+        botoes = BoxLayout(size_hint_y=None, height=dp(48), spacing=dp(8))
+        nao = Botao(text="Nao lembrei", cor=COR["erro"], bold=True)
+        nao.bind(on_press=lambda _: self._avaliar(False))
+        sim = Botao(text="Lembrei", cor=COR["sucesso"], bold=True)
+        sim.bind(on_press=lambda _: self._avaliar(True))
+        botoes.add_widget(nao)
+        botoes.add_widget(sim)
+        area.add_widget(botoes)
+        area.height = dp(80)
+
+    def _avaliar(self, lembrou):
+        """Registra no motor e avanca para o proximo card."""
+        if not self.cards:
+            return
+        card = self.cards[self.indice]
+        if card["pergunta"] in self.avaliados:
+            return
+        alvos = self._alvos(card)
+        if not alvos:
+            return
+        self.app.progresso.registrar_atividade(alvos, lembrou, peso="flashcard")
+        self.avaliados.add(card["pergunta"])
+        self.aviso.text = self.app.progresso.efeito_resumido(alvos, lembrou)
+        self._mover(1)
 
     def _mover(self, passo):
         if not self.cards:
@@ -812,6 +888,7 @@ class TelaFlashcards(Painel):
         else:
             self.card.text = f"PERGUNTA\n\n{card['pergunta']}\n\n(toque para virar)"
             self.card.background_color = COR["primaria"]
+        self._montar_avaliacao()
 
 
 # ─────────────────────────────────────────────

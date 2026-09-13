@@ -465,6 +465,16 @@ class TelaFlashcards(tk.Frame):
         self.flashcards = carregar_flashcards()
         self.indice = 0
         self.virado = False
+
+        # Motor de repetição espaçada, quando o controller oferece um.
+        # Sem ele (main_enhanced.py) a tela funciona como antes, sem
+        # autoavaliação.
+        self.progresso = getattr(controller, "progresso", None)
+        marcadores = getattr(controller, "marcadores", None) or carregar_marcadores()
+        self._siglas = [m["sigla"] for m in marcadores]
+        self._nomes = {m["sigla"]: m["nome"] for m in marcadores}
+        self._avaliados = set()  # cards já avaliados nesta sessão
+
         self._construir()
 
     def _construir(self):
@@ -478,29 +488,40 @@ class TelaFlashcards(tk.Frame):
                  fg=COR["texto"], bg=COR["topo"]).pack(side=tk.LEFT, padx=10)
 
         area = tk.Frame(self, bg=COR["fundo"])
-        area.pack(fill=tk.BOTH, expand=True, padx=40, pady=40)
+        area.pack(fill=tk.BOTH, expand=True, padx=40, pady=(20, 16))
 
-        prog = tk.Frame(area, bg=COR["fundo"], pady=10)
+        prog = tk.Frame(area, bg=COR["fundo"], pady=6)
         prog.pack(fill=tk.X)
-        tk.Label(prog, text=f"{self.indice + 1}/{len(self.flashcards)}",
-                 font=FONTE["subtit"], fg=COR["texto"],
-                 bg=COR["fundo"]).pack()
+        self.rotulo_prog = tk.Label(prog, text=f"{self.indice + 1}/{len(self.flashcards)}",
+                                    font=FONTE["subtit"], fg=COR["texto"],
+                                    bg=COR["fundo"])
+        self.rotulo_prog.pack()
 
         barra_bg = tk.Frame(area, bg=COR["borda"], height=6)
         barra_bg.pack(fill=tk.X, pady=8)
         pct = (self.indice / len(self.flashcards)) if self.flashcards else 0
-        barra_fill = tk.Frame(barra_bg, bg=COR["primaria"], height=6)
-        barra_fill.place(relwidth=pct, relheight=1)
+        self.barra_fill = tk.Frame(barra_bg, bg=COR["primaria"], height=6)
+        self.barra_fill.place(relwidth=pct, relheight=1)
 
         card_container = tk.Frame(area, bg=COR["fundo"])
-        card_container.pack(expand=True, fill=tk.BOTH, pady=20)
+        card_container.pack(expand=True, fill=tk.BOTH, pady=10)
 
         self.card_canvas = tk.Canvas(card_container, bg=COR["fundo"],
-                                      highlightthickness=0, height=300)
+                                      highlightthickness=0, height=250)
         self.card_canvas.pack(fill=tk.BOTH, expand=True)
         self.card_canvas.bind("<Button-1>", lambda _: self._virar_card())
+        # Redesenha quando o espaço muda: a linha de autoavaliação encolhe o
+        # canvas ao aparecer, e sem isto a base do card ficava cortada.
+        self.card_canvas.bind("<Configure>", lambda _: self._desenhar_card())
 
         self._desenhar_card()
+
+        # Autoavaliação: só aparece depois de virar o card
+        self.area_avaliacao = tk.Frame(area, bg=COR["fundo"])
+        self.area_avaliacao.pack(fill=tk.X, pady=(4, 0))
+        self.status = tk.Label(area, text="", font=FONTE["pequeno"],
+                               fg=COR["texto2"], bg=COR["fundo"])
+        self.status.pack(fill=tk.X, pady=(2, 0))
 
         botoes = tk.Frame(area, bg=COR["fundo"])
         botoes.pack(fill=tk.X, pady=10)
@@ -567,6 +588,73 @@ class TelaFlashcards(tk.Frame):
     def _virar_card(self):
         self.virado = not self.virado
         self._desenhar_card()
+        self._montar_avaliacao()
+
+    # ── autoavaliação ───────────────────────────────────────────────
+    def _alvos(self, card):
+        """Marcadores que o card cobre (vazio se for de exame fora da base)."""
+        from progresso import marcadores_no_texto
+        return marcadores_no_texto(card["pergunta"] + " " + card["resposta"],
+                                   self._siglas, self._nomes)
+
+    def _montar_avaliacao(self):
+        """Depois de virar, pergunta se o estudante lembrou.
+
+        Sem esta etapa o flashcard é só leitura: o estudante vira, lê e
+        segue, e nada disso informa quando o marcador deve voltar. Dois
+        botões, e não quatro como na revisão, para manter o ritmo de
+        estudo rápido que é a razão de ser deste modo.
+        """
+        for w in self.area_avaliacao.winfo_children():
+            w.destroy()
+        if not (self.virado and self.flashcards and self.progresso is not None):
+            return
+
+        card = self.flashcards[self.indice]
+        alvos = self._alvos(card)
+        linha = tk.Frame(self.area_avaliacao, bg=COR["fundo"])
+        linha.pack()
+
+        if not alvos:
+            tk.Label(linha,
+                     text="Este card trata de um exame fora dos 20 marcadores "
+                          "da base, então não entra nas suas revisões.",
+                     font=FONTE["pequeno"], fg=COR["texto2"],
+                     bg=COR["fundo"]).pack()
+            return
+
+        if card["pergunta"] in self._avaliados:
+            tk.Label(linha, text="Você já avaliou este card nesta sessão.",
+                     font=FONTE["pequeno"], fg=COR["texto2"],
+                     bg=COR["fundo"]).pack()
+            return
+
+        tk.Label(linha, text="Você lembrou antes de virar?",
+                 font=FONTE["corpo"], fg=COR["texto"],
+                 bg=COR["fundo"]).pack(side=tk.LEFT, padx=(0, 12))
+        tk.Button(linha, text="Não lembrei", bg=COR["erro"], fg=COR["branco"],
+                  relief="flat", font=FONTE["botao"], cursor="hand2",
+                  command=lambda: self._avaliar(False),
+                  padx=18, pady=6).pack(side=tk.LEFT, padx=4)
+        tk.Button(linha, text="Lembrei", bg=COR["sucesso"], fg=COR["branco"],
+                  relief="flat", font=FONTE["botao"], cursor="hand2",
+                  command=lambda: self._avaliar(True),
+                  padx=18, pady=6).pack(side=tk.LEFT, padx=4)
+
+    def _avaliar(self, lembrou):
+        """Registra no motor e avança — o próximo card já vem pronto."""
+        if not self.flashcards or self.progresso is None:
+            return
+        card = self.flashcards[self.indice]
+        if card["pergunta"] in self._avaliados:
+            return
+        alvos = self._alvos(card)
+        if not alvos:
+            return
+        self.progresso.registrar_atividade(alvos, lembrou, peso="flashcard")
+        self._avaliados.add(card["pergunta"])
+        self.status.config(text=self.progresso.efeito_resumido(alvos, lembrou))
+        self._proximo()
 
     def _anterior(self):
         if self.indice > 0:
@@ -584,7 +672,14 @@ class TelaFlashcards(tk.Frame):
             self.controller.mostrar("inicio")
 
     def _atualizar(self):
+        # Contador e barra eram montados uma vez e nunca mudavam: ficavam
+        # em "1/52" durante toda a sessão.
+        total = len(self.flashcards)
+        if total:
+            self.rotulo_prog.config(text=f"{self.indice + 1}/{total}")
+            self.barra_fill.place(relwidth=self.indice / total, relheight=1)
         self._desenhar_card()
+        self._montar_avaliacao()
 
 
 # ─────────────────────────────────────────────
