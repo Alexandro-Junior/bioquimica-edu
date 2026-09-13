@@ -280,18 +280,40 @@ class Progresso:
           isolado: vale 2, que ainda conta como falha e reagenda para
           breve, sem derrubar tanto a facilidade quanto um erro direto.
 
+        flashcard — o estudante diz se lembrou antes de virar. É
+          recuperação direta, como no quiz: "lembrei" vale 4 e "não
+          lembrei" vale 1. Quem quiser graduar com mais precisão tem a
+          revisão, com quatro níveis.
+
         Devolve as siglas efetivamente registradas.
         """
         if acertou:
             qualidade = 4
+        elif peso == "diagnostico":
+            qualidade = 2
         else:
-            qualidade = 1 if peso == "quiz" else 2
+            qualidade = 1  # quiz e flashcard: falha de recuperação direta
 
         registrados = []
         for sigla in siglas:
             self.registrar_resposta(sigla, qualidade)
             registrados.append(sigla)
         return registrados
+
+    def efeito_resumido(self, siglas: list[str], acertou: bool) -> str:
+        """Frase curta dizendo quando os marcadores voltam.
+
+        Mostrada logo depois de uma autoavaliação rápida, para que a
+        escolha do estudante tenha consequência visível, como na revisão.
+        """
+        if not siglas:
+            return ""
+        lista = ", ".join(siglas)
+        if not acertou:
+            return f"{lista}: volta ainda hoje na sua revisão"
+        dias = min(self.estado(s)["intervalo"] for s in siglas)
+        quando = "amanhã" if dias <= 1 else f"em {dias} dias"
+        return f"{lista}: próxima revisão {quando}"
 
     def _registrar_sessao(self, acertou: bool) -> None:
         hoje = _iso(_hoje())
