@@ -6,11 +6,19 @@ Tudo fica em data/progresso.json, no computador do usuário.
 
 Três decisões de projeto, cada uma com um porquê:
 
-1. Agendamento por repetição espaçada (SM-2, o algoritmo do SuperMemo/Anki).
+1. Agendamento por repetição espaçada (SM-2, de Wozniak, 1990).
    Revisar às vésperas da prova rende menos do que revisar em intervalos
    crescentes. Meta-análise em educação médica: diferença média
    padronizada de 0.78 a favor da repetição espaçada (n = 21.415).
    https://pubmed.ncbi.nlm.nih.gov/41601436/
+   Algoritmo original: https://super-memory.com/english/ol/sm2.htm
+
+   Três adaptações deste projeto ao SM-2 original:
+   a. a facilidade também cai quando o estudante erra (no original, o
+      ciclo recomeça sem alterá-la) — é isso que permite um erro em caso
+      clínico pesar menos que um erro em questão direta;
+   b. o item errado volta no mesmo dia, não só no seguinte;
+   c. "Fácil" no primeiro contato agenda 4 dias em vez de 1.
 
 2. Nada de pontos soltos. A literatura de gamificação mostra o efeito de
    super-justificação: recompensa extrínseca pode reduzir a motivação de
@@ -225,7 +233,9 @@ class Progresso:
             e["acertos"] += 1
 
         if not acertou:
-            # Falhou: recomeça o ciclo, mas preserva a facilidade aprendida
+            # Falhou: recomeça o ciclo. A facilidade é recalculada logo
+            # abaixo e cai — adaptação deste projeto: no SM-2 original ela
+            # ficaria intacta (ver docstring do módulo, item 1a).
             e["repeticoes"] = 0
             e["intervalo"] = INTERVALO_1
         else:
@@ -234,7 +244,7 @@ class Progresso:
                 # "Fácil" logo de cara pula o passo de 1 dia. Sem isso, as
                 # quatro notas dariam o mesmo agendamento no primeiro
                 # contato, e a escolha do estudante pareceria não valer
-                # nada. É o mesmo atalho que o Anki usa.
+                # nada. Adaptação deste projeto (item 1c).
                 e["intervalo"] = INTERVALO_FACIL_INICIAL if qualidade == 5 else INTERVALO_1
             elif e["repeticoes"] == 2:
                 e["intervalo"] = INTERVALO_2
@@ -349,8 +359,9 @@ class Progresso:
 
         O SM-2 puro agendaria esses itens só para amanhã. Mas errar e não
         rever na mesma sessão desperdiça o momento em que a correção
-        gruda: por isso eles voltam ainda hoje, como fazem os passos de
-        aprendizado do Anki.
+        gruda: por isso eles voltam ainda hoje, à semelhança das etapas de
+        reaprendizagem ("relearning steps") do Anki
+        (https://docs.ankiweb.net/deck-options.html). Adaptação do item 1b.
         """
         hoje = _iso(_hoje())
         return [s for s in siglas
