@@ -1,0 +1,26 @@
+{
+  "codigo": {
+    "Versão desktop (main.py)": 1780,
+    "Painel e revisão desktop": 916,
+    "Desktop com tutor (main_enhanced.py, ollama_ia.py)": 829,
+    "Versão mobile (mobile/)": 2749,
+    "Motor de aprendizagem (progresso.py)": 452,
+    "Geradores (imagens, logo, ícones)": 969,
+    "Testes automatizados": 210
+  },
+  "codigo_total": 7905,
+  "conteudo": {
+    "marcadores": 20,
+    "sistemas": 6,
+    "flashcards": 52,
+    "questoes": 12,
+    "casos_clinicos": 15,
+    "exemplos": 41,
+    "referencias": 31,
+    "referencias_unicas": 23,
+    "videos": 2,
+    "diagramas": 16,
+    "marcadores_com_diagrama": 8
+  },
+  "commits": 16
+}
