@@ -3,79 +3,78 @@
 # (str) Título da aplicação
 title = BioquímicaEDU
 
-# (str) Nome do pacote
-package.name = bioquimiaedu
+# (str) Nome do pacote (antes "bioquimiaedu", com erro de digitação)
+package.name = bioquimicaedu
 
-# (str) Domínio do pacote (reverse notation)
+# (str) Domínio do pacote (notação reversa)
 package.domain = br.unicid
 
-# (source.dir) Diretório raiz do projeto
+# (str) Diretório raiz do projeto.
+# O Android sempre executa main.py. O main.py detecta o celular e abre a
+# versão mobile (pasta mobile/); no computador ele continua abrindo a
+# versão desktop.
 source.dir = .
 
-# (source.include_exts) Extensões de arquivo a incluir
-source.include_exts = py,png,jpg,kv,atlas,json,csv
+# (list) Extensões incluídas no APK
+source.include_exts = py,png,json,csv
 
-# (source.include_patterns) Padrões de arquivo/pasta
-source.include_patterns = data/*
+# (list) Pastas incluídas
+source.include_patterns = data/*,data/images/*,mobile/*,assets/*
 
-# (source.exclude_exts) Extensões a excluir
-source.exclude_exts = spec
+# (list) Pastas que não vão para o APK
+source.exclude_dirs = .git,.claude,.buildozer,bin,__pycache__,.venv,venv,tests
 
-# (source.exclude_patterns) Padrões a excluir
-source.exclude_patterns = tests/*,bin/*
+# (list) Arquivos só da versão desktop, geradores e dados locais
+source.exclude_patterns = main_enhanced.py,tela_painel.py,tela_revisao.py,painel_inicio.py,criar_imagens.py,criar_assets_mobile.py,ollama_ia.py,test_*.py,data/progresso.json
 
-# (version) Versão da aplicação
-version = 0.1
+# (str) Versão da aplicação
+version = 0.3
 
-# (str) Arquivo de entrada (o que será executado)
+# (list) Requerimentos Python.
+# matplotlib saiu: só serve para gerar as imagens no computador
+# (criar_imagens.py) e deixava o APK muito maior.
+requirements = python3,kivy==2.3.1
+
+# (str) Tela de abertura e ícone — gere com: python criar_assets_mobile.py
 presplash.filename = %(source.dir)s/assets/presplash.png
-
-# (str) Ícone da aplicação
 icon.filename = %(source.dir)s/assets/icon.png
 
-# (str) Orientação: portrait, landscape, ou user
+# (str) Cor de fundo da abertura, igual ao fundo do app
+android.presplash_color = #F6F4EF
+
+# (str) Orientação
 orientation = portrait
 
-# (bool) Modo fullscreen
+# (bool) Tela cheia
 fullscreen = 0
 
-# (string) Requerimentos Python
-requirements = python3,kivy,matplotlib
+# (list) Permissões Android.
+# Nenhuma: o app funciona offline e guarda o progresso na pasta privada do
+# próprio app, então não precisa de internet nem de acesso ao armazenamento.
+android.permissions =
 
-# (str) Permissões Android
-android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
+# (int) API alvo (targetSdkVersion).
+# Desde 31/08/2026 o Google Play exige API 36 (Android 16) para apps novos.
+# Se o python-for-android instalado ainda não suportar 36, atualize
+# buildozer e python-for-android antes de compilar.
+android.api = 36
 
-# (list) Recursos Android
-android.features =
-
-# (int) API target
-android.api = 32
-
-# (int) API mínima
+# (int) API mínima (Android 5.0)
 android.minapi = 21
 
-# (str) Android NDK
-android.ndk = 25b
+# (list) Arquiteturas: celulares atuais e antigos
+android.archs = arm64-v8a, armeabi-v7a
 
-# (bool) Usar legacy build tools
-android.skip_update = False
-
-# (str) Gradle dependencies
-android.gradle_dependencies =
-
-# (list) Java classes para adicionar ao APK
-android.add_src =
-
-# (str) OUYA console category
-android.ouya.category = GAME
-
-# (str) Firewall - modo de firewall
+# (bool) Aceita a licença do SDK automaticamente
 android.accept_sdk_license = True
+
+# (bool) Permite backup do Android (inclui o progresso do estudante)
+android.allow_backup = True
 
 [buildozer]
 
-# (int) Log level (0 = error only, 1 = info, 2 = debug)
+# (int) Nível de log (0 = só erros, 1 = info, 2 = debug)
 log_level = 2
 
-# (int) Tempo limite de compilação em segundos
+# (int) Aviso ao rodar como root
 warn_on_root = 1
