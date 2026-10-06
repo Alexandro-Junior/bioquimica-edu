@@ -17,7 +17,9 @@ Três decisões de projeto, cada uma com um porquê:
    a. a facilidade também cai quando o estudante erra (no original, o
       ciclo recomeça sem alterá-la) — é isso que permite um erro em caso
       clínico pesar menos que um erro em questão direta;
-   b. o item errado volta no mesmo dia, não só no seguinte;
+   b. o reforço no mesmo dia (passo 7 do original) vale só para o item
+      errado (nota < 3) e termina no primeiro acerto; no original ele
+      inclui também a nota 3 e se repete até cada item tirar 4;
    c. "Fácil" no primeiro contato agenda 4 dias em vez de 1.
 
 2. Nada de pontos soltos. A literatura de gamificação mostra o efeito de
@@ -357,11 +359,11 @@ class Progresso:
     def reforco_hoje(self, siglas: list[str]) -> list[str]:
         """Itens errados hoje e ainda não reacertados.
 
-        O SM-2 puro agendaria esses itens só para amanhã. Mas errar e não
-        rever na mesma sessão desperdiça o momento em que a correção
-        gruda: por isso eles voltam ainda hoje, à semelhança das etapas de
-        reaprendizagem ("relearning steps") do Anki
-        (https://docs.ankiweb.net/deck-options.html). Adaptação do item 1b.
+        Errar e não rever na mesma sessão desperdiça o momento em que a
+        correção gruda: por isso eles voltam ainda hoje, como no passo 7
+        do SM-2 original e nas etapas de reaprendizagem ("relearning
+        steps") do Anki (https://docs.ankiweb.net/deck-options.html).
+        Aqui só o erro volta, e um acerto basta para sair (item 1b).
         """
         hoje = _iso(_hoje())
         return [s for s in siglas

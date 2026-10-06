@@ -33,6 +33,10 @@ from painel_inicio import (
 )
 
 
+def _marcadores(n):
+    return f"{n} marcador" if n == 1 else f"{n} marcadores"
+
+
 class PainelInicio(tk.Frame):
     """`controller` precisa expor: .progresso, .marcadores e .mostrar(nome)."""
 
@@ -154,17 +158,20 @@ class PainelInicio(tk.Frame):
             rotulo_acao = "Estudar os primeiros"
         elif reforco:
             titulo = "Corrija o que errou hoje"
-            detalhe = (f"{reforco} marcador(es) que você errou nesta sessão. "
+            detalhe = (f"{_marcadores(reforco)} que você errou nesta sessão. "
                        "Rever agora, com o erro fresco, é o que fixa a correção.")
             rotulo_acao = "Retomar os que errei"
         elif vencidos:
             titulo = "Sua revisão de hoje está pronta"
-            detalhe = (f"{vencidos} marcador(es) chegaram ao ponto de revisão — "
+            verbo = "chegou" if vencidos == 1 else "chegaram"
+            detalhe = (f"{_marcadores(vencidos)} {verbo} ao ponto de revisão — "
                        "no limite entre lembrar e esquecer, que é onde rever rende mais.")
         elif fila:
             titulo = "Revisões em dia"
+            n = min(len(fila), novos)
             detalhe = ("Nada vencido hoje. Você pode avançar em "
-                       f"{min(len(fila), novos)} marcador(es) ainda não estudados.")
+                       f"{_marcadores(n)} ainda não "
+                       f"{'estudado' if n == 1 else 'estudados'}.")
             rotulo_acao = "Aprender algo novo"
         else:
             titulo = "Tudo revisado"

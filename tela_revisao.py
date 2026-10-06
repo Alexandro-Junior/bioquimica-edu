@@ -275,7 +275,8 @@ class TelaRevisao(tk.Frame):
             return "amanhã"
         if dias < 30:
             return f"em {dias} dias"
-        return f"em {dias // 30} mês(es)"
+        meses = dias // 30
+        return "em 1 mês" if meses == 1 else f"em {meses} meses"
 
     def _responder(self, qualidade):
         sigla = self.fila[self.posicao]
