@@ -1,107 +1,163 @@
 #!/usr/bin/env python3
 """
-Teste rápido: Verifica se main_kivy_completo.py está funcional
-- ✅ Imports OK
-- ✅ Data files OK
-- ✅ Classes instanciam corretamente
-- ✅ App inicia sem erros
+Teste de fumaça da versão mobile: abre o app de verdade e usa cada tela.
+
+Importar o módulo não basta — a versão mobile antiga importava sem erro
+e mesmo assim fechava ao abrir. Este teste monta o app, navega por todas
+as telas e exercita os fluxos principais (revisão, cards, quiz, caso
+clínico, tutor, detalhe de marcador e o botão voltar).
+
+O progresso real do estudante (data/progresso.json) é salvo antes e
+restaurado no fim: os passos respondem questões e gravariam no arquivo.
+
+Uso:  python test_kivy_completo.py
+Sai com código 0 se tudo passar e 1 se algum passo falhar.
 """
 
+import os
+import shutil
 import sys
-import json
-import csv
+import tempfile
+import traceback
 from pathlib import Path
 
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
+BASE = Path(__file__).resolve().parent
+sys.path.insert(0, str(BASE))
+os.chdir(BASE)
 
-print("="*50)
-print("🧪 Teste BioquímicaEDU Mobile (Kivy)")
-print("="*50)
+PROGRESSO = BASE / "data" / "progresso.json"
+COPIA = Path(tempfile.gettempdir()) / "bioquimicaedu_progresso_backup.json"
 
-# Test 1: Imports
-print("\n1️⃣  Verificando imports...")
-try:
-    from kivy.app import App
-    from kivy.uix.boxlayout import BoxLayout
-    print("   ✅ Kivy OK")
-except ImportError as e:
-    print(f"   ❌ Kivy não instalado: {e}")
-    print("   → pip install kivy")
-    sys.exit(1)
 
-try:
-    import main_kivy_completo
-    print("   ✅ main_kivy_completo.py OK")
-except Exception as e:
-    print(f"   ❌ Erro ao importar: {e}")
-    sys.exit(1)
+def main():
+    existia = PROGRESSO.exists()
+    if existia:
+        shutil.copy(PROGRESSO, COPIA)
+        PROGRESSO.unlink()   # começa de um estudante novo
 
-# Test 2: Data files
-print("\n2️⃣  Verificando arquivos de dados...")
-files_check = {
-    "marcadores.csv": ("CSV", 20),
-    "flashcards.json": ("JSON", 50),
-    "marcadores_extras.json": ("JSON", 8),
-    "quiz_perguntas.json": ("JSON", 12),
-    "casos_clinicos.json": ("JSON", 5),
-}
-
-for fname, (tipo, esperado) in files_check.items():
-    fpath = DATA_DIR / fname
-    if not fpath.exists():
-        print(f"   ⚠️  {fname}: NÃO ENCONTRADO")
-        continue
-
-    try:
-        if tipo == "CSV":
-            with open(fpath, encoding="utf-8") as f:
-                count = len(list(csv.DictReader(f)))
-            print(f"   ✅ {fname}: {count} linhas")
-        else:  # JSON
-            with open(fpath, encoding="utf-8") as f:
-                data = json.load(f)
-            if "flashcards" in data:
-                count = len(data["flashcards"])
-            elif "marcadores_extras" in data:
-                count = len(data["marcadores_extras"])
-            elif "perguntas" in data:
-                count = len(data["perguntas"])
-            elif "casos" in data:
-                count = len(data["casos"])
-            else:
-                count = "?"
-            print(f"   ✅ {fname}: {count} itens")
-    except Exception as e:
-        print(f"   ❌ {fname}: ERRO - {e}")
-
-# Test 3: Classes instanciam
-print("\n3️⃣  Verificando classes...")
-try:
-    from main_kivy_completo import (
-        TelaInicial, TelaEstudo, TelaFlashcards,
-        TelaQuiz, TelaDiagnostico, TelaTutor
-    )
-    print("   ✅ Todas as classes importam")
-except Exception as e:
-    print(f"   ❌ Erro ao importar classes: {e}")
-
-# Test 4: Teste mínimo da app
-print("\n4️⃣  Iniciando app (5 segundos)...")
-try:
-    from main_kivy_completo import BioquimicaApp
+    from kivy.clock import Clock
+    from mobile.app import BioquimicaApp
 
     app = BioquimicaApp()
-    print("   ✅ App criada com sucesso")
-    print(f"   📊 Estado: XP={app.xp}, Streak={app.streak}")
+    falhas = []
+    passos = []
 
-    # Não roda o .run() em teste (bloquearia a tela)
-    # Só valida que a classe está OK
+    def passo(nome):
+        def registrar(fn):
+            passos.append((nome, fn))
+            return fn
+        return registrar
 
-except Exception as e:
-    print(f"   ❌ Erro ao criar app: {e}")
-    sys.exit(1)
+    def tela():
+        return app.tela_atual()
 
-print("\n" + "="*50)
-print("✅ TUDO OK! Teste com: python main_kivy_completo.py")
-print("="*50)
+    def esperar_tela(nome):
+        atual = app.gerenciador.current
+        assert atual == nome, f"esperava a tela '{nome}', está em '{atual}'"
+
+    @passo("abrir todas as abas")
+    def _():
+        for nome in ("inicio", "estudo", "cartas", "pratica", "tutor"):
+            app.ir_para(nome, animar=False)
+            esperar_tela(nome)
+
+    @passo("estudo: busca, filtro e detalhe com abas")
+    def _():
+        app.ir_para("estudo", animar=False)
+        t = tela()
+        t.busca.campo.text = "potássio"
+        assert len(t.lista.children) == 1, "a busca deveria achar só o potássio"
+        t.busca.campo.text = ""
+        t._escolher("Cardíaco")
+        assert len(t.lista.children) == 3, "Cardíaco tem CK-MB, troponina e LDH"
+        app.ir_para("detalhe", sigla="K", animar=False)
+        for chave, _rotulo in tela().abas:
+            tela().mostrar_aba(chave)
+        app.voltar()
+        esperar_tela("estudo")
+
+    @passo("revisão: confiança, resposta e autoavaliação")
+    def _():
+        # a revisão começa pelo botão do Início, e o voltar retorna para lá
+        app.ir_para("inicio", animar=False)
+        app.ir_para("revisao", animar=False)
+        t = tela()
+        assert t.fila, "um estudante novo deveria ter marcadores para estudar"
+        sigla = t.fila[0]
+        t._definir_confianca(4)
+        t._revelar()
+        t._responder(4)
+        assert app.progresso.estado(sigla)["tentativas"] == 1
+        app.voltar()
+        esperar_tela("inicio")
+
+    @passo("cards: virar e avaliar")
+    def _():
+        app.ir_para("cartas", animar=False)
+        t = tela()
+        t._virar()
+        assert t.area_avaliacao.children, "a autoavaliação deveria aparecer"
+        t._avaliar(True)
+        assert t.aviso.text, "o efeito da avaliação deveria aparecer"
+
+    @passo("prática: quiz completo")
+    def _():
+        app.ir_para("quiz", animar=False)   # nome antigo, mantido por compatibilidade
+        t = tela()
+        for _ in range(len(t.perguntas)):
+            p = t.perguntas[t.indice]
+            t.responder_quiz(p["resposta_correta"], p)
+            t._avancar()
+        assert t.acertos == len(t.perguntas)
+
+    @passo("prática: caso clínico")
+    def _():
+        app.ir_para("pratica", modo="casos", animar=False)
+        caso = app.casos[0]
+        tela().abrir_caso(caso)
+        tela().responder_caso(caso["resposta_correta"], caso)
+        assert caso["id"] in app.casos_resolvidos
+
+    @passo("tutor: pergunta respondida pela base")
+    def _():
+        app.ir_para("tutor", animar=False)
+        antes = len(tela().conversa.children)
+        tela()._perguntar("Troponina")
+        assert len(tela().conversa.children) > antes, "a pergunta não entrou na conversa"
+
+    @passo("painel reflete a sessão")
+    def _():
+        app.ir_para("inicio", animar=False)
+        siglas = [m["sigla"] for m in app.marcadores]
+        categorias = {m["sigla"]: m["categoria"] for m in app.marcadores}
+        resumo = app.progresso.resumo(siglas, categorias)
+        assert resumo["revisados_hoje"] >= 3, resumo["revisados_hoje"]
+
+    def rodar(_dt):
+        for nome, fn in passos:
+            try:
+                fn()
+                print(f"ok     {nome}")
+            except Exception as e:
+                falhas.append(nome)
+                print(f"FALHA  {nome}: {type(e).__name__}: {e}")
+                traceback.print_exc()
+        app.stop()
+
+    # alguns segundos para o primeiro layout terminar
+    Clock.schedule_once(rodar, 3)
+    try:
+        app.run()
+    finally:
+        if PROGRESSO.exists():
+            PROGRESSO.unlink()
+        if existia:
+            shutil.copy(COPIA, PROGRESSO)
+
+    print()
+    print(f"{len(falhas)} falha(s): {falhas}" if falhas else "TODOS OS PASSOS PASSARAM")
+    return 1 if falhas else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

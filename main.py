@@ -4,11 +4,28 @@ Universidade Cidade de São Paulo — PIBIC
 Aluno: Alexandro de Araujo Junior
 Orientador: Francisco de Assis Cavallaro
 
-Interface inspirada no Duolingo (botões 3D arredondados, nós de lição
-circulares, tema claro) com paleta baseada em reagentes e marcadores da
-bioquímica clínica: verde-enzima (Fehling/clorofila), vermelho-heme,
-âmbar-bile, violeta-fenolftaleína, azul-biureto/cobalto.
+Ponto de entrada do projeto:
+- no Android e no iOS, abre a versão mobile (pasta mobile/, em Kivy);
+- no computador, abre a versão desktop (Tkinter), definida neste arquivo.
+
+Paleta baseada em reagentes e marcadores da bioquímica clínica:
+verde-enzima (Fehling/clorofila), vermelho-heme, âmbar-bile,
+violeta-fenolftaleína, azul-biureto/cobalto.
 """
+
+import os
+
+# O Android sempre executa main.py, e o Tkinter não existe no celular:
+# a decisão precisa vir antes de qualquer import dele. As variáveis são as
+# mesmas que o Kivy usa para reconhecer a plataforma (kivy.utils.platform),
+# sem importar o Kivy no computador.
+NO_CELULAR = ("ANDROID_ARGUMENT" in os.environ
+              or os.environ.get("KIVY_BUILD", "") == "ios")
+
+if NO_CELULAR:
+    from mobile.app import BioquimicaApp
+    BioquimicaApp().run()
+    raise SystemExit
 
 import tkinter as tk
 from tkinter import messagebox

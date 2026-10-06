@@ -1,5 +1,5 @@
 {
-  "_sobre": "Material complementar por marcador. As referencias apontam para StatPearls / NCBI Bookshelf (revisao por pares, acesso aberto) e foram verificadas com requisicao HTTP. Os videos sao de canais institucionais ou de docentes identificados.",
+  "_sobre": "Material complementar por marcador. As referências apontam para StatPearls / NCBI Bookshelf (revisão por pares, acesso aberto) e foram verificadas com requisição HTTP. Os vídeos são de canais institucionais ou de docentes identificados.",
   "marcadores_extras": [
     {
       "sigla": "ALT",
@@ -8,25 +8,25 @@
           "titulo": "Alanine Aminotransferase (ALT) Test",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK559278/",
-          "nota": "Fisiologia, indicacoes do exame e causas de elevacao."
+          "nota": "Fisiologia, indicações do exame e causas de elevação."
         },
         {
           "titulo": "Liver Function Tests",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK482489/",
-          "nota": "Como interpretar o painel hepatico como conjunto."
+          "nota": "Como interpretar o painel hepático como conjunto."
         },
         {
           "titulo": "Aminotransferases",
           "fonte": "Clinical Methods (Walker HK) / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK425/",
-          "nota": "Capitulo classico sobre ALT e AST e o valor da razao entre elas."
+          "nota": "Capítulo clássico sobre ALT e AST e o valor da razão entre elas."
         }
       ],
       "videos": [
         {
           "titulo": "Liver Function Tests",
-          "canal": "Rahul Patwari (medicina de emergencia)",
+          "canal": "Rahul Patwari (medicina de emergência)",
           "url": "https://www.youtube.com/watch?v=f4ILvVqBhk4",
           "duracao": "13:12"
         }
@@ -34,21 +34,21 @@
       "exemplos": [
         {
           "titulo": "Hepatite viral aguda",
-          "descricao": "Paciente de 28 anos com ictericia, mal-estar e colúria ha uma semana. Transaminases muito elevadas, com ALT acima de AST.",
-          "valores": "ALT 1200 U/L | AST 800 U/L | BT 3.5 mg/dL | IgM anti-HAV reagente",
-          "conducao": "Hepatite A e autolimitada: repouso, hidratacao e reavaliacao das transaminases. Vigiar sinais de falencia hepatica (INR alargado, encefalopatia)."
+          "descricao": "Paciente de 28 anos com icterícia, mal-estar e colúria há uma semana. Transaminases muito elevadas, com ALT acima de AST.",
+          "valores": "ALT 1200 U/L | AST 800 U/L | BT 3,5 mg/dL | IgM anti-HAV reagente",
+          "conducao": "A hepatite A é autolimitada: repouso, hidratação e reavaliação das transaminases. Vigiar sinais de falência hepática (INR alargado, encefalopatia)."
         },
         {
-          "titulo": "Cirrose hepatica",
-          "descricao": "Paciente de 55 anos com cirrose alcoolica. Transaminases apenas discretamente elevadas, com AST maior que ALT.",
-          "valores": "ALT 65 U/L | AST 180 U/L | razao AST/ALT 2.8 | plaquetas 80.000 | INR 1.8",
-          "conducao": "Transaminases pouco elevadas nao excluem doenca avancada. Tratar a causa de base, rastrear varizes e monitorar coagulopatia."
+          "titulo": "Cirrose hepática",
+          "descricao": "Paciente de 55 anos com cirrose alcoólica. Transaminases apenas discretamente elevadas, com AST maior que ALT.",
+          "valores": "ALT 65 U/L | AST 180 U/L | razão AST/ALT 2,8 | plaquetas 80.000/µL | INR 1,8",
+          "conducao": "Transaminases pouco elevadas não excluem doença avançada. Tratar a causa de base, rastrear varizes e monitorar a coagulopatia."
         },
         {
           "titulo": "Hepatotoxicidade por paracetamol",
-          "descricao": "Paciente de 35 anos apos ingestao de dose toxica de paracetamol, com ALT em faixa de necrose macica e encefalopatia.",
-          "valores": "ALT 3500 U/L | AST 2800 U/L | INR 3.5 | BT 2.8 mg/dL",
-          "conducao": "N-acetilcisteina intravenosa. INR e encefalopatia, e nao o valor da ALT, definem gravidade e indicacao de transplante."
+          "descricao": "Paciente de 35 anos após ingestão de dose tóxica de paracetamol, com ALT em faixa de necrose maciça e encefalopatia.",
+          "valores": "ALT 3500 U/L | AST 2800 U/L | INR 3,5 | BT 2,8 mg/dL",
+          "conducao": "N-acetilcisteína intravenosa. O INR e a encefalopatia, e não o valor da ALT, definem a gravidade e a indicação de transplante."
         }
       ]
     },
@@ -59,28 +59,28 @@
           "titulo": "Aminotransferases",
           "fonte": "Clinical Methods (Walker HK) / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK425/",
-          "nota": "Distribuicao tecidual da AST e por que ela e menos especifica que a ALT."
+          "nota": "Distribuição tecidual da AST e por que ela é menos específica que a ALT."
         },
         {
           "titulo": "Liver Function Tests",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK482489/",
-          "nota": "Padroes hepatocelular e colestatico."
+          "nota": "Padrões hepatocelular e colestático."
         }
       ],
       "videos": [],
       "exemplos": [
         {
-          "titulo": "Doenca hepatica alcoolica",
-          "descricao": "Paciente de 48 anos, etilista, com razao AST/ALT acima de 2 e GGT elevada. Padrao classico de lesao alcoolica.",
-          "valores": "AST 210 U/L | ALT 85 U/L | razao 2.5 | GGT 320 U/L",
-          "conducao": "Abstinencia alcoolica, reposicao de tiamina e acido folico, avaliacao nutricional e rastreio de fibrose."
+          "titulo": "Doença hepática alcoólica",
+          "descricao": "Paciente de 48 anos, etilista, com razão AST/ALT acima de 2 e GGT elevada. Padrão clássico de lesão alcoólica.",
+          "valores": "AST 210 U/L | ALT 85 U/L | razão 2,5 | GGT 320 U/L",
+          "conducao": "Abstinência alcoólica, reposição de tiamina e ácido fólico, avaliação nutricional e rastreio de fibrose."
         },
         {
-          "titulo": "Rabdomiolise por estatina",
-          "descricao": "Paciente de 50 anos em atorvastatina com mialgia intensa. AST elevada por origem muscular, com CK desproporcionalmente alta.",
+          "titulo": "Rabdomiólise por estatina",
+          "descricao": "Paciente de 50 anos em uso de atorvastatina com mialgia intensa. AST elevada de origem muscular, com CK desproporcionalmente alta.",
           "valores": "AST 600 U/L | ALT 480 U/L | CK 8000 U/L | mioglobina 200 ng/mL",
-          "conducao": "Suspender a estatina, hidratacao intravenosa vigorosa e monitorar funcao renal. AST alta com CK alta aponta musculo, nao figado."
+          "conducao": "Suspender a estatina, hidratação intravenosa vigorosa e monitorar a função renal. AST alta com CK alta aponta músculo, não fígado."
         }
       ]
     },
@@ -91,28 +91,28 @@
           "titulo": "Alkaline Phosphatase and Gamma Glutamyltransferase",
           "fonte": "Clinical Methods (Walker HK) / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK203/",
-          "nota": "Uso da GGT para confirmar origem hepatobiliar de uma fosfatase alcalina elevada."
+          "nota": "Uso da GGT para confirmar a origem hepatobiliar de uma fosfatase alcalina elevada."
         },
         {
           "titulo": "Liver Function Tests",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK482489/",
-          "nota": "Padrao colestatico no painel hepatico."
+          "nota": "Padrão colestático no painel hepático."
         }
       ],
       "videos": [],
       "exemplos": [
         {
-          "titulo": "Colestase extra-hepatica",
-          "descricao": "Paciente de 70 anos com ictericia progressiva. Fosfatase alcalina e GGT elevadas em conjunto, com transaminases quase normais.",
-          "valores": "FA 280 U/L | GGT 400 U/L | BT 2.5 mg/dL | ALT 45 U/L",
-          "conducao": "Padrao colestatico. Ultrassom para avaliar dilatacao de vias biliares; se confirmada, colangiopancreatografia."
+          "titulo": "Colestase extra-hepática",
+          "descricao": "Paciente de 70 anos com icterícia progressiva. Fosfatase alcalina e GGT elevadas em conjunto, com transaminases quase normais.",
+          "valores": "FA 280 U/L | GGT 400 U/L | BT 2,5 mg/dL | ALT 45 U/L",
+          "conducao": "Padrão colestático. Ultrassom para avaliar dilatação das vias biliares; se confirmada, colangiopancreatografia."
         },
         {
           "titulo": "GGT isolada elevada",
-          "descricao": "Paciente de 40 anos assintomatico, GGT elevada em exame de rotina, com fosfatase alcalina e transaminases normais.",
+          "descricao": "Paciente de 40 anos, assintomático, com GGT elevada em exame de rotina e fosfatase alcalina e transaminases normais.",
           "valores": "GGT 180 U/L | FA 70 U/L | ALT 30 U/L | AST 28 U/L",
-          "conducao": "GGT isolada tem baixa especificidade: pode refletir alcool, medicamentos indutores enzimaticos ou esteatose. Investigar habitos antes de exames de imagem."
+          "conducao": "A GGT isolada tem baixa especificidade: pode refletir álcool, medicamentos indutores enzimáticos ou esteatose. Investigar os hábitos antes de pedir exames de imagem."
         }
       ]
     },
@@ -123,28 +123,28 @@
           "titulo": "Physiology, Bilirubin",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK470290/",
-          "nota": "Producao, conjugacao hepatica e excrecao da bilirrubina."
+          "nota": "Produção, conjugação hepática e excreção da bilirrubina."
         },
         {
           "titulo": "Hyperbilirubinemia",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK544252/",
-          "nota": "Abordagem diagnostica da ictericia por fracao predominante."
+          "nota": "Abordagem diagnóstica da icterícia pela fração predominante."
         }
       ],
       "videos": [],
       "exemplos": [
         {
-          "titulo": "Obstrucao biliar por calculo",
-          "descricao": "Paciente de 70 anos com dor em colica e ictericia. Predominio de bilirrubina direta, com enzimas canaliculares elevadas.",
-          "valores": "BT 4.5 mg/dL | BD 4.2 mg/dL | FA 380 U/L | GGT 420 U/L | ALT 50 U/L",
-          "conducao": "Hiperbilirrubinemia direta com colestase. Ultrassom e, confirmada a obstrucao, desobstrucao endoscopica."
+          "titulo": "Obstrução biliar por cálculo",
+          "descricao": "Paciente de 70 anos com dor em cólica e icterícia. Predomínio de bilirrubina direta, com enzimas canaliculares elevadas.",
+          "valores": "BT 4,5 mg/dL | BD 4,2 mg/dL | FA 380 U/L | GGT 420 U/L | ALT 50 U/L",
+          "conducao": "Hiperbilirrubinemia direta com colestase. Ultrassom e, confirmada a obstrução, desobstrução endoscópica."
         },
         {
-          "titulo": "Hemolise aguda",
-          "descricao": "Paciente de 28 anos com ictericia de instalacao rapida apos transfusao incompativel. Predominio de bilirrubina indireta.",
-          "valores": "BT 5.2 mg/dL | BI 4.8 mg/dL | LDH 1200 U/L | Hb 6.5 g/dL | haptoglobina < 10 mg/dL",
-          "conducao": "Interromper a transfusao imediatamente, hidratar, monitorar funcao renal e reinvestigar compatibilidade. LDH alta com haptoglobina baixa confirma hemolise."
+          "titulo": "Hemólise aguda",
+          "descricao": "Paciente de 28 anos com icterícia de instalação rápida após transfusão incompatível. Predomínio de bilirrubina indireta.",
+          "valores": "BT 5,2 mg/dL | BI 4,8 mg/dL | LDH 1200 U/L | Hb 6,5 g/dL | haptoglobina < 10 mg/dL",
+          "conducao": "Interromper a transfusão imediatamente, hidratar, monitorar a função renal e reinvestigar a compatibilidade. LDH alta com haptoglobina baixa confirma hemólise."
         }
       ]
     },
@@ -155,28 +155,28 @@
           "titulo": "Renal Function Tests",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK507821/",
-          "nota": "Creatinina, ureia, clearance e interferentes do metodo de Jaffe."
+          "nota": "Creatinina, ureia, clearance e interferentes do método de Jaffé."
         }
       ],
       "videos": [],
       "exemplos": [
         {
-          "titulo": "Lesao renal aguda",
-          "descricao": "Paciente de 65 anos no pos-operatorio, com creatinina subindo de 1.0 para 3.5 mg/dL em 24 horas e oliguria.",
-          "valores": "creatinina 3.5 mg/dL | ureia 120 mg/dL | diurese < 400 mL/24h | K+ 6.2 mEq/L",
-          "conducao": "Investigar causa pre-renal, renal e pos-renal. Suspender nefrotoxicos, corrigir volemia e tratar a hipercalemia com urgencia."
+          "titulo": "Lesão renal aguda",
+          "descricao": "Paciente de 65 anos no pós-operatório, com creatinina subindo de 1,0 para 3,5 mg/dL em 24 horas e oligúria.",
+          "valores": "creatinina 3,5 mg/dL | ureia 120 mg/dL | diurese < 400 mL/24h | K+ 6,2 mEq/L",
+          "conducao": "Investigar causa pré-renal, renal e pós-renal. Suspender nefrotóxicos, corrigir a volemia e tratar a hipercalemia com urgência."
         },
         {
-          "titulo": "Doenca renal cronica estagio 5",
-          "descricao": "Paciente de 75 anos, diabetico de longa data, com creatinina muito elevada e taxa de filtracao minima.",
-          "valores": "creatinina 8.5 mg/dL | TFG estimada 5 mL/min/1,73m2 | ureia 180 mg/dL | K+ 5.8 mEq/L",
-          "conducao": "Preparo para terapia renal substitutiva, restricao de potassio e fosforo e avaliacao para transplante."
+          "titulo": "Doença renal crônica estágio 5",
+          "descricao": "Paciente de 75 anos, diabético de longa data, com creatinina muito elevada e filtração glomerular mínima.",
+          "valores": "creatinina 8,5 mg/dL | TFG estimada 5 mL/min/1,73 m² | ureia 180 mg/dL | K+ 5,8 mEq/L",
+          "conducao": "Preparo para terapia renal substitutiva, restrição de potássio e fósforo e avaliação para transplante."
         },
         {
-          "titulo": "Creatinina normal com funcao renal reduzida",
-          "descricao": "Paciente de 80 anos, magra e sarcopenica, com creatinina dentro da faixa mas filtracao glomerular estimada baixa.",
-          "valores": "creatinina 1.0 mg/dL | TFG estimada 38 mL/min/1,73m2 | ureia 62 mg/dL",
-          "conducao": "Creatinina depende da massa muscular e pode mascarar doenca renal em idosos. Usar a TFG estimada para ajustar doses de medicamentos."
+          "titulo": "Creatinina normal com função renal reduzida",
+          "descricao": "Paciente de 80 anos, magra e sarcopênica, com creatinina dentro da faixa, mas filtração glomerular estimada baixa.",
+          "valores": "creatinina 1,0 mg/dL | TFG estimada 38 mL/min/1,73 m² | ureia 62 mg/dL",
+          "conducao": "A creatinina depende da massa muscular e pode mascarar doença renal em idosos. Usar a TFG estimada para ajustar a dose de medicamentos."
         }
       ]
     },
@@ -193,16 +193,16 @@
       "videos": [],
       "exemplos": [
         {
-          "titulo": "Azotemia pre-renal",
-          "descricao": "Paciente de 72 anos desidratado apos diarreia. Ureia sobe proporcionalmente mais que a creatinina.",
-          "valores": "ureia 110 mg/dL | creatinina 1.5 mg/dL | razao ureia/creatinina 73 | sodio urinario baixo",
-          "conducao": "Razao ureia/creatinina elevada sugere causa pre-renal. Reposicao volemica costuma normalizar os valores."
+          "titulo": "Azotemia pré-renal",
+          "descricao": "Paciente de 72 anos desidratado após diarreia. A ureia sobe proporcionalmente mais que a creatinina.",
+          "valores": "ureia 110 mg/dL | creatinina 1,5 mg/dL | razão ureia/creatinina 73 | sódio urinário baixo",
+          "conducao": "Razão ureia/creatinina elevada sugere causa pré-renal. A reposição volêmica costuma normalizar os valores."
         },
         {
           "titulo": "Hemorragia digestiva alta",
-          "descricao": "Paciente de 60 anos com melena. Ureia elevada pela absorcao de proteinas do sangue no intestino, com creatinina normal.",
-          "valores": "ureia 95 mg/dL | creatinina 1.0 mg/dL | Hb 8.0 g/dL",
-          "conducao": "Ureia alta com creatinina normal em paciente com melena reforca sangramento digestivo. Endoscopia e suporte transfusional."
+          "descricao": "Paciente de 60 anos com melena. Ureia elevada pela absorção das proteínas do sangue no intestino, com creatinina normal.",
+          "valores": "ureia 95 mg/dL | creatinina 1,0 mg/dL | Hb 8,0 g/dL",
+          "conducao": "Ureia alta com creatinina normal em paciente com melena reforça a hipótese de sangramento digestivo. Endoscopia e suporte transfusional."
         }
       ]
     },
@@ -213,22 +213,22 @@
           "titulo": "Hyperuricemia",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK459218/",
-          "nota": "Cerca de 90% dos casos decorrem de excrecao renal deficiente."
+          "nota": "Cerca de 90% dos casos decorrem de excreção renal deficiente."
         }
       ],
       "videos": [],
       "exemplos": [
         {
           "titulo": "Crise de gota",
-          "descricao": "Paciente de 52 anos com dor intensa e edema na primeira articulacao metatarsofalangeana, de inicio noturno.",
-          "valores": "acido urico 9.2 mg/dL | PCR 40 mg/L | liquido sinovial com cristais de urato",
-          "conducao": "Tratar a crise com anti-inflamatorio ou colchicina. O acido urico pode estar normal durante a crise: o diagnostico e clinico e pela analise do liquido sinovial."
+          "descricao": "Paciente de 52 anos com dor intensa e edema na primeira articulação metatarsofalangeana, de início noturno.",
+          "valores": "ácido úrico 9,2 mg/dL | PCR 40 mg/L | líquido sinovial com cristais de urato",
+          "conducao": "Tratar a crise com anti-inflamatório ou colchicina. O ácido úrico pode estar normal durante a crise: o diagnóstico é clínico e pela análise do líquido sinovial."
         },
         {
-          "titulo": "Sindrome de lise tumoral",
-          "descricao": "Paciente em quimioterapia para linfoma, com elevacao abrupta de acido urico, potassio e fosforo.",
-          "valores": "acido urico 14 mg/dL | K+ 6.5 mEq/L | fosforo 7.8 mg/dL | calcio 7.0 mg/dL | creatinina 2.4 mg/dL",
-          "conducao": "Emergencia oncologica. Hidratacao vigorosa, rasburicase ou alopurinol e correcao dos disturbios eletroliticos."
+          "titulo": "Síndrome de lise tumoral",
+          "descricao": "Paciente em quimioterapia para linfoma, com elevação abrupta de ácido úrico, potássio e fósforo.",
+          "valores": "ácido úrico 14 mg/dL | K+ 6,5 mEq/L | fósforo 7,8 mg/dL | cálcio 7,0 mg/dL | creatinina 2,4 mg/dL",
+          "conducao": "Emergência oncológica. Hidratação vigorosa, rasburicase ou alopurinol e correção dos distúrbios eletrolíticos."
         }
       ]
     },
@@ -239,18 +239,18 @@
           "titulo": "Physiology, Glucose",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK545201/",
-          "nota": "Regulacao da glicemia em jejum e no periodo pos-prandial."
+          "nota": "Regulação da glicemia em jejum e no período pós-prandial."
         },
         {
           "titulo": "Physiology, Gluconeogenesis",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK541119/",
-          "nota": "Producao hepatica de glicose no jejum prolongado."
+          "nota": "Produção hepática de glicose no jejum prolongado."
         }
       ],
       "videos": [
         {
-          "titulo": "Diabetes: apresentacao clinica",
+          "titulo": "Diabetes: apresentação clínica",
           "canal": "Medscape",
           "url": "https://www.youtube.com/watch?v=YUT33Lgo0jo",
           "duracao": "6:24"
@@ -259,21 +259,21 @@
       "exemplos": [
         {
           "titulo": "Diabetes tipo 2 descompensado",
-          "descricao": "Paciente de 50 anos com obesidade e sedentarismo, hiperglicemia acentuada sem cetose nem rebaixamento de consciencia.",
-          "valores": "glicose 450 mg/dL | HbA1c 11.2% | peptideo C 3.2 ng/mL (preservado)",
-          "conducao": "Peptideo C preservado indica producao endogena de insulina. Metformina, mudanca de estilo de vida e, conforme a glicemia, insulina ou agonista de GLP-1."
+          "descricao": "Paciente de 50 anos com obesidade e sedentarismo, hiperglicemia acentuada sem cetose nem rebaixamento de consciência.",
+          "valores": "glicose 450 mg/dL | HbA1c 11,2% | peptídeo C 3,2 ng/mL (preservado)",
+          "conducao": "Peptídeo C preservado indica produção endógena de insulina. Metformina, mudança de estilo de vida e, conforme a glicemia, insulina ou agonista de GLP-1."
         },
         {
-          "titulo": "Cetoacidose diabetica",
-          "descricao": "Paciente de 25 anos com diabetes tipo 1 que interrompeu a insulina. Poliuria, polidipsia e respiracao de Kussmaul.",
-          "valores": "glicose 520 mg/dL | pH 7.15 | HCO3- 8 mEq/L | cetonas fortemente positivas | anion gap 20",
-          "conducao": "Emergencia. Hidratacao, insulina intravenosa continua e reposicao de potassio antes que ele caia com a insulina. Monitorizacao intensiva."
+          "titulo": "Cetoacidose diabética",
+          "descricao": "Paciente de 25 anos com diabetes tipo 1 que interrompeu a insulina. Poliúria, polidipsia e respiração de Kussmaul.",
+          "valores": "glicose 520 mg/dL | pH 7,15 | HCO3- 8 mEq/L | cetonas fortemente positivas | ânion gap 20",
+          "conducao": "Emergência. Hidratação, insulina intravenosa contínua e reposição de potássio antes que ele caia com a insulina. Monitorização intensiva."
         },
         {
           "titulo": "Hipoglicemia por insulinoma",
-          "descricao": "Paciente de 45 anos com episodios de confusao em jejum, aliviados pela ingestao de acucar (triade de Whipple).",
-          "valores": "glicose 38 mg/dL | insulina elevada | peptideo C elevado | sulfonilureia nao detectada",
-          "conducao": "Insulina e peptideo C altos juntos indicam producao endogena. Localizar o tumor por imagem; o tratamento e cirurgico."
+          "descricao": "Paciente de 45 anos com episódios de confusão em jejum, aliviados pela ingestão de açúcar (tríade de Whipple).",
+          "valores": "glicose 38 mg/dL | insulina elevada | peptídeo C elevado | sulfonilureia não detectada",
+          "conducao": "Insulina e peptídeo C altos juntos indicam produção endógena. Localizar o tumor por imagem; o tratamento é cirúrgico."
         }
       ]
     },
@@ -284,22 +284,22 @@
           "titulo": "Hemoglobin A1C",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK549816/",
-          "nota": "Reflete a glicemia media de cerca de 3 meses; limitacoes em hemoglobinopatias."
+          "nota": "Reflete a glicemia média de cerca de 3 meses; tem limitações nas hemoglobinopatias."
         }
       ],
       "videos": [],
       "exemplos": [
         {
-          "titulo": "Diagnostico de diabetes",
-          "descricao": "Paciente de 58 anos assintomatico, com HbA1c em faixa diagnostica confirmada em segunda amostra.",
-          "valores": "HbA1c 7.4% | glicose em jejum 142 mg/dL",
-          "conducao": "HbA1c igual ou acima de 6.5% permite o diagnostico quando confirmada. Iniciar tratamento e rastrear complicacoes cronicas."
+          "titulo": "Diagnóstico de diabetes",
+          "descricao": "Paciente de 58 anos, assintomático, com HbA1c em faixa diagnóstica confirmada em segunda amostra.",
+          "valores": "HbA1c 7,4% | glicose em jejum 142 mg/dL",
+          "conducao": "HbA1c igual ou acima de 6,5% permite o diagnóstico quando confirmada. Iniciar o tratamento e rastrear complicações crônicas."
         },
         {
           "titulo": "HbA1c falsamente baixa",
-          "descricao": "Paciente com anemia hemolitica e glicemias capilares altas, mas HbA1c desproporcionalmente baixa.",
-          "valores": "HbA1c 5.1% | glicemias capilares 200-280 mg/dL | reticulocitos elevados",
-          "conducao": "A hemolise encurta a vida da hemacia e reduz falsamente a HbA1c. Usar frutosamina ou monitorizacao continua para avaliar o controle."
+          "descricao": "Paciente com anemia hemolítica e glicemias capilares altas, mas HbA1c desproporcionalmente baixa.",
+          "valores": "HbA1c 5,1% | glicemias capilares 200–280 mg/dL | reticulócitos elevados",
+          "conducao": "A hemólise encurta a vida da hemácia e reduz falsamente a HbA1c. Usar frutosamina ou monitorização contínua para avaliar o controle."
         }
       ]
     },
@@ -310,28 +310,28 @@
           "titulo": "Physiology, Cholesterol",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK470561/",
-          "nota": "Funcao do colesterol e composicao do perfil lipidico."
+          "nota": "Função do colesterol e composição do perfil lipídico."
         },
         {
           "titulo": "Hypercholesterolemia",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK459188/",
-          "nota": "Avaliacao e conduta na hipercolesterolemia."
+          "nota": "Avaliação e conduta na hipercolesterolemia."
         }
       ],
       "videos": [],
       "exemplos": [
         {
           "titulo": "Hipercolesterolemia familiar",
-          "descricao": "Paciente de 35 anos com colesterol muito elevado, xantomas tendineos e historia familiar de infarto precoce.",
+          "descricao": "Paciente de 35 anos com colesterol muito elevado, xantomas tendíneos e história familiar de infarto precoce.",
           "valores": "CT 580 mg/dL | LDL 450 mg/dL | HDL 35 mg/dL | TG 150 mg/dL",
-          "conducao": "LDL muito alto com historia familiar sugere causa monogenica. Estatina de alta potencia, associacao com ezetimiba ou inibidor de PCSK9 e rastreio dos familiares."
+          "conducao": "LDL muito alto com história familiar sugere causa monogênica. Estatina de alta potência, associação com ezetimiba ou inibidor de PCSK9 e rastreio dos familiares."
         },
         {
-          "titulo": "Dislipidemia aterogenica",
-          "descricao": "Paciente de 55 anos com diabetes tipo 2: triglicerideos altos, HDL baixo e LDL pequenas e densas.",
+          "titulo": "Dislipidemia aterogênica",
+          "descricao": "Paciente de 55 anos com diabetes tipo 2: triglicerídeos altos, HDL baixo e LDL pequenas e densas.",
           "valores": "CT 260 mg/dL | LDL 180 mg/dL | HDL 30 mg/dL | TG 320 mg/dL",
-          "conducao": "Alto risco cardiovascular. Estatina, controle glicemico e mudanca de estilo de vida; fibrato se os triglicerideos permanecerem muito altos."
+          "conducao": "Alto risco cardiovascular. Estatina, controle glicêmico e mudança de estilo de vida; fibrato se os triglicerídeos permanecerem muito altos."
         }
       ]
     },
@@ -342,16 +342,16 @@
           "titulo": "Dyslipidemia",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK560891/",
-          "nota": "Papel do HDL no transporte reverso de colesterol."
+          "nota": "Papel do HDL no transporte reverso do colesterol."
         }
       ],
       "videos": [],
       "exemplos": [
         {
-          "titulo": "HDL baixo na sindrome metabolica",
-          "descricao": "Paciente de 45 anos com obesidade central, HDL baixo e triglicerideos altos, preenchendo criterios de sindrome metabolica.",
-          "valores": "HDL 32 mg/dL | TG 240 mg/dL | circunferencia abdominal 108 cm | glicose 108 mg/dL",
-          "conducao": "Atividade fisica regular e perda de peso sao as medidas que mais elevam o HDL. Nao ha indicacao de tratamento farmacologico so para elevar HDL."
+          "titulo": "HDL baixo na síndrome metabólica",
+          "descricao": "Paciente de 45 anos com obesidade central, HDL baixo e triglicerídeos altos, preenchendo os critérios de síndrome metabólica.",
+          "valores": "HDL 32 mg/dL | TG 240 mg/dL | circunferência abdominal 108 cm | glicose 108 mg/dL",
+          "conducao": "Atividade física regular e perda de peso são as medidas que mais elevam o HDL. Não há indicação de tratamento farmacológico apenas para elevar o HDL."
         }
       ]
     },
@@ -362,28 +362,28 @@
           "titulo": "Biochemistry, Low Density Lipoprotein",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK500010/",
-          "nota": "Estrutura do LDL e metodos de dosagem, incluindo a formula de Friedewald."
+          "nota": "Estrutura do LDL e métodos de dosagem, incluindo a fórmula de Friedewald."
         },
         {
           "titulo": "Hypercholesterolemia",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK459188/",
-          "nota": "Metas de LDL conforme risco cardiovascular."
+          "nota": "Metas de LDL conforme o risco cardiovascular."
         }
       ],
       "videos": [],
       "exemplos": [
         {
-          "titulo": "LDL calculado nao confiavel",
-          "descricao": "Paciente com triglicerideos muito elevados; o LDL calculado por Friedewald perde validade nessa faixa.",
-          "valores": "CT 320 mg/dL | TG 600 mg/dL | HDL 30 mg/dL | LDL calculado nao confiavel",
-          "conducao": "Com triglicerideos acima de 400 mg/dL a formula de Friedewald nao se aplica. Solicitar LDL direto ou usar colesterol nao-HDL."
+          "titulo": "LDL calculado não confiável",
+          "descricao": "Paciente com triglicerídeos muito elevados; o LDL calculado por Friedewald perde a validade nessa faixa.",
+          "valores": "CT 320 mg/dL | TG 600 mg/dL | HDL 30 mg/dL | LDL calculado não confiável",
+          "conducao": "Com triglicerídeos acima de 400 mg/dL a fórmula de Friedewald não se aplica. Solicitar LDL direto ou usar o colesterol não HDL."
         },
         {
-          "titulo": "Prevencao secundaria pos-infarto",
-          "descricao": "Paciente de 62 anos apos infarto, em uso de estatina, com LDL ainda acima da meta.",
+          "titulo": "Prevenção secundária pós-infarto",
+          "descricao": "Paciente de 62 anos após infarto, em uso de estatina, com LDL ainda acima da meta.",
           "valores": "LDL 88 mg/dL | CT 170 mg/dL | HDL 42 mg/dL",
-          "conducao": "Em prevencao secundaria a meta de LDL e mais rigorosa. Intensificar a estatina ou associar ezetimiba."
+          "conducao": "Na prevenção secundária a meta de LDL é mais rigorosa. Intensificar a estatina ou associar ezetimiba."
         }
       ]
     },
@@ -394,16 +394,16 @@
           "titulo": "Dyslipidemia",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK560891/",
-          "nota": "Classificacao e conduta na hipertrigliceridemia."
+          "nota": "Classificação e conduta na hipertrigliceridemia."
         }
       ],
       "videos": [],
       "exemplos": [
         {
           "titulo": "Pancreatite por hipertrigliceridemia",
-          "descricao": "Paciente de 40 anos com dor epigastrica intensa e triglicerideos em faixa de risco para pancreatite.",
-          "valores": "TG 1850 mg/dL | lipase 620 U/L | amilase 580 U/L | calcio 7.2 mg/dL",
-          "conducao": "Triglicerideos acima de 1000 mg/dL sao causa reconhecida de pancreatite. Jejum, hidratacao, controle da dor e reducao rapida dos triglicerideos."
+          "descricao": "Paciente de 40 anos com dor epigástrica intensa e triglicerídeos em faixa de risco para pancreatite.",
+          "valores": "TG 1850 mg/dL | lipase 620 U/L | amilase 580 U/L | cálcio 7,2 mg/dL",
+          "conducao": "Triglicerídeos acima de 1000 mg/dL são causa reconhecida de pancreatite. Jejum, hidratação, controle da dor e redução rápida dos triglicerídeos."
         }
       ]
     },
@@ -414,28 +414,28 @@
           "titulo": "Hyponatremia",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK470386/",
-          "nota": "Classificacao por volemia e risco da correcao rapida."
+          "nota": "Classificação pela volemia e risco da correção rápida."
         },
         {
           "titulo": "Electrolytes",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK541123/",
-          "nota": "Visao geral dos principais eletrolitos."
+          "nota": "Visão geral dos principais eletrólitos."
         }
       ],
       "videos": [],
       "exemplos": [
         {
           "titulo": "Hiponatremia por SIADH",
-          "descricao": "Paciente de 68 anos com cancer de pulmao, confusao mental e sodio baixo, sem edema nem sinais de desidratacao.",
-          "valores": "Na+ 118 mEq/L | osmolalidade serica baixa | osmolalidade urinaria alta | sodio urinario > 40 mEq/L",
-          "conducao": "Restricao hidrica e tratamento da causa. Corrigir no maximo 8 mEq/L em 24 horas: correcao rapida causa desmielinizacao osmotica."
+          "descricao": "Paciente de 68 anos com câncer de pulmão, confusão mental e sódio baixo, sem edema nem sinais de desidratação.",
+          "valores": "Na+ 118 mEq/L | osmolalidade sérica baixa | osmolalidade urinária alta | sódio urinário > 40 mEq/L",
+          "conducao": "Restrição hídrica e tratamento da causa. Corrigir no máximo 8 mEq/L em 24 horas: a correção rápida causa desmielinização osmótica."
         },
         {
-          "titulo": "Hipernatremia por desidratacao",
-          "descricao": "Idoso acamado com ingestao hidrica insuficiente, sodio elevado e sinais de desidratacao.",
-          "valores": "Na+ 158 mEq/L | ureia 90 mg/dL | creatinina 1.8 mg/dL",
-          "conducao": "Repor agua livre de forma gradual, calculando o deficit. Reducao rapida do sodio pode causar edema cerebral."
+          "titulo": "Hipernatremia por desidratação",
+          "descricao": "Idoso acamado com ingestão hídrica insuficiente, sódio elevado e sinais de desidratação.",
+          "valores": "Na+ 158 mEq/L | ureia 90 mg/dL | creatinina 1,8 mg/dL",
+          "conducao": "Repor água livre de forma gradual, calculando o déficit. A redução rápida do sódio pode causar edema cerebral."
         }
       ]
     },
@@ -446,34 +446,34 @@
           "titulo": "Hyperkalemia",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK470284/",
-          "nota": "Causas, alteracoes no eletrocardiograma e tratamento de urgencia."
+          "nota": "Causas, alterações no eletrocardiograma e tratamento de urgência."
         },
         {
           "titulo": "Hypokalemia",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK482465/",
-          "nota": "Perdas renais e digestivas e o papel do magnesio na reposicao."
+          "nota": "Perdas renais e digestivas e o papel do magnésio na reposição."
         }
       ],
       "videos": [],
       "exemplos": [
         {
-          "titulo": "Hipercalemia na doenca renal cronica",
-          "descricao": "Paciente de 70 anos com filtracao glomerular muito reduzida, potassio elevado e ondas T apiculadas no eletrocardiograma.",
-          "valores": "K+ 6.8 mEq/L | TFG estimada 8 mL/min/1,73m2 | ureia 200 mg/dL",
-          "conducao": "Emergencia. Gluconato de calcio para estabilizar a membrana cardiaca, insulina com glicose e beta-agonista para deslocar o potassio, e dialise para remove-lo."
+          "titulo": "Hipercalemia na doença renal crônica",
+          "descricao": "Paciente de 70 anos com filtração glomerular muito reduzida, potássio elevado e ondas T apiculadas no eletrocardiograma.",
+          "valores": "K+ 6,8 mEq/L | TFG estimada 8 mL/min/1,73 m² | ureia 200 mg/dL",
+          "conducao": "Emergência. Gluconato de cálcio para estabilizar a membrana cardíaca, insulina com glicose e beta-agonista para deslocar o potássio para dentro das células, e diálise para removê-lo."
         },
         {
-          "titulo": "Hipocalemia por diuretico",
-          "descricao": "Paciente de 60 anos em uso de furosemida, com fraqueza muscular, palpitacoes e onda U no eletrocardiograma.",
-          "valores": "K+ 2.8 mEq/L | magnesio 1.5 mg/dL | pH 7.45",
-          "conducao": "Repor potassio e corrigir tambem o magnesio: com hipomagnesemia a reposicao de potassio nao se sustenta. Reavaliar a dose do diuretico."
+          "titulo": "Hipocalemia por diurético",
+          "descricao": "Paciente de 60 anos em uso de furosemida, com fraqueza muscular, palpitações e onda U no eletrocardiograma.",
+          "valores": "K+ 2,8 mEq/L | magnésio 1,5 mg/dL | pH 7,45",
+          "conducao": "Repor o potássio e corrigir também o magnésio: com hipomagnesemia, a reposição de potássio não se sustenta. Reavaliar a dose do diurético."
         },
         {
           "titulo": "Pseudo-hipercalemia",
-          "descricao": "Potassio elevado em paciente assintomatico, com eletrocardiograma normal e amostra hemolisada.",
-          "valores": "K+ 6.2 mEq/L | amostra hemolisada | eletrocardiograma sem alteracoes",
-          "conducao": "Hemolise na coleta libera potassio das hemacias. Antes de tratar, repetir a coleta sem garrote prolongado."
+          "descricao": "Potássio elevado em paciente assintomático, com eletrocardiograma normal e amostra hemolisada.",
+          "valores": "K+ 6,2 mEq/L | amostra hemolisada | eletrocardiograma sem alterações",
+          "conducao": "A hemólise na coleta libera o potássio das hemácias. Antes de tratar, repetir a coleta sem garrote prolongado."
         }
       ]
     },
@@ -484,16 +484,16 @@
           "titulo": "Electrolytes",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK541123/",
-          "nota": "Cloro no equilibrio acidobasico e no calculo do anion gap."
+          "nota": "O cloro no equilíbrio ácido-base e no cálculo do ânion gap."
         }
       ],
       "videos": [],
       "exemplos": [
         {
-          "titulo": "Acidose metabolica hipercloremica",
-          "descricao": "Paciente com diarreia prolongada, acidose metabolica com anion gap normal e cloro elevado.",
-          "valores": "Cl- 116 mEq/L | HCO3- 16 mEq/L | Na+ 140 mEq/L | anion gap 8",
-          "conducao": "Anion gap normal com cloro alto aponta perda digestiva de bicarbonato ou acidose tubular renal. Repor volume e bicarbonato conforme a gravidade."
+          "titulo": "Acidose metabólica hiperclorêmica",
+          "descricao": "Paciente com diarreia prolongada, acidose metabólica com ânion gap normal e cloro elevado.",
+          "valores": "Cl- 116 mEq/L | HCO3- 16 mEq/L | Na+ 140 mEq/L | ânion gap 8",
+          "conducao": "Ânion gap normal com cloro alto aponta perda digestiva de bicarbonato ou acidose tubular renal. Repor volume e bicarbonato conforme a gravidade."
         }
       ]
     },
@@ -504,28 +504,28 @@
           "titulo": "Lactic Acidosis",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK470202/",
-          "nota": "Acidose com anion gap elevado e suas causas."
+          "nota": "Acidose com ânion gap elevado e suas causas."
         },
         {
           "titulo": "Electrolytes",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK541123/",
-          "nota": "Bicarbonato e equilibrio acidobasico."
+          "nota": "Bicarbonato e equilíbrio ácido-base."
         }
       ],
       "videos": [],
       "exemplos": [
         {
-          "titulo": "Acidose latica no choque septico",
-          "descricao": "Paciente septico com hipotensao, pH baixo e lactato elevado por hipoperfusao tecidual.",
-          "valores": "pH 7.21 | lactato 6.5 mmol/L | HCO3- 14 mEq/L | anion gap 22",
-          "conducao": "Tratar a causa: antibiotico precoce, restauracao da perfusao e suporte hemodinamico. O lactato serve para acompanhar a resposta."
+          "titulo": "Acidose lática no choque séptico",
+          "descricao": "Paciente séptico com hipotensão, pH baixo e lactato elevado por hipoperfusão tecidual.",
+          "valores": "pH 7,21 | lactato 6,5 mmol/L | HCO3- 14 mEq/L | ânion gap 22",
+          "conducao": "Tratar a causa: antibiótico precoce, restauração da perfusão e suporte hemodinâmico. O lactato serve para acompanhar a resposta."
         },
         {
-          "titulo": "Alcalose metabolica por vomitos",
-          "descricao": "Paciente com vomitos repetidos, pH elevado, cloro e potassio baixos.",
-          "valores": "pH 7.52 | HCO3- 34 mEq/L | Cl- 88 mEq/L | K+ 3.0 mEq/L",
-          "conducao": "Perda de acido cloridrico pelo vomito. Corrigir volume com solucao salina e repor potassio e cloro."
+          "titulo": "Alcalose metabólica por vômitos",
+          "descricao": "Paciente com vômitos repetidos, pH elevado e cloro e potássio baixos.",
+          "valores": "pH 7,52 | HCO3- 34 mEq/L | Cl- 88 mEq/L | K+ 3,0 mEq/L",
+          "conducao": "Perda de ácido clorídrico pelo vômito. Corrigir o volume com solução salina e repor potássio e cloro."
         }
       ]
     },
@@ -543,9 +543,9 @@
       "exemplos": [
         {
           "titulo": "Suspeita de reinfarto",
-          "descricao": "Paciente com nova dor toracica dias apos infarto. A troponina ainda esta elevada do evento inicial.",
-          "valores": "CK-MB previa normalizada, agora 48 U/L | troponina ainda elevada do evento anterior",
-          "conducao": "Como a CK-MB normaliza em 48 a 72 horas, sua reelevacao ajuda a identificar reinfarto quando a troponina ainda nao voltou ao basal."
+          "descricao": "Paciente com nova dor torácica dias após um infarto. A troponina ainda está elevada pelo evento inicial.",
+          "valores": "CK-MB antes normalizada, agora 48 U/L | troponina ainda elevada pelo evento anterior",
+          "conducao": "Como a CK-MB normaliza em 48 a 72 horas, sua nova elevação ajuda a identificar o reinfarto quando a troponina ainda não voltou ao basal."
         }
       ]
     },
@@ -556,28 +556,28 @@
           "titulo": "Analytical and Clinical Aspects of Troponin Testing",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK507805/",
-          "nota": "Ensaios de alta sensibilidade e protocolos acelerados de exclusao."
+          "nota": "Ensaios de alta sensibilidade e protocolos acelerados de exclusão."
         }
       ],
       "videos": [],
       "exemplos": [
         {
           "titulo": "Infarto com supradesnivelamento de ST",
-          "descricao": "Paciente de 55 anos com dor toracica tipica, sudorese e supradesnivelamento de ST no eletrocardiograma.",
-          "valores": "troponina I 3.2 ng/mL | CK-MB 6 U/L | ST elevado em V1-V4",
-          "conducao": "Nao esperar a troponina para agir: o eletrocardiograma ja indica reperfusao imediata, preferencialmente angioplastia primaria."
+          "descricao": "Paciente de 55 anos com dor torácica típica, sudorese e supradesnivelamento de ST no eletrocardiograma.",
+          "valores": "troponina I 3,2 ng/mL | CK-MB 6 U/L | ST elevado em V1–V4",
+          "conducao": "Não esperar a troponina para agir: o eletrocardiograma já indica reperfusão imediata, preferencialmente por angioplastia primária."
         },
         {
           "titulo": "Troponina elevada sem infarto",
-          "descricao": "Paciente de 78 anos com doenca renal cronica e insuficiencia cardiaca, troponina persistentemente elevada e estavel.",
-          "valores": "troponina I 0.09 ng/mL estavel em duas dosagens | eletrocardiograma sem isquemia aguda",
-          "conducao": "Troponina elevada indica lesao miocardica, nao necessariamente infarto. O que define infarto e a curva (variacao entre dosagens) somada ao quadro clinico."
+          "descricao": "Paciente de 78 anos com doença renal crônica e insuficiência cardíaca, troponina persistentemente elevada e estável.",
+          "valores": "troponina I 0,09 ng/mL, estável em duas dosagens | eletrocardiograma sem isquemia aguda",
+          "conducao": "Troponina elevada indica lesão miocárdica, não necessariamente infarto. O que define o infarto é a curva (variação entre as dosagens) somada ao quadro clínico."
         },
         {
           "titulo": "Miocardite viral",
-          "descricao": "Paciente de 30 anos com quadro viral recente, dor toracica e supradesnivelamento difuso de ST.",
-          "valores": "troponina I 1.5 ng/mL | PCR 45 mg/L | fracao de ejecao 35%",
-          "conducao": "Repouso, monitorizacao de arritmias e tratamento da insuficiencia cardiaca. Evitar exercicio fisico na fase aguda."
+          "descricao": "Paciente de 30 anos com quadro viral recente, dor torácica e supradesnivelamento difuso de ST.",
+          "valores": "troponina I 1,5 ng/mL | PCR 45 mg/L | fração de ejeção 35%",
+          "conducao": "Repouso, monitorização de arritmias e tratamento da insuficiência cardíaca. Evitar exercício físico na fase aguda."
         }
       ]
     },
@@ -588,22 +588,22 @@
           "titulo": "Biochemistry, Lactate Dehydrogenase",
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK557536/",
-          "nota": "Isoenzimas da LDH e por que o marcador e pouco especifico."
+          "nota": "Isoenzimas da LDH e por que o marcador é pouco específico."
         }
       ],
       "videos": [],
       "exemplos": [
         {
-          "titulo": "Anemia hemolitica",
-          "descricao": "Paciente com anemia, ictericia e LDH elevada, com haptoglobina consumida.",
-          "valores": "LDH 900 U/L | haptoglobina < 10 mg/dL | BI 3.8 mg/dL | reticulocitos elevados",
-          "conducao": "LDH alta com haptoglobina baixa e bilirrubina indireta elevada compoe o padrao de hemolise. Investigar a causa com teste de Coombs."
+          "titulo": "Anemia hemolítica",
+          "descricao": "Paciente com anemia, icterícia e LDH elevada, com haptoglobina consumida.",
+          "valores": "LDH 900 U/L | haptoglobina < 10 mg/dL | BI 3,8 mg/dL | reticulócitos elevados",
+          "conducao": "LDH alta com haptoglobina baixa e bilirrubina indireta elevada compõe o padrão de hemólise. Investigar a causa com o teste de Coombs."
         },
         {
-          "titulo": "LDH como marcador prognostico",
-          "descricao": "Paciente com linfoma em estadiamento; a LDH entra nos indices de prognostico.",
-          "valores": "LDH 480 U/L | acido urico 8.5 mg/dL",
-          "conducao": "LDH elevada reflete alta carga tumoral e piora o escore prognostico. Atencao ao risco de sindrome de lise tumoral ao iniciar o tratamento."
+          "titulo": "LDH como marcador prognóstico",
+          "descricao": "Paciente com linfoma em estadiamento; a LDH entra nos índices de prognóstico.",
+          "valores": "LDH 480 U/L | ácido úrico 8,5 mg/dL",
+          "conducao": "LDH elevada reflete alta carga tumoral e piora o escore prognóstico. Atenção ao risco de síndrome de lise tumoral ao iniciar o tratamento."
         }
       ]
     }
