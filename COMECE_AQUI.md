@@ -138,7 +138,7 @@ pip install kivy pillow requests
 
 ### Para IA (opcional)
 ```bash
-pip install ollama
+# instale o Ollama em https://ollama.com (o pacote "ollama" do pip não é usado)
 ollama pull mistral  # ~4.7 GB
 ```
 

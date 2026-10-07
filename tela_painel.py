@@ -71,8 +71,12 @@ class PainelInicio(tk.Frame):
         barra.pack(side=tk.RIGHT, fill=tk.Y)
 
         self._canvas = canvas
-        canvas.bind("<Enter>", lambda _: canvas.bind_all("<MouseWheel>", self._rolar))
-        canvas.bind("<Leave>", lambda _: canvas.unbind_all("<MouseWheel>"))
+        canvas.bind("<Enter>", lambda _: self._ligar_rolagem())
+        canvas.bind("<Leave>", lambda _: self._desligar_rolagem())
+        # Clicar num atalho troca de tela com o mouse ainda em cima: o
+        # <Leave> não chega, e sem isto a roda do mouse continuaria ligada
+        # a este canvas já destruído, gerando erro em todas as outras telas.
+        self.bind("<Destroy>", self._ao_destruir, add="+")
 
         area = tk.Frame(interior, bg=COR["fundo"])
         area.pack(fill=tk.BOTH, expand=True, padx=26, pady=(18, 26))
@@ -97,8 +101,31 @@ class PainelInicio(tk.Frame):
         self._cartao_marcos(area)
         self._barra_modos(area)
 
+    # Windows e macOS mandam <MouseWheel>; o Linux (X11) manda Button-4/5
+    _EVENTOS_RODA = ("<MouseWheel>", "<Button-4>", "<Button-5>")
+
+    def _ligar_rolagem(self):
+        for evento in self._EVENTOS_RODA:
+            self._canvas.bind_all(evento, self._rolar)
+
+    def _desligar_rolagem(self):
+        for evento in self._EVENTOS_RODA:
+            self._canvas.unbind_all(evento)
+
+    def _ao_destruir(self, evento):
+        if str(evento.widget) == str(self):
+            self._desligar_rolagem()
+
     def _rolar(self, evento):
-        self._canvas.yview_scroll(int(-evento.delta / 120), "units")
+        if not self._canvas.winfo_exists():
+            return
+        if evento.num == 4:
+            passos = -1
+        elif evento.num == 5:
+            passos = 1
+        else:
+            passos = int(-evento.delta / 120) or (-1 if evento.delta > 0 else 1)
+        self._canvas.yview_scroll(passos, "units")
 
     def _cabecalho(self):
         topo = tk.Frame(self, bg=COR["superficie"], height=64)

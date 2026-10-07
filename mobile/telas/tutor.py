@@ -145,9 +145,14 @@ class TelaTutor(TelaBase):
 
     @staticmethod
     def _resposta_util(texto):
+        """Falso para resposta vazia ou para as mensagens de falha do módulo
+        de IA ("❌ Erro ...", "❌ Ollama não está rodando..."), que não podem
+        aparecer no balão como se fossem a explicação do tutor."""
         if not texto or not texto.strip():
             return False
-        return not texto.strip().lower().startswith(("erro", "error", "[erro"))
+        inicio = texto.strip().lstrip("❌⚠️ ").lower()
+        return not (texto.strip().startswith("❌")
+                    or inicio.startswith(("erro", "error", "[erro")))
 
     def _identificar_marcador(self, pergunta):
         """Usa o mesmo vínculo do motor: evita que "na" vire sódio."""

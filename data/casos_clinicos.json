@@ -192,7 +192,7 @@
     "diagnostico": "Pancitopenia Secundária (Mielossupressão por Quimioterapia)",
     "explicacao": "Redução em todas as séries sanguíneas: hemácias (anemia), plaquetas (trombocitopenia -> sangramento), leucócitos (leucopenia -> imunossupressão). Complicação comum e grave da quimioterapia. Risco de infecção oportunista e sangramento exsanguinante. Necessita transfusão e fatores de crescimento.",
     "alternativas": ["Leucemia Aguda", "Pancitopenia Secundária", "Púrpura Trombocitopênica Imunológica", "Coagulopatia"],
-    "resposta_correta": "Pancitopenia Secundária (Mielossupressão por Quimioterapia)"
+    "resposta_correta": "Pancitopenia Secundária"
   },
   {
     "id": 14,
@@ -217,7 +217,7 @@
       "Glicose": {"valor": 650, "unidade": "mg/dL", "ref_min": 70, "ref_max": 99},
       "pH": {"valor": 7.18, "unidade": "unidades", "ref_min": 7.35, "ref_max": 7.45},
       "HCO3-": {"valor": 8, "unidade": "mEq/L", "ref_min": 22, "ref_max": 26},
-      "Cetonas": {"valor": "MASSIVAS", "unidade": "mOsm/kg", "ref_min": "Negativas", "ref_max": "Negativas"}
+      "Cetonas": {"valor": "MASSIVAS", "unidade": "", "ref_min": "Negativas", "ref_max": "Negativas"}
     },
     "diagnostico": "Cetoacidose Diabética",
     "explicacao": "Tríade: hiperglicemia extrema + acidose metabólica severa + cetonemia massiva. Ausência de insulina causa lipólise acelerada -> cetonas -> acidose. Respiração de Kussmaul é mecanismo compensatório (aumenta ventilação para eliminar CO2). Odor de acetona patognomônico. EMERGÊNCIA — taxa mortalidade 1-5%.",

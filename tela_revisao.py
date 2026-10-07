@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import tkinter as tk
 
-from painel_inicio import COR, FONTE, BotaoAcao, cartao, titulo_secao, Animacao
+from painel_inicio import COR, FONTE, BotaoAcao, cartao, Animacao
 
 # Autoavaliação -> qualidade do SM-2 (0 a 5)
 AVALIACOES = [
@@ -239,7 +239,7 @@ class TelaRevisao(tk.Frame):
         linha.pack(anchor=tk.W)
 
         sigla = self.fila[self.posicao]
-        for rotulo, qualidade, cor, dica in AVALIACOES:
+        for rotulo, qualidade, cor, _dica in AVALIACOES:
             proximo = self._previsao(sigla, qualidade)
             b = tk.Frame(linha, bg=cor, cursor="hand2")
             b.pack(side=tk.LEFT, padx=(0, 8))

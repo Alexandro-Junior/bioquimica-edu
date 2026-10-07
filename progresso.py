@@ -37,7 +37,9 @@ Três decisões de projeto, cada uma com um porquê:
 from __future__ import annotations
 
 import json
-from datetime import date, datetime, timedelta
+import os
+import tempfile
+from datetime import date, timedelta
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent
@@ -183,20 +185,56 @@ class Progresso:
             return self._vazio()
 
         base = self._vazio()
-        base.update({k: v for k, v in dados.items() if k in base})
+        if not isinstance(dados, dict):
+            print("[progresso] arquivo fora do formato esperado; começando do zero")
+            return base
+        # Só aceita cada campo se o tipo bate com o esperado: um arquivo
+        # editado à mão ou de outra versão não pode derrubar o app depois.
+        for chave, padrao in base.items():
+            valor = dados.get(chave)
+            if isinstance(valor, type(padrao)):
+                base[chave] = valor
+        base["itens"] = {s: e for s, e in base["itens"].items()
+                         if isinstance(s, str) and isinstance(e, dict)}
+        base["sessoes"] = [s for s in base["sessoes"]
+                           if isinstance(s, dict) and isinstance(s.get("data"), str)
+                           and isinstance(s.get("revisados"), int)
+                           and isinstance(s.get("acertos"), int)]
+        base["calibracao"] = [r for r in base["calibracao"]
+                              if isinstance(r, dict) and "confianca" in r and "acertou" in r]
         return base
 
     def salvar(self) -> None:
+        """Grava em arquivo temporário e troca de uma vez.
+
+        Escrever direto no arquivo final deixa um JSON pela metade se o app
+        fechar (ou a bateria acabar) no meio da gravação — e na próxima
+        abertura todo o histórico seria descartado como ilegível.
+        """
+        temporario = None
         try:
             self.caminho.parent.mkdir(parents=True, exist_ok=True)
-            with open(self.caminho, "w", encoding="utf-8") as f:
+            fd, temporario = tempfile.mkstemp(dir=self.caminho.parent,
+                                              prefix=".progresso-", suffix=".tmp")
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
                 json.dump(self.dados, f, ensure_ascii=False, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temporario, self.caminho)
+            temporario = None
         except OSError as e:
             print(f"[progresso] não foi possível salvar: {e}")
+        finally:
+            if temporario is not None:
+                try:
+                    os.remove(temporario)
+                except OSError:
+                    pass
 
     # ── estado de um item ───────────────────────────────────────────
     def estado(self, sigla: str) -> dict:
-        return self.dados["itens"].get(sigla, {
+        # campos ausentes (arquivo antigo ou editado) assumem o valor inicial
+        return {
             "repeticoes": 0,
             "facilidade": FACILIDADE_INICIAL,
             "intervalo": 0,
@@ -204,7 +242,8 @@ class Progresso:
             "ultima_revisao": None,
             "acertos": 0,
             "tentativas": 0,
-        })
+            **self.dados["itens"].get(sigla, {}),
+        }
 
     def estagio(self, sigla: str) -> str:
         e = self.estado(sigla)
@@ -227,7 +266,7 @@ class Progresso:
         ver o resultado. Usada só para medir calibração.
         """
         qualidade = max(0, min(5, int(qualidade)))
-        e = dict(self.estado(sigla))
+        e = self.estado(sigla)
 
         e["tentativas"] += 1
         acertou = qualidade >= 3
@@ -347,9 +386,12 @@ class Progresso:
         atrasados = []
         for s in siglas:
             e = self.estado(s)
-            prox = e.get("proxima_revisao")
-            if prox and date.fromisoformat(prox) <= hoje:
-                atrasados.append((date.fromisoformat(prox), s))
+            try:
+                prox = date.fromisoformat(e.get("proxima_revisao") or "")
+            except (TypeError, ValueError):
+                continue  # nunca revisado, ou data ilegível no arquivo
+            if prox <= hoje:
+                atrasados.append((prox, s))
         atrasados.sort()  # mais atrasado primeiro
         return [s for _, s in atrasados]
 

@@ -1,3 +1,10 @@
-requests>=2.31.0
-# Opcional (para IA melhorada):
-# ollama>=0.1.0  — descomente após instalar Ollama
+# Versão desktop (main.py e main_enhanced.py)
+# Pisos definidos pelas correções de segurança conhecidas (pip-audit).
+requests>=2.33.0   # tutor IA (Ollama local)
+pillow>=12.3.0     # aba Imagens do modo Estudo; sem ele a aba mostra um aviso
+
+# Versão mobile (main_kivy_completo.py e APK). O buildozer.spec fixa a mesma versão.
+# kivy==2.3.1
+
+# O tutor fala com o Ollama por HTTP (requests): o pacote "ollama" do pip
+# não é necessário. Basta instalar o Ollama em https://ollama.com

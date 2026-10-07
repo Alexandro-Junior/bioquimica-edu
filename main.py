@@ -350,20 +350,6 @@ class BarraProgresso(tk.Canvas):
 
 
 # ─────────────────────────────────────────────
-# LABEL helpers
-# ─────────────────────────────────────────────
-def rotulo(parent, texto, *, fonte=None, cor=None, wrap=0, ancora=tk.W):
-    return tk.Label(
-        parent, text=texto,
-        font=fonte or FONTE["corpo"],
-        fg=cor or COR["texto"],
-        bg=parent.cget("bg"),
-        anchor=ancora, justify=tk.LEFT,
-        wraplength=wrap,
-    )
-
-
-# ─────────────────────────────────────────────
 # CARREGAMENTO DE DADOS
 # ─────────────────────────────────────────────
 def carregar_marcadores():
@@ -422,9 +408,26 @@ def carregar_marcadores_extras():
         return {}
 
 
-from painel_inicio import COR as COR_PAINEL  # paleta da tela inicial
 from tela_painel import PainelInicio
 from tela_revisao import TelaRevisao
+
+
+def abrir_link(url):
+    """Abre no navegador só endereços web.
+
+    As URLs vêm dos arquivos em data/. Restringir a http(s) impede que um
+    dado editado abra um arquivo local ou um esquema de outro programa.
+    """
+    import webbrowser
+    from urllib.parse import urlparse
+
+    if urlparse(str(url)).scheme not in ("http", "https"):
+        print(f"[link] endereço ignorado (esquema não permitido): {url!r}")
+        return
+    try:
+        webbrowser.open(url)
+    except Exception as e:
+        print(f"[link] não foi possível abrir: {e}")
 
 
 def carregar_marcadores_imagens():
@@ -700,157 +703,6 @@ class TelaFlashcards(tk.Frame):
 
 
 # ─────────────────────────────────────────────
-# TELA INICIAL — caminho de "lições" estilo Duolingo
-# ─────────────────────────────────────────────
-class TelaInicial(tk.Frame):
-    def __init__(self, master, controller):
-        super().__init__(master, bg=COR["fundo"])
-        self.controller = controller
-        self._construir()
-
-    def _construir(self):
-        # Cabeçalho
-        topo = tk.Frame(self, bg=COR["topo"], height=80)
-        topo.pack(fill=tk.X)
-        topo.pack_propagate(False)
-        tk.Frame(self, bg=COR["borda"], height=1).pack(fill=tk.X)
-
-        marca = tk.Frame(topo, bg=COR["topo"])
-        marca.pack(side=tk.LEFT, padx=22, pady=10)
-        tk.Label(marca, text="⚗", font=("Segoe UI Emoji", 30),
-                 fg=COR["primaria"], bg=COR["topo"]).pack(side=tk.LEFT)
-        bloco = tk.Frame(marca, bg=COR["topo"])
-        bloco.pack(side=tk.LEFT, padx=8)
-        tk.Label(bloco, text="BioquímicaEDU",
-                 font=("Segoe UI Black", 20),
-                 fg=COR["texto"], bg=COR["topo"]).pack(anchor=tk.W)
-        tk.Label(bloco, text="Aprenda bioquímica clínica em jornada",
-                 font=FONTE["pequeno"], fg=COR["texto2"],
-                 bg=COR["topo"]).pack(anchor=tk.W)
-
-        ind = tk.Frame(topo, bg=COR["topo"])
-        ind.pack(side=tk.RIGHT, padx=22)
-        self._chip(ind, "🔥", str(self.controller.streak), COR["bile_dark"])
-        self._chip(ind, "⚡", f"{self.controller.xp} XP", COR["indicador_dark"])
-
-        # Faixa de unidade (estilo "Unit 1")
-        faixa = tk.Frame(self, bg=COR["primaria"], height=70)
-        faixa.pack(fill=tk.X)
-        faixa.pack_propagate(False)
-        wrap = tk.Frame(faixa, bg=COR["primaria"])
-        wrap.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
-        tk.Label(wrap, text="UNIDADE 1",
-                 font=FONTE["pequeno"], fg=clarear(COR["primaria"], 0.6),
-                 bg=COR["primaria"]).pack()
-        tk.Label(wrap, text="Marcadores bioquímicos clínicos",
-                 font=("Segoe UI Black", 16), fg=COR["branco"],
-                 bg=COR["primaria"]).pack()
-
-        # Caminho de lições (zigue-zague)
-        caminho = tk.Frame(self, bg=COR["fundo"])
-        caminho.pack(expand=True, fill=tk.BOTH)
-
-        canvas = tk.Canvas(caminho, bg=COR["fundo"], highlightthickness=0)
-        canvas.pack(fill=tk.BOTH, expand=True)
-
-        # Posições em zigue-zague (relativas)
-        nos = [
-            ("📚", "Modo Estudo",
-             "Explore 20 marcadores e suas\ninterpretações clínicas",
-             COR["primaria"], "estudo", 0),
-            ("🎴", "Flashcards",
-             "Estude rápido com 50 cards\nque viram ao clicar",
-             COR["bile"], "flashcards", 1),
-            ("🧠", "Quiz Rápido",
-             "Teste seus conhecimentos\ncom perguntas embaralhadas",
-             COR["cobalto"], "quiz", -1),
-            ("🩺", "Casos Clínicos",
-             "Analise exames e chegue\nao diagnóstico correto",
-             COR["indicador"], "diagnostico", 1),
-        ]
-        canvas.bind("<Configure>",
-                    lambda e: self._desenhar_caminho(e, canvas, nos))
-
-        # Rodapé
-        rodape = tk.Frame(self, bg=COR["topo"], height=42)
-        rodape.pack(fill=tk.X, side=tk.BOTTOM)
-        rodape.pack_propagate(False)
-        tk.Frame(self, bg=COR["borda"], height=1).pack(fill=tk.X, side=tk.BOTTOM)
-        tk.Label(rodape,
-                 text="Universidade Cidade de São Paulo — UNICID · PIBIC/CNPq",
-                 font=FONTE["pequeno"], fg=COR["texto2"],
-                 bg=COR["topo"]).pack(pady=12)
-
-    def _chip(self, parent, icone, valor, cor):
-        chip = tk.Frame(parent, bg=COR["trilha"])
-        chip.pack(side=tk.LEFT, padx=6)
-        tk.Label(chip, text=icone, font=("Segoe UI Emoji", 14),
-                 bg=COR["trilha"]).pack(side=tk.LEFT, padx=(10, 4), pady=6)
-        tk.Label(chip, text=valor, font=FONTE["botao"],
-                 fg=cor, bg=COR["trilha"]).pack(side=tk.LEFT, padx=(0, 12))
-
-    def _desenhar_caminho(self, _evt, canvas, nos):
-        canvas.delete("all")
-        w = canvas.winfo_width()
-        h = canvas.winfo_height()
-        if w < 50 or h < 50:
-            return
-
-        cx = w // 2
-        passo_y = max(160, h // (len(nos) + 1))
-        offset = 90
-
-        # Conectores pontilhados
-        for i in range(len(nos) - 1):
-            x1 = cx + nos[i][5] * offset
-            y1 = passo_y * (i + 1)
-            x2 = cx + nos[i + 1][5] * offset
-            y2 = passo_y * (i + 2)
-            n = 14
-            for k in range(1, n):
-                t = k / n
-                # curva quadrática suave
-                mx = (x1 + x2) // 2
-                my = (y1 + y2) // 2
-                px = int((1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * mx + t * t * x2)
-                py = int((1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * my + t * t * y2)
-                r = 4
-                canvas.create_oval(px - r, py - r, px + r, py + r,
-                                    fill=COR["borda_forte"], outline="")
-
-        # Nós (círculos + label)
-        for i, (icone, titulo, desc, cor, alvo, off_dir) in enumerate(nos):
-            x = cx + off_dir * offset
-            y = passo_y * (i + 1)
-            self._criar_no(canvas, x, y, icone, titulo, desc, cor, alvo)
-
-    def _criar_no(self, canvas, x, y, icone, titulo, desc, cor, alvo):
-        tamanho = 110
-        circ = CirculoDuo(canvas, icone,
-                          comando=lambda: self.controller.mostrar(alvo),
-                          cor=cor, tamanho=tamanho, bg_parent=COR["fundo"])
-        canvas.create_window(x, y, window=circ)
-
-        # Cartão flutuante com título e botão "iniciar"
-        cartao = tk.Frame(canvas, bg=COR["superficie"],
-                          highlightbackground=COR["borda"],
-                          highlightthickness=1)
-        tk.Label(cartao, text=titulo,
-                 font=("Segoe UI Black", 13),
-                 fg=COR["texto"], bg=COR["superficie"]).pack(padx=14, pady=(10, 2))
-        tk.Label(cartao, text=desc,
-                 font=FONTE["pequeno"], fg=COR["texto2"],
-                 bg=COR["superficie"], justify=tk.CENTER).pack(padx=14)
-        BotaoDuo(cartao, "Iniciar +10 XP",
-                 comando=lambda: self.controller.mostrar(alvo),
-                 cor=cor, padx=14, pady=7,
-                 fonte=FONTE["pequeno"],
-                 bg_parent=COR["superficie"]).pack(pady=10, padx=14)
-
-        canvas.create_window(x, y + 130, window=cartao)
-
-
-# ─────────────────────────────────────────────
 # MODO ESTUDO
 # ─────────────────────────────────────────────
 class TelaEstudo(tk.Frame):
@@ -861,7 +713,7 @@ class TelaEstudo(tk.Frame):
         self.categorias = sorted({m["categoria"] for m in self.marcadores})
         self.cat_selecionada = tk.StringVar(value="Todas")
         self.busca_var = tk.StringVar()
-        self.busca_var.trace("w", lambda *_: self._filtrar())
+        self.busca_var.trace_add("write", lambda *_: self._filtrar())
         self.extras = carregar_marcadores_extras()   # Vídeos + exemplos
         self.imagens = carregar_marcadores_imagens()  # Diagramas
         self._refs_imagens = []  # evita coleta das PhotoImage pelo GC
@@ -943,7 +795,7 @@ class TelaEstudo(tk.Frame):
         lbl.pack()
         chip.bind("<Button-1>", lambda _: (var.set(cat), self._filtrar(), atualizar()))
         lbl.bind("<Button-1>", lambda _: (var.set(cat), self._filtrar(), atualizar()))
-        var.trace("w", lambda *_: atualizar())
+        var.trace_add("write", lambda *_: atualizar())
         atualizar()
 
     def _filtrar(self):
@@ -1020,7 +872,6 @@ class TelaEstudo(tk.Frame):
     def _detalhe(self, m):
         for w in self.dir.winfo_children():
             w.destroy()
-        cor_cat = COR["categoria"].get(m["categoria"], COR["primaria"])
 
         # Container com abas
         self.aba_atual = tk.StringVar(value="info")
@@ -1061,7 +912,7 @@ class TelaEstudo(tk.Frame):
                         btn_.config(bg=COR["primaria"], fg=COR["branco"])
                     else:
                         btn_.config(bg=COR["trilha"], fg=COR["texto"])
-                self.aba_atual.trace("w", lambda *_: refresh_btn())
+                self.aba_atual.trace_add("write", lambda *_: refresh_btn())
                 refresh_btn()
 
         canvas = tk.Canvas(self.dir, bg=COR["fundo"], highlightthickness=0)
@@ -1210,8 +1061,7 @@ class TelaEstudo(tk.Frame):
 
             # Botão para abrir vídeo
             def abrir_video(url=vid["url"]):
-                import webbrowser
-                webbrowser.open(url.replace("/embed/", "/watch?v="))
+                abrir_link(url.replace("/embed/", "/watch?v="))
 
             tk.Button(c.miolo, text="▶ Assistir no YouTube",
                      bg=COR["sangue"], fg=COR["branco"],
@@ -1272,81 +1122,8 @@ class TelaEstudo(tk.Frame):
                     bg=COR["superficie"], wraplength=480,
                     justify=tk.LEFT).pack(anchor=tk.W, padx=18, pady=(0, 10))
 
-        # Cabeçalho colorido com selo da categoria
-        cab = tk.Frame(interior, bg=cor_cat, pady=18)
-        cab.pack(fill=tk.X)
-        bloco = tk.Frame(cab, bg=cor_cat)
-        bloco.pack(padx=22, anchor=tk.W)
-        tk.Label(bloco, text=m["categoria"].upper(),
-                 font=("Segoe UI", 9, "bold"),
-                 fg=clarear(cor_cat, 0.5), bg=cor_cat).pack(anchor=tk.W)
-        tk.Label(bloco, text=m["nome"],
-                 font=("Segoe UI Black", 20),
-                 fg=COR["branco"], bg=cor_cat).pack(anchor=tk.W)
-        tk.Label(bloco, text=f"Sigla {m['sigla']}",
-                 font=FONTE["pequeno"], fg=clarear(cor_cat, 0.6),
-                 bg=cor_cat).pack(anchor=tk.W, pady=(2, 0))
-
-        # Referência
-        c_ref = card(interior, cor_topo=cor_cat)
-        c_ref.pack(fill=tk.X, padx=18, pady=12)
-        tk.Label(c_ref.miolo, text="VALOR DE REFERÊNCIA",
-                 font=("Segoe UI", 9, "bold"),
-                 fg=COR["texto3"], bg=COR["superficie"]).pack(anchor=tk.W,
-                                                              padx=18, pady=(14, 2))
-        tk.Label(c_ref.miolo,
-                 text=f"{m['valor_ref_min']} – {m['valor_ref_max']} {m['unidade']}",
-                 font=("Segoe UI Black", 22),
-                 fg=cor_cat, bg=COR["superficie"]).pack(anchor=tk.W, padx=18)
-        self._barra_referencia(c_ref.miolo, m, cor_cat)
-
-        # Interpretações
-        for titulo, texto, cor, icone in [
-            ("QUANDO ELEVADO", m["interpretacao_alta"], COR["erro"], "⬆"),
-            ("QUANDO BAIXO", m["interpretacao_baixa"], COR["cobalto"], "⬇"),
-        ]:
-            c = card(interior, cor_topo=cor)
-            c.pack(fill=tk.X, padx=18, pady=6)
-            cab2 = tk.Frame(c.miolo, bg=COR["superficie"])
-            cab2.pack(anchor=tk.W, padx=18, pady=(12, 4))
-            tk.Label(cab2, text=icone, font=("Segoe UI Emoji", 14),
-                     fg=cor, bg=COR["superficie"]).pack(side=tk.LEFT, padx=(0, 6))
-            tk.Label(cab2, text=titulo, font=("Segoe UI", 10, "bold"),
-                     fg=cor, bg=COR["superficie"]).pack(side=tk.LEFT)
-            tk.Label(c.miolo, text=texto, font=FONTE["corpo"],
-                     fg=COR["texto"], bg=COR["superficie"],
-                     wraplength=520, justify=tk.LEFT).pack(anchor=tk.W,
-                                                            padx=18, pady=(0, 14))
-
-        # Doenças associadas
-        for titulo, texto, cor in [
-            ("Doenças associadas — valor ALTO",
-             m["doencas_associadas_alta"], COR["erro"]),
-            ("Doenças associadas — valor BAIXO",
-             m["doencas_associadas_baixa"], COR["cobalto"]),
-        ]:
-            if texto and texto != "—":
-                c = card(interior, cor_topo=cor)
-                c.pack(fill=tk.X, padx=18, pady=6)
-                tk.Label(c.miolo, text=titulo,
-                         font=("Segoe UI", 10, "bold"),
-                         fg=COR["texto2"], bg=COR["superficie"]).pack(
-                    anchor=tk.W, padx=18, pady=(12, 6))
-                for doenca in texto.split(","):
-                    d = doenca.strip()
-                    if d and d != "—":
-                        linha = tk.Frame(c.miolo, bg=COR["superficie"])
-                        linha.pack(fill=tk.X, padx=18, pady=2)
-                        tag = tk.Frame(linha, bg=clarear(cor, 0.85))
-                        tag.pack(side=tk.LEFT)
-                        tk.Label(tag, text=d, font=FONTE["pequeno"],
-                                 fg=cor, bg=clarear(cor, 0.85),
-                                 padx=10, pady=4).pack()
-                tk.Frame(c.miolo, bg=COR["superficie"], height=10).pack()
-
     def _detalhe_fontes(self, m, cor_cat):
         """Aba Fontes - bibliografia academica verificada"""
-        import webbrowser
         interior = self.detalhe_interior
         referencias = self.extras.get(m["sigla"], {}).get("referencias", [])
 
@@ -1380,7 +1157,7 @@ class TelaEstudo(tk.Frame):
                          ).pack(anchor=tk.W, padx=18, pady=(6, 0))
 
             def abrir(url=ref["url"]):
-                webbrowser.open(url)
+                abrir_link(url)
 
             tk.Button(c.miolo, text="Abrir referencia",
                       bg=COR["cobalto"], fg=COR["branco"],
@@ -1477,7 +1254,7 @@ class TelaEstudo(tk.Frame):
                           smooth=True, fill=clarear(cor, 0.4), outline="")
         legenda = tk.Frame(frame, bg=COR["superficie"])
         legenda.pack(fill=tk.X)
-        tk.Label(legenda, text=f"↙ Baixo", font=FONTE["pequeno"],
+        tk.Label(legenda, text="↙ Baixo", font=FONTE["pequeno"],
                  fg=COR["cobalto"], bg=COR["superficie"]).pack(side=tk.LEFT)
         tk.Label(legenda,
                  text=f"{m['valor_ref_min']}  ──  {m['valor_ref_max']}  {m['unidade']}",
@@ -2007,12 +1784,24 @@ class TelaDiagnostico(tk.Frame):
         val = dados["valor"]
         ref_min = dados["ref_min"]
         ref_max = dados["ref_max"]
-        if val > ref_max:
+        numerico = all(isinstance(x, (int, float)) for x in (val, ref_min, ref_max))
+        if not numerico:
+            # Exame qualitativo (ex.: cetonas "MASSIVAS", ref. "Negativas").
+            # Comparar textos com > e < daria ordem alfabética — "MASSIVAS"
+            # sairia como BAIXO. Só se sabe que difere da referência.
+            if str(val).strip().lower() == str(ref_min).strip().lower():
+                status, cor, seta = "NORMAL", COR["sucesso"], "✓"
+            else:
+                status, cor, seta = "ALTERADO", COR["bile_dark"], "⚠"
+            referencia = f"Ref. {ref_min}"
+        elif val > ref_max:
             status, cor, seta = "ALTO", COR["erro"], "⬆"
         elif val < ref_min:
             status, cor, seta = "BAIXO", COR["cobalto"], "⬇"
         else:
             status, cor, seta = "NORMAL", COR["sucesso"], "✓"
+        if numerico:
+            referencia = f"Ref. {ref_min}–{ref_max} {dados['unidade']}"
 
         c = card(parent, cor_topo=cor, espessura_topo=3)
         c.pack(fill=tk.X, padx=24, pady=3)
@@ -2026,11 +1815,11 @@ class TelaDiagnostico(tk.Frame):
         direita = tk.Frame(linha, bg=COR["superficie"])
         direita.pack(side=tk.RIGHT)
         tk.Label(direita,
-                 text=f"Ref. {ref_min}–{ref_max} {dados['unidade']}",
+                 text=referencia,
                  font=FONTE["pequeno"], fg=COR["texto3"],
                  bg=COR["superficie"]).pack(side=tk.LEFT, padx=12)
         tk.Label(direita,
-                 text=f"{seta} {val} {dados['unidade']}",
+                 text=f"{seta} {val} {dados['unidade']}".rstrip(),
                  font=("Segoe UI Black", 14),
                  fg=cor, bg=COR["superficie"]).pack(side=tk.LEFT, padx=6)
         tag = tk.Frame(direita, bg=clarear(cor, 0.85))
@@ -2140,7 +1929,15 @@ class TelaDiagnostico(tk.Frame):
                  bg=bg, wraplength=720, justify=tk.LEFT).pack(
             anchor=tk.W, padx=14, pady=(4, 14))
 
-        self.canvas_caso.after(120, lambda: self.canvas_caso.yview_moveto(1.0))
+        # Agendado na janela, não no canvas: se o estudante voltar aos
+        # casos antes dos 120 ms, o canvas some e o Tk tentaria rodar um
+        # comando apagado junto com ele.
+        canvas = self.canvas_caso
+
+        def rolar_para_explicacao():
+            if canvas.winfo_exists():
+                canvas.yview_moveto(1.0)
+        self.winfo_toplevel().after(120, rolar_para_explicacao)
 
 
 # ─────────────────────────────────────────────
@@ -2173,7 +1970,6 @@ class App(tk.Tk):
 
         self.telas = {}
         self._criar_telas()
-        self.mostrar("inicio")
 
     CLASSES = {
         "inicio":      PainelInicio,

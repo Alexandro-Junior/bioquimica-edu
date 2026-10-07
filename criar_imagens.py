@@ -76,9 +76,6 @@ def criar_alt_padrao():
     # Cirrose (moderado)
     cirrose = np.array([100, 120, 130, 135, 140, 138, 135, 133, 130, 128, 125])
 
-    # Valores normais
-    normal = np.array([40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40])
-
     ax.plot(dias, hepatite, marker='o', linewidth=3, markersize=8, label='Hepatite Viral', color='#E11D48')
     ax.plot(dias, cirrose, marker='s', linewidth=2, markersize=7, label='Cirrose Hepática', color='#F69E3D')
     ax.axhline(y=56, color='#16A44A', linestyle='--', linewidth=2, label='Limite Normal (56 U/L)')

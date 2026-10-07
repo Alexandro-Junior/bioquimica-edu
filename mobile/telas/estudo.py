@@ -6,6 +6,7 @@ janela sobreposta, e a tela cheia ganha o gesto natural de voltar.
 """
 
 import webbrowser
+from urllib.parse import urlparse
 
 from kivy.metrics import dp, sp
 from kivy.uix.boxlayout import BoxLayout
@@ -85,7 +86,9 @@ class TelaEstudo(TelaBase):
                          or termo in m["sigla"].lower())]
         self.lista.clear_widgets()
         total = len(self.marcadores)
-        self.contagem.text = (f"{total} marcadores em 6 sistemas" if len(visiveis) == total
+        sistemas = len({m["categoria"] for m in self.marcadores})
+        self.contagem.text = (f"{total} marcadores em {sistemas} sistemas"
+                              if len(visiveis) == total
                               else f"{len(visiveis)} de {total} marcadores")
         linhas = [self._linha(m) for m in visiveis]
         for linha in linhas:
@@ -150,6 +153,10 @@ class TelaDetalhe(TelaBase):
     def montar(self, sigla=None, aba="geral", **_):
         app = self.app
         self.marcadores = app.marcadores
+        if not self.marcadores:
+            # sem data/marcadores.csv não há o que detalhar
+            self.add_widget(C.Cabecalho("Estudo", ao_voltar=app.voltar))
+            return
         m = next((x for x in self.marcadores if x["sigla"] == sigla), self.marcadores[0])
         self.m = m
         self.extras = app.extras.get(m["sigla"], {})
@@ -348,6 +355,11 @@ class TelaDetalhe(TelaBase):
 
 
 def abrir_link(url):
+    """Abre só endereços web: as URLs vêm de data/ e um dado editado não
+    deve conseguir abrir arquivo local ou esquema de outro aplicativo."""
+    if urlparse(str(url)).scheme not in ("http", "https"):
+        print(f"[link] endereço ignorado (esquema não permitido): {url!r}")
+        return
     try:
         webbrowser.open(url)
     except Exception as e:

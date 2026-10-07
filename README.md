@@ -2,7 +2,7 @@
 
 > Aprenda marcadores bioquímicos com gamificação, IA e casos clínicos reais
 
-[![Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
 [![Tkinter](https://img.shields.io/badge/Framework-Tkinter%20%7C%20Kivy-green.svg)]()
 [![Ollama AI](https://img.shields.io/badge/AI-Ollama%20Local-red.svg)]()
 [![LGPD](https://img.shields.io/badge/Privacy-LGPD%20Compliant-purple.svg)]()
@@ -38,10 +38,10 @@ python main_kivy_completo.py
 
 | Modo | Features | Desktop | Mobile |
 |------|----------|---------|--------|
-| **📚 Estudo** | 20 marcadores + vídeos + exemplos | ✅ | ✅ |
-| **🎴 Flashcards** | 50 cards com flip animation | ✅ | ✅ |
+| **📚 Estudo** | 20 marcadores + referências + exemplos + imagens | ✅ | ✅ |
+| **🎴 Flashcards** | 52 cards com flip animation | ✅ | ✅ |
 | **🧠 Quiz** | 12 perguntas + feedback | ✅ | ✅ |
-| **🩺 Diagnóstico** | 5 casos clínicos reais | ✅ | ✅ |
+| **🩺 Diagnóstico** | 15 casos clínicos | ✅ | ✅ |
 | **💬 Tutor IA** | Chat offline + recomendações | ✅* | ✅ |
 
 *Desktop: requer Ollama
@@ -49,10 +49,10 @@ python main_kivy_completo.py
 ### 📊 Dados Inclusos
 
 - ✅ **20 Marcadores** — ALT, AST, Glicose, Creatinina, K+, Troponina...
-- ✅ **50 Flashcards** — Memorização rápida
+- ✅ **52 Flashcards** — Memorização rápida
 - ✅ **12 Quiz Questions** — Teste conhecimento
-- ✅ **5 Casos Clínicos** — Situações reais
-- ✅ **16 Vídeos YouTube** — Explicações
+- ✅ **15 Casos Clínicos** — Situações reais
+- ✅ **31 Referências** revisadas por pares + 2 vídeos
 - ✅ **20+ Exemplos** — Diagnóstico & conduta
 
 ### 🎨 Desenhado para Educação
@@ -79,10 +79,10 @@ ollama_ia.py             ← Módulo IA compartilhado (300+ linhas)
 ```
 data/
 ├── marcadores.csv           (20 biomarcadores)
-├── flashcards.json          (50 perguntas/respostas)
-├── marcadores_extras.json   (vídeos + exemplos)
+├── flashcards.json          (52 perguntas/respostas)
+├── marcadores_extras.json   (referências + exemplos)
 ├── quiz_perguntas.json      (12 questões)
-└── casos_clinicos.json      (5 casos)
+└── casos_clinicos.json      (15 casos)
 ```
 
 ### Documentação
@@ -107,7 +107,7 @@ test_kivy_completo.py        ← Teste do app mobile
 ## 💻 Requisitos
 
 ### Mínimos
-- Python 3.8+
+- Python 3.10+
 - Tkinter (incluso)
 
 ### Recomendados
@@ -117,7 +117,7 @@ pip install kivy pillow requests
 
 ### Para IA (opcional)
 ```bash
-pip install ollama
+# instale o Ollama em https://ollama.com (o pacote "ollama" do pip não é usado)
 ollama pull mistral  # ~4.7 GB
 ```
 
@@ -249,11 +249,11 @@ Roxo Biuret      #7C3A92  ← Destaque
 | Arquivos Python | 6 |
 | Documentação | 6 guias |
 | Marcadores | 20 |
-| Flashcards | 50 |
+| Flashcards | 52 |
 | Quiz Questions | 12 |
-| Casos Clínicos | 5 |
-| Vídeos | 16 |
-| Exemplos | 20+ |
+| Casos Clínicos | 15 |
+| Referências / vídeos | 31 / 2 |
+| Exemplos | 41 |
 | **Total de dados** | **~200 items** |
 
 ---

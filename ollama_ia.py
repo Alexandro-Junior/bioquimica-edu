@@ -3,9 +3,9 @@ Módulo de IA com Ollama (Local, 100% privado)
 Gerencia chat, quiz dinâmico e discussão de casos
 """
 
-import threading
-import requests
 import json
+
+import requests
 from typing import Callable, Optional
 
 class OllamaIA:
@@ -20,8 +20,6 @@ class OllamaIA:
         self.model = model
         self.base_url = base_url
         self.disponivel = False
-        self.historico_chat = []
-        self.thread_resposta = None
 
         # Verifica se Ollama está rodando
         self._verificar_conexao()
@@ -47,7 +45,7 @@ class OllamaIA:
                 print(f"⚠️  Ollama está rodando em {self.base_url}, "
                       f"mas nenhum modelo foi baixado.")
                 print(f"   Execute:  ollama pull {self.model}")
-                print(f"   Enquanto isso, o app responde pela base local.\n")
+                print("   Enquanto isso, o app responde pela base local.\n")
                 return
 
             # Se o modelo pedido não está instalado, usa o primeiro disponível
@@ -61,16 +59,17 @@ class OllamaIA:
             self.disponivel = True
             print(f"✓ Ollama conectado em {self.base_url}")
             print(f"  Modelos: {modelos}  |  em uso: {self.model}")
-        except Exception as e:
+        except (requests.RequestException, ValueError, AttributeError):
+            # sem servidor, resposta que não é JSON ou JSON fora do formato
             self.disponivel = False
-            print(f"\n⚠️  Ollama não disponível")
-            print(f"   Instalando Ollama:")
-            print(f"   1. Acesse: https://ollama.com")
-            print(f"   2. Baixe para Windows e instale")
-            print(f"   3. Terminal: ollama pull mistral")
-            print(f"   4. Terminal: ollama serve")
-            print(f"   5. Reinicie este app")
-            print(f"\n   Enquanto isso, o app funciona com respostas padrão.\n")
+            print("\n⚠️  Ollama não disponível")
+            print("   Instalando Ollama:")
+            print("   1. Acesse: https://ollama.com")
+            print("   2. Baixe para Windows e instale")
+            print("   3. Terminal: ollama pull mistral")
+            print("   4. Terminal: ollama serve")
+            print("   5. Reinicie este app")
+            print("\n   Enquanto isso, o app funciona com respostas padrão.\n")
 
     def chat_marcador(self, nome_marcador: str, pergunta: str,
                      callback: Optional[Callable] = None) -> str:
@@ -133,22 +132,57 @@ Gere em JSON:
 }}"""
 
         resposta = self._gerar_resposta(prompt, callback)
-        try:
-            # Extrai JSON da resposta
-            inicio = resposta.find('{')
-            fim = resposta.rfind('}') + 1
-            if inicio >= 0 and fim > inicio:
-                json_str = resposta[inicio:fim]
-                return json.loads(json_str)
-        except:
-            pass
+        questao = self._extrair_questao(resposta)
+        return questao if questao is not None else self._quiz_offline(marcador)
 
-        return self._quiz_offline(marcador)
+    @staticmethod
+    def _extrair_questao(resposta: str) -> Optional[dict]:
+        """Lê a questão que o modelo devolveu, ou None se ela não servir.
+
+        O modelo pode responder com texto em volta do JSON, com JSON
+        inválido ou com campos faltando. Uma questão sem alternativas ou
+        com o índice da correta fora da lista quebraria a tela do quiz,
+        então só passa o que tem a estrutura completa.
+        """
+        inicio = resposta.find('{')
+        fim = resposta.rfind('}') + 1
+        if inicio < 0 or fim <= inicio:
+            return None
+        try:
+            questao = json.loads(resposta[inicio:fim])
+        except ValueError:
+            return None
+        if not isinstance(questao, dict):
+            return None
+
+        pergunta = questao.get("pergunta")
+        alternativas = questao.get("alternativas")
+        correta = questao.get("resposta_correta")
+        if not (isinstance(pergunta, str) and pergunta.strip()):
+            return None
+        if not (isinstance(alternativas, list) and len(alternativas) >= 2
+                and all(isinstance(a, str) for a in alternativas)):
+            return None
+        if isinstance(correta, bool) or not isinstance(correta, int):
+            return None
+        if not 0 <= correta < len(alternativas):
+            return None
+
+        explicacao = questao.get("explicacao")
+        return {
+            "pergunta": pergunta,
+            "alternativas": alternativas,
+            "resposta_correta": correta,
+            "explicacao": explicacao if isinstance(explicacao, str) else "",
+        }
 
     def discussao_caso(self, caso: dict, diagnostico_usuario: str,
                        callback: Optional[Callable] = None) -> str:
         """
-        Discussão socrática sobre diagnóstico
+        Discussão socrática sobre diagnóstico.
+
+        Ainda não ligada a nenhuma tela: o diagnóstico das versões desktop
+        e mobile mostra a explicação fixa do caso.
 
         Args:
             caso: Dict com dados do caso
@@ -187,32 +221,33 @@ Máximo 250 palavras, tom motivador."""
         try:
             resposta_completa = ""
 
-            r = requests.post(
+            # "with" devolve a conexão ao pool mesmo se a leitura falhar no meio
+            with requests.post(
                 f"{self.base_url}/api/generate",
                 json={
                     "model": self.model,
                     "prompt": prompt,
                     "stream": True,
-                    "temperature": 0.7,
+                    # a API só lê parâmetros de geração dentro de "options"
+                    "options": {"temperature": 0.7},
                 },
                 stream=True,
                 timeout=60
-            )
-
-            if r.status_code == 200:
+            ) as r:
+                if r.status_code != 200:
+                    return f"❌ Erro {r.status_code} do Ollama"
                 for linha in r.iter_lines():
-                    if linha:
-                        try:
-                            chunk = json.loads(linha)
-                            texto = chunk.get("response", "")
-                            resposta_completa += texto
-                            if callback:
-                                callback(texto)
-                        except:
-                            pass
-                return resposta_completa.strip()
-            else:
-                return f"Erro {r.status_code}: {r.text}"
+                    if not linha:
+                        continue
+                    try:
+                        chunk = json.loads(linha)
+                    except ValueError:
+                        continue  # linha parcial ou fora do formato
+                    texto = chunk.get("response", "")
+                    resposta_completa += texto
+                    if callback:
+                        callback(texto)
+            return resposta_completa.strip()
 
         except requests.exceptions.ConnectionError:
             print("✗ Não conseguiu conectar ao Ollama")
@@ -256,10 +291,6 @@ Enquanto isso, use o Modo Estudo para explorar {nome_marcador}."""
             return f"✅ Diagnóstico correto!\n\n{caso['explicacao']}"
         else:
             return f"❌ Diagnóstico incorreto. O correto é: {caso['resposta_correta']}\n\n{caso['explicacao']}"
-
-    def clear_historico(self):
-        """Limpa histórico de chat"""
-        self.historico_chat = []
 
 
 # Instância global

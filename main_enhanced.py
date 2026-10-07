@@ -6,125 +6,74 @@ Todas as funcionalidades:
 - 20 marcadores com filtros
 - Chat inteligente sobre marcadores
 - Quiz dinâmico gerado por IA
-- Discussão de casos com feedback IA
 - 100% privado (Ollama local)
 """
 
 import tkinter as tk
-from tkinter import messagebox, scrolledtext
-import json
-import csv
+import queue
 import random
 import threading
-from pathlib import Path
-
-BASE_DIR = Path(__file__).parent
-DATA_DIR = BASE_DIR / "data"
 
 # Importa módulo de IA
 try:
     from ollama_ia import ia
     IA_DISPONIVEL = ia.disponivel
-except ImportError:
-    print("⚠️ ollama_ia não encontrado. Chat será offline.")
+except ImportError as e:
+    # sem o módulo (ou sem o requests) não há nem o modo offline do tutor
+    print(f"⚠️ Módulo de IA indisponível ({e}). Chat e quiz dinâmico desativados.")
+    ia = None
     IA_DISPONIVEL = False
+
+AVISO_SEM_MODULO_IA = ("O módulo de IA não pôde ser carregado. Instale as "
+                       "dependências com:  pip install -r requirements.txt")
+
+
+def em_segundo_plano(widget, tarefa, ao_terminar):
+    """Roda `tarefa()` numa thread e entrega o resultado na thread do Tk.
+
+    O Tkinter não é seguro entre threads: mexer em widgets fora da thread
+    principal pode travar ou derrubar o app. A thread só calcula; quem
+    desenha é `ao_terminar(resultado, erro)`, chamado pelo laço do Tk.
+    Se a tela for fechada antes da resposta, o resultado é descartado.
+    """
+    fila = queue.Queue(maxsize=1)
+    # O agendamento fica na janela principal: se ficasse no widget e a tela
+    # fosse fechada antes da resposta, o Tk tentaria rodar um comando já
+    # apagado junto com ela.
+    raiz = widget.winfo_toplevel()
+
+    def trabalhar():
+        try:
+            fila.put((tarefa(), None))
+        except Exception as e:  # o erro vira mensagem na tela, não traceback
+            fila.put((None, e))
+
+    def conferir():
+        if not widget.winfo_exists():
+            return
+        try:
+            resultado, erro = fila.get_nowait()
+        except queue.Empty:
+            raiz.after(100, conferir)
+            return
+        ao_terminar(resultado, erro)
+
+    threading.Thread(target=trabalhar, daemon=True).start()
+    raiz.after(100, conferir)
+
 
 # Telas completas reaproveitadas da versão desktop.
 # Assim esta versão herda flashcards, diagnóstico, imagens e fontes sem
 # duplicar código: o que se corrige em main.py vale aqui também.
 from main import (
+    COR,
+    FONTE,
+    carregar_marcadores,
     TelaEstudo as TelaEstudoCompleta,
     TelaFlashcards as TelaFlashcardsCompleta,
     TelaQuiz as TelaQuizCompleto,
     TelaDiagnostico as TelaDiagnosticoCompleto,
 )
-
-# ─────────────────────────────────────────────
-# CORES (MESMO DO MAIN.PY)
-# ─────────────────────────────────────────────
-COR = {
-    "fundo":           "#FAF6EE",
-    "superficie":      "#FFFFFF",
-    "topo":            "#FFFFFF",
-    "trilha":          "#F1EBDC",
-    "primaria":        "#16A34A",
-    "primaria_dark":   "#15803D",
-    "primaria_light":  "#DCFCE7",
-    "sangue":          "#E11D48",
-    "sangue_dark":     "#9F1239",
-    "sangue_light":    "#FFE4E6",
-    "bile":            "#F59E0B",
-    "bile_dark":       "#B45309",
-    "bile_light":      "#FEF3C7",
-    "indicador":       "#7C3AED",
-    "indicador_dark":  "#5B21B6",
-    "indicador_light": "#EDE9FE",
-    "cobalto":         "#1E88B0",
-    "cobalto_dark":    "#0E5C7A",
-    "cobalto_light":   "#CFFAFE",
-    "texto":           "#1F2937",
-    "texto2":          "#6B7280",
-    "texto3":          "#9CA3AF",
-    "borda":           "#E5E7EB",
-    "borda_forte":     "#D1D5DB",
-    "sucesso":         "#16A34A",
-    "sucesso_dark":    "#15803D",
-    "sucesso_light":   "#DCFCE7",
-    "erro":            "#DC2626",
-    "erro_dark":       "#991B1B",
-    "erro_light":      "#FEE2E2",
-    "branco":          "#FFFFFF",
-    "categoria": {
-        "Hepático":   "#F59E0B",
-        "Renal":      "#06B6D4",
-        "Glicêmico":  "#16A34A",
-        "Lipídico":   "#8B5CF6",
-        "Eletrólito": "#3B82F6",
-        "Cardíaco":   "#E11D48",
-    },
-}
-
-FONTE = {
-    "titulo":   ("Segoe UI Black", 26),
-    "subtit":   ("Segoe UI", 18, "bold"),
-    "medio":    ("Segoe UI", 14, "bold"),
-    "corpo":    ("Segoe UI", 12),
-    "pequeno":  ("Segoe UI", 10),
-    "botao":    ("Segoe UI", 13, "bold"),
-    "botao_g":  ("Segoe UI", 15, "bold"),
-    "mono":     ("Consolas", 11),
-}
-
-# ─────────────────────────────────────────────
-# CARREGAMENTO DE DADOS
-# ─────────────────────────────────────────────
-def carregar_marcadores():
-    marcadores = []
-    try:
-        with open(DATA_DIR / "marcadores.csv", encoding="utf-8") as f:
-            for row in csv.DictReader(f):
-                row["valor_ref_min"] = float(row["valor_ref_min"])
-                row["valor_ref_max"] = float(row["valor_ref_max"])
-                marcadores.append(row)
-    except Exception as e:
-        messagebox.showerror("Erro", f"Erro ao carregar marcadores: {e}")
-    return marcadores
-
-def carregar_casos():
-    try:
-        with open(DATA_DIR / "casos_clinicos.json", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as e:
-        messagebox.showerror("Erro", f"Erro ao carregar casos: {e}")
-        return []
-
-def carregar_quiz():
-    try:
-        with open(DATA_DIR / "quiz_perguntas.json", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception as e:
-        messagebox.showerror("Erro", f"Erro ao carregar quiz: {e}")
-        return []
 
 # ─────────────────────────────────────────────
 # WIDGET DE CHAT
@@ -133,7 +82,6 @@ class PainelChat(tk.Frame):
     def __init__(self, parent, marcador=None, **kwargs):
         super().__init__(parent, bg=COR["superficie"], **kwargs)
         self.marcador = marcador
-        self.mensagens = []
 
         # Cabeçalho
         cab = tk.Frame(self, bg=COR["cobalto"], height=40)
@@ -204,13 +152,17 @@ class PainelChat(tk.Frame):
         # Mostra pergunta do usuário
         self._adicionar_msg_usuario(pergunta)
 
-        # Gera resposta em thread
-        thread = threading.Thread(
-            target=self._gerar_resposta,
-            args=(pergunta,)
-        )
-        thread.daemon = True
-        thread.start()
+        if ia is None:
+            self._adicionar_msg_ia(AVISO_SEM_MODULO_IA)
+            return
+
+        def mostrar(resposta, erro):
+            if erro is not None:
+                resposta = (f"❌ Erro: {erro}\n\nTente novamente ou verifique "
+                            "se o Ollama está rodando.")
+            self._adicionar_msg_ia(resposta)
+
+        em_segundo_plano(self, lambda: self._gerar_resposta(pergunta), mostrar)
 
     def _adicionar_msg_usuario(self, texto):
         """Mostra mensagem do usuário"""
@@ -237,16 +189,9 @@ class PainelChat(tk.Frame):
         self.canvas_msgs.yview_moveto(1.0)
 
     def _gerar_resposta(self, pergunta):
-        """Chama IA e mostra resposta"""
-        try:
-            resposta = ia.chat_marcador(
-                self.marcador.get("nome", "Marcador"),
-                pergunta,
-                callback=None
-            )
-            self._adicionar_msg_ia(resposta)
-        except Exception as e:
-            self._adicionar_msg_ia(f"❌ Erro: {e}\n\nTente novamente ou verifique se Ollama está rodando.")
+        """Consulta a IA. Roda fora da thread do Tk: não toca em widgets."""
+        nome = self.marcador.get("nome", "Marcador") if self.marcador else "Marcador"
+        return ia.chat_marcador(nome, pergunta, callback=None)
 
 # ─────────────────────────────────────────────
 # TELA ESTUDO ENHANCEMENT
@@ -259,7 +204,7 @@ class TelaEstudoEnhanced(tk.Frame):
         self.categorias = sorted({m["categoria"] for m in self.marcadores})
         self.cat_selecionada = tk.StringVar(value="Todas")
         self.busca_var = tk.StringVar()
-        self.busca_var.trace("w", lambda *_: self._filtrar())
+        self.busca_var.trace_add("write", lambda *_: self._filtrar())
         self.marcador_atual = None
         self._construir()
 
@@ -502,8 +447,18 @@ class TelaQuizDinamico(tk.Frame):
                   relief="flat", font=FONTE["botao"],
                   command=self._iniciar, padx=30, pady=12).pack(pady=12)
 
+    def _nova_area(self, **pack):
+        """Troca a área de conteúdo por uma vazia.
+
+        A área anterior é destruída (e não só escondida), senão cada
+        pergunta deixaria um frame órfão acumulando na memória.
+        """
+        self.area.destroy()
+        self.area = tk.Frame(self, bg=COR["fundo"])
+        self.area.pack(fill=tk.BOTH, expand=True, **pack)
+        return self.area
+
     def _iniciar(self):
-        n = self.num_perguntas.get()
         self.perguntas_geradas = []
         self.indice = 0
         self.acertos = 0
@@ -514,36 +469,32 @@ class TelaQuizDinamico(tk.Frame):
             self._resultado()
             return
 
+        if ia is None:
+            self._mostrar_erro(AVISO_SEM_MODULO_IA)
+            return
+        if not self.marcadores:
+            self._mostrar_erro("Nenhum marcador carregado de data/marcadores.csv")
+            return
+
         # Seleciona marcador aleatório
         m = random.choice(self.marcadores)
 
         # Gera pergunta com IA
-        self.area.delete("all")
-        self.area.pack_forget()
-        self.area = tk.Frame(self, bg=COR["fundo"])
-        self.area.pack(fill=tk.BOTH, expand=True)
-
+        self._nova_area()
         tk.Label(self.area, text="Gerando pergunta...",
                  font=FONTE["corpo"], fg=COR["texto2"],
                  bg=COR["fundo"]).pack(expand=True)
 
-        # Thread para gerar
-        thread = threading.Thread(target=self._gerar_thread, args=(m,))
-        thread.daemon = True
-        thread.start()
+        def mostrar(pergunta, erro):
+            if erro is not None:
+                self._mostrar_erro(f"Erro ao gerar: {erro}")
+            else:
+                self._mostrar_pergunta(pergunta, m)
 
-    def _gerar_thread(self, m):
-        try:
-            pergunta = ia.quiz_dinamico(m)
-            self._mostrar_pergunta(pergunta, m)
-        except Exception as e:
-            self._mostrar_erro(f"Erro ao gerar: {e}")
+        em_segundo_plano(self, lambda: ia.quiz_dinamico(m), mostrar)
 
     def _mostrar_pergunta(self, p, m):
-        self.area.delete("all")
-        self.area.pack_forget()
-        self.area = tk.Frame(self, bg=COR["fundo"])
-        self.area.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+        self._nova_area(padx=20, pady=10)
 
         # Progresso
         prog = tk.Frame(self.area, bg=COR["fundo"], pady=10)
@@ -578,10 +529,7 @@ class TelaQuizDinamico(tk.Frame):
             self.acertos += 1
 
         # Feedback
-        self.area.delete("all")
-        self.area.pack_forget()
-        self.area = tk.Frame(self, bg=COR["fundo"])
-        self.area.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        self._nova_area(padx=20, pady=20)
 
         titulo = "✅ Correto!" if correto else "❌ Errado!"
         tk.Label(self.area, text=titulo,
@@ -601,10 +549,7 @@ class TelaQuizDinamico(tk.Frame):
                   command=self._gerar_proxima, padx=30, pady=12).pack()
 
     def _resultado(self):
-        self.area.delete("all")
-        self.area.pack_forget()
-        self.area = tk.Frame(self, bg=COR["fundo"])
-        self.area.pack(fill=tk.BOTH, expand=True)
+        self._nova_area()
 
         pct = (self.acertos / self.num_perguntas.get() * 100) if self.num_perguntas.get() else 0
 
@@ -631,10 +576,7 @@ class TelaQuizDinamico(tk.Frame):
                   command=lambda: self.controller.mostrar("inicio"), padx=30, pady=12).pack()
 
     def _mostrar_erro(self, msg):
-        self.area.delete("all")
-        self.area.pack_forget()
-        self.area = tk.Frame(self, bg=COR["fundo"])
-        self.area.pack(fill=tk.BOTH, expand=True)
+        self._nova_area()
         centro = tk.Frame(self.area, bg=COR["fundo"])
         centro.pack(expand=True)
         tk.Label(centro, text="❌ " + msg,

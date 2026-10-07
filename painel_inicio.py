@@ -100,9 +100,27 @@ class Animacao:
         self.quadro = 0
         self.intervalo = 16  # ~60 fps
         self.cancelado = False
-        widget.after(atraso_ms, self._tique)
+        self._agendado = widget.after(atraso_ms, self._tique)
+        # Destruir o widget apaga o comando Tcl do quadro agendado, e o Tk
+        # reclamaria ("invalid command name ..._tique") ao tentar rodá-lo.
+        # Trocar de tela no meio da animação é o caso comum.
+        widget.bind("<Destroy>", self._cancelar, add="+")
+
+    def _cancelar(self, evento=None):
+        # compara pelo nome Tk: durante a destruição o evento pode trazer
+        # só o caminho do widget, e não o objeto Python
+        if evento is not None and str(evento.widget) != str(self.widget):
+            return
+        self.cancelado = True
+        if self._agendado is not None:
+            try:
+                self.widget.after_cancel(self._agendado)
+            except tk.TclError:
+                pass
+            self._agendado = None
 
     def _tique(self):
+        self._agendado = None
         if self.cancelado or not self.widget.winfo_exists():
             return
         decorrido = self.quadro * self.intervalo
@@ -113,7 +131,7 @@ class Animacao:
             return  # widget destruído no meio da animação
         if t < 1.0:
             self.quadro += 1
-            self.widget.after(self.intervalo, self._tique)
+            self._agendado = self.widget.after(self.intervalo, self._tique)
 
 
 class AnelDia(tk.Canvas):
@@ -218,7 +236,6 @@ class BarraDominio(tk.Canvas):
         largura = self.winfo_width()
         if largura <= 1:
             return
-        r = self.altura / 2
         self.create_rectangle(0, 0, largura, self.altura,
                               fill=COR["borda"], outline="")
         w = largura * self.valor * t
