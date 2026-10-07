@@ -1,20 +1,30 @@
 #!/usr/bin/env python3
 """
-Gera as figuras e as métricas do relatório final.
+Gera as figuras e as métricas do relatório final, em dois grupos.
 
+Versão avaliada (seções 4.1 a 4.6), congeladas desde o commit 329bed8:
 - arquitetura.png      camadas do software e o que usa o quê
-- sm2_intervalos.png   intervalos produzidos pelo motor real (progresso.py)
+- sm2_intervalos.png   intervalos produzidos pelo motor da época
 - telas_*.png          pranchas com três capturas da versão mobile cada
 - desktop_painel.png   captura da versão desktop
 - metricas.json        linhas de código por módulo e volume de conteúdo
+As capturas refletem a interface de quem roda o script; por isso este
+grupo só é refeito a partir daquele commit (git worktree), com
+    python relatorio/gerar_figuras.py --versao-avaliada
+
+Evolução após a avaliação (seção 4.7), feitas pelo padrão:
+- sm2_evolucao.json            próximo intervalo por avaliação, nas duas
+                               versões do motor (a avaliada sai do Git)
+- evolucao_formatos.png        o app no computador, no tablet e no celular
+- evolucao_acessibilidade.png  ajustes, alto contraste com fonte, modo foco
+- tutor_arquitetura.png        provedores do tutor e onde fica a chave
+- evolucao_tutor.png           conversa real com o Gemini; só sai se a chave
+                               estiver configurada (docs/TUTOR_GEMINI.md)
+- metricas_evolucao.json       linhas de código da versão atual
 
 As capturas usam um progresso de exemplo (estudante fictício com algumas
 semanas de uso), para que o painel mostre todos os seus elementos. Ele
 fica numa pasta temporária: o progresso real em data/ não é tocado.
-
-Observação: as capturas refletem a interface atual. As figuras do relatório
-mostram a versão avaliada com usuários; rode de novo só se a versão nova
-também entrar no relatório.
 
 Uso:  python relatorio/gerar_figuras.py
 """
@@ -33,6 +43,7 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 FIG = Path(__file__).resolve().parent / "figuras"
+COMMIT_AVALIADO = "329bed8"   # versão descrita nas seções 4.1 a 4.6 do relatório
 sys.path.insert(0, str(RAIZ))
 os.chdir(RAIZ)
 FIG.mkdir(parents=True, exist_ok=True)
@@ -391,6 +402,303 @@ print("desktop_painel.png", w, h)
     print(r.stdout.strip() or r.stderr[-1500:])
 
 
+# ════════════════════════════════════════════════════════════════════
+# EVOLUÇÃO APÓS A AVALIAÇÃO
+# ════════════════════════════════════════════════════════════════════
+def metricas_evolucao():
+    """Linhas de código da versão atual, para comparar com metricas.json."""
+    def contar_js(caminho):
+        linhas = io.open(caminho, encoding="utf-8").read().splitlines()
+        return sum(1 for l in linhas if l.strip() and not l.strip().startswith("//"))
+
+    modulos = {
+        "Aplicativo (mobile/)": [str(p.relative_to(RAIZ)) for p in (RAIZ / "mobile").rglob("*.py")],
+        "Versões clássicas para computador": ["main.py", "painel_inicio.py", "tela_painel.py",
+                                              "tela_revisao.py", "main_enhanced.py", "ollama_ia.py"],
+        "Motor de aprendizagem (progresso.py)": ["progresso.py"],
+        "Tutor (assistente.py)": ["assistente.py"],
+        "Geradores (imagens, logo, ícones)": ["criar_imagens.py", "criar_logo.py",
+                                              "criar_assets_mobile.py"],
+        "Testes automatizados": ["test_kivy_completo.py", "test_desktop.py", "test_tutor.py"],
+    }
+    codigo = {nome: sum(contar_linhas(RAIZ / a) for a in arqs) for nome, arqs in modulos.items()}
+    codigo["Servidor intermediário (servidor/)"] = contar_js(RAIZ / "servidor" / "tutor_worker.js")
+    saida = {"codigo": codigo, "codigo_total": sum(codigo.values())}
+    json.dump(saida, io.open(FIG / "metricas_evolucao.json", "w", encoding="utf-8"),
+              ensure_ascii=False, indent=2)
+    print("metricas_evolucao.json", saida["codigo_total"], "linhas")
+
+
+def motor_avaliado():
+    """O progresso.py da versão avaliada, lido do Git, como módulo à parte."""
+    import importlib.util
+    codigo = subprocess.run(["git", "show", f"{COMMIT_AVALIADO}:progresso.py"], cwd=RAIZ,
+                            capture_output=True, text=True, encoding="utf-8", check=True).stdout
+    pasta = Path(tempfile.mkdtemp(prefix="bioq_motor_avaliado_"))
+    (pasta / "progresso_avaliado.py").write_text(codigo, encoding="utf-8")
+    spec = importlib.util.spec_from_file_location("progresso_avaliado", pasta / "progresso_avaliado.py")
+    modulo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(modulo)
+    return modulo
+
+
+def intervalos_por_avaliacao():
+    """Próximo intervalo de "Difícil", "Bom" e "Fácil" (notas 3, 4 e 5) em
+    cada revisão, para um marcador avaliado com "Bom" até ali. Executa o
+    código dos dois motores; nada é digitado à mão."""
+    import progresso as atual
+    avaliado = motor_avaliado()
+
+    def tabela(modulo):
+        linhas = {}
+        for revisao in range(1, 5):
+            linha = []
+            for nota in (3, 4, 5):
+                caminho = Path(tempfile.mkdtemp(prefix="bioq_sim_")) / "p.json"
+                p = modulo.Progresso(caminho)
+                for _ in range(revisao - 1):
+                    p.registrar_resposta("X", 4)
+                linha.append(p.registrar_resposta("X", nota)["intervalo"])
+            linhas[str(revisao)] = linha
+        return linhas
+
+    saida = {"avaliada": tabela(avaliado), "atual": tabela(atual)}
+    json.dump(saida, io.open(FIG / "sm2_evolucao.json", "w", encoding="utf-8"), indent=2)
+    print("sm2_evolucao.json", saida)
+
+
+def tutor_arquitetura():
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
+
+    fig, ax = plt.subplots(figsize=(10, 5.0), dpi=300)
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 50)
+    ax.axis("off")
+
+    def caixa(x, y, w, h, titulo, linhas, cor, tracejada=False, fundo="white"):
+        ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0,rounding_size=1.6",
+                                    linewidth=1.4, edgecolor=cor, facecolor=fundo,
+                                    linestyle=(0, (4, 3)) if tracejada else "-"))
+        ax.text(x + w / 2, y + h - 2.2, titulo, ha="center", va="top", fontsize=9.4,
+                fontweight="bold", color=TINTA)
+        ax.text(x + w / 2, y + h - 5.8, "\n".join(linhas), ha="center", va="top",
+                fontsize=7.7, color=TINTA2, linespacing=1.45)
+
+    def seta(x1, y1, x2, y2, rotulo="", deslocamento=(0, 0)):
+        ax.add_patch(FancyArrowPatch((x1, y1), (x2, y2), arrowstyle="-|>", mutation_scale=11,
+                                     linewidth=1.2, color=TINTA2, shrinkA=2, shrinkB=2))
+        if rotulo:
+            ax.text((x1 + x2) / 2 + deslocamento[0], (y1 + y2) / 2 + deslocamento[1], rotulo,
+                    ha="center", va="center", fontsize=7.4, color=TINTA2,
+                    bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor="none"))
+
+    caixa(1, 33, 20, 14, "Pergunta", ["do estudante,", "em português"], TINTA2)
+    caixa(27, 31, 40, 18, "Tutor — assistente.py",
+          ["monta o pedido com:", "instrução fixa (não inventar valores,", "não diagnosticar, manter as regras)",
+           "+ fichas curadas dos 20 marcadores", "+ últimas 6 mensagens"], INDIGO)
+    caixa(73, 33, 26, 14, "Resposta", ["com aviso do motivo", "quando veio da reserva"], TINTA2)
+    seta(21, 40, 27, 40)
+    seta(67, 40, 73, 40)
+
+    caixa(1, 1, 33, 22, "1º  Gemini (nuvem, opcional)",
+          ["computador: chave lida de um", "arquivo .env, fora do Git",
+           "celular: o app não tem chave;", "pergunta vai a um servidor",
+           "intermediário (Cloudflare Workers)", "que guarda a chave como segredo"], VERDE,
+          fundo=VERDE_SUAVE)
+    caixa(40, 1, 26, 22, "2º  Modelo local (Ollama)",
+          ["opcional, só no computador", "nada sai da máquina", "",
+           "usado apenas quando a", "pergunta cita um marcador"], TINTA2, tracejada=True)
+    caixa(72, 1, 27, 22, "3º  Base do app",
+          ["ficha curada do marcador:", "faixa, interpretação e", "condições associadas", "",
+           "offline; sempre responde"], AMBAR)
+    seta(30, 31, 18, 23, "tenta primeiro", deslocamento=(-3, 0.5))
+    seta(34, 11, 40, 11)
+    seta(66, 11, 72, 11)
+    ax.text(37, 13, "falhou", ha="center", fontsize=7.2, color=RUBRO)
+    ax.text(69, 13, "falhou", ha="center", fontsize=7.2, color=RUBRO)
+
+    fig.savefig(FIG / "tutor_arquitetura.png", dpi=300, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    print("tutor_arquitetura.png")
+
+
+# Roteiro de captura: abre o app num tamanho de janela, executa os passos
+# um por vez (esperando, se pedido, uma condição) e fotografa a janela.
+ROTEIRO_CAPTURA = r'''
+import os, sys
+sys.path.insert(0, RAIZ)
+os.chdir(RAIZ)
+from kivy.clock import Clock
+from kivy.core.window import Window
+from mobile import app as modulo_app
+modulo_app.webbrowser.open = lambda url: None
+Window.size = TAMANHO
+app = modulo_app.BioquimicaApp()
+
+class VozFalsa:
+    disponivel = True
+    def falar(self, *a, **k): pass
+    def parar(self): pass
+
+def tela(): return app.tela_atual()
+passos = []
+def p(fn, foto=None, espera=1.4, ate=None):
+    passos.append((fn, foto, espera, ate))
+p(lambda: setattr(app, "voz", VozFalsa()), None, 0.2)
+PASSOS
+
+def executar(i):
+    if i >= len(passos):
+        Clock.schedule_once(lambda _d: app.stop(), 0.8)
+        return
+    fn, foto, espera, ate = passos[i]
+    try:
+        fn()
+    except Exception:
+        import traceback
+        traceback.print_exc()
+    decorrido = [0.0]
+    def checar(dt):
+        decorrido[0] += dt
+        if ate is not None and not ate() and decorrido[0] < 90:
+            Clock.schedule_once(checar, 0.3)
+            return
+        Clock.schedule_once(fotografar, espera)
+    def fotografar(_dt):
+        if foto:
+            Window.canvas.ask_update()   # sem animação, o quadro pode não ser redesenhado
+            Clock.schedule_once(lambda _d: Window.screenshot(name=os.path.join(OUT, foto + ".png")), 0.2)
+        Clock.schedule_once(lambda _d: executar(i + 1), 0.6)
+    Clock.schedule_once(checar, 0.3)
+
+def aguardar(_dt, n=[0]):
+    n[0] += 1
+    if (getattr(app, "carregado", False) and app.gerenciador.has_screen("inicio")) or n[0] > 150:
+        Clock.schedule_once(lambda _d: executar(0), 5.5)   # a janela leva uns segundos para capturar certo
+    else:
+        Clock.schedule_once(aguardar, 0.2)
+Clock.schedule_once(aguardar, 0.2)
+app.run()
+'''
+
+
+def capturar(pasta_aluno, saida, tamanho, prefs, passos, nuvem=False):
+    """Roda o app com estas preferências e devolve {nome da foto: arquivo}."""
+    json.dump(progresso_exemplo(), io.open(pasta_aluno / "progresso.json", "w", encoding="utf-8"),
+              ensure_ascii=False, indent=2)
+    json.dump({"boas_vindas_vista": True, **prefs},
+              io.open(pasta_aluno / "preferencias_mobile.json", "w", encoding="utf-8"))
+    saida.mkdir(parents=True, exist_ok=True)
+    roteiro = (ROTEIRO_CAPTURA.replace("RAIZ", repr(str(RAIZ))).replace("TAMANHO", repr(tamanho))
+               .replace("PASSOS", passos).replace("OUT", repr(str(saida))))
+    ambiente = dict(os.environ, BIOQ_SEM_VOZ="1")
+    if nuvem:
+        ambiente.pop("BIOQ_SEM_NUVEM", None)
+    else:
+        ambiente["BIOQ_SEM_NUVEM"] = "1"
+    r = subprocess.run([sys.executable, "-c", roteiro], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace", timeout=600, env=ambiente)
+    fotos = {f.stem.rsplit("0001", 1)[0]: f for f in saida.glob("*.png")}
+    if "Traceback" in r.stderr:
+        print(r.stderr[-2500:])
+    return fotos
+
+
+def prancha_formatos(computador, tablet, celular):
+    """Computador em cima, na largura toda; tablet e celular embaixo, com a
+    mesma altura, para que se veja a mesma interface em três tamanhos."""
+    from PIL import Image, ImageDraw, ImageFont
+    from kivy import kivy_data_dir
+
+    pc, tb, cel = (Image.open(a).convert("RGB") for a in (computador, tablet, celular))
+    margem, vao, rotulo_h = 30, 60, 80
+    largura = margem * 2 + pc.width
+    altura_baixo = 760
+    tb = tb.resize((round(tb.width * altura_baixo / tb.height), altura_baixo), Image.LANCZOS)
+    cel = cel.resize((round(cel.width * altura_baixo / cel.height), altura_baixo), Image.LANCZOS)
+    altura = margem * 2 + pc.height + rotulo_h + altura_baixo + rotulo_h
+    folha = Image.new("RGB", (largura, altura), "white")
+    fonte = ImageFont.truetype(os.path.join(kivy_data_dir, "fonts", "Roboto-Bold.ttf"), 34)
+    d = ImageDraw.Draw(folha)
+
+    def colar(img, x, y, letra, raio):
+        mascara = Image.new("L", img.size, 0)
+        ImageDraw.Draw(mascara).rounded_rectangle((0, 0, img.width - 1, img.height - 1),
+                                                  radius=raio, fill=255)
+        folha.paste(img, (x, y), mascara)
+        d.rounded_rectangle((x - 1, y - 1, x + img.width, y + img.height), radius=raio + 1,
+                            outline=BORDA, width=3)
+        tw = d.textlength(letra, font=fonte)
+        d.text((x + (img.width - tw) / 2, y + img.height + 22), letra, font=fonte, fill=TINTA)
+
+    colar(pc, margem, margem, "(a)", 18)
+    y = margem + pc.height + rotulo_h
+    x = (largura - (tb.width + vao + cel.width)) // 2
+    colar(tb, x, y, "(b)", 26)
+    colar(cel, x + tb.width + vao, y, "(c)", 30)
+    folha.save(FIG / "evolucao_formatos.png", dpi=(300, 300))
+    print("evolucao_formatos.png")
+
+
+def capturas_evolucao(pasta_aluno):
+    tmp = Path(tempfile.mkdtemp(prefix="bioq_evolucao_"))
+    celular, tablet, computador = (400, 840), (768, 1024), (1184, 760)
+    voz = {"leitura_voz": True, "atalho_libras": True}
+
+    a = capturar(pasta_aluno, tmp / "pc", computador, {},
+                 'p(lambda: app.ir_para("inicio", animar=False), "inicio")')
+    b = capturar(pasta_aluno, tmp / "tablet", tablet, {},
+                 'p(lambda: app.ir_para("estudo", animar=False), "estudo")')
+    c = capturar(pasta_aluno, tmp / "celular", celular, {}, "\n".join([
+        'p(lambda: app.ir_para("revisao", animar=False), None)',
+        'p(lambda: (tela()._definir_confianca(4), tela()._revelar()), "revisao", 1.8)']))
+    if not (a.get("inicio") and b.get("estudo") and c.get("revisao")):
+        raise RuntimeError(f"capturas de formato incompletas: {a} {b} {c}")
+    prancha_formatos(a["inicio"], b["estudo"], c["revisao"])
+
+    foco = capturar(pasta_aluno, tmp / "foco", celular, {**voz, "modo_foco": True}, "\n".join([
+        'p(lambda: app.ir_para("inicio", animar=False), "inicio_foco")',
+        'p(lambda: app.ir_para("acessibilidade", animar=False), "acessibilidade")']))
+    contraste = capturar(pasta_aluno, tmp / "contraste", celular,
+                         {**voz, "tema": "alto_contraste", "escala_texto": 1.3,
+                          "fonte_leitura": "hiperlegivel"}, "\n".join([
+        'p(lambda: app.ir_para("estudo", animar=False), None, 0.6)',
+        'p(lambda: app.ir_para("detalhe", sigla="K", animar=False), "detalhe")']))
+    fotos = [foco.get("acessibilidade"), contraste.get("detalhe"), foco.get("inicio_foco")]
+    if not all(fotos):
+        raise RuntimeError(f"capturas de acessibilidade incompletas: {foco} {contraste}")
+    prancha("evolucao_acessibilidade", fotos)
+    shutil.rmtree(tmp, ignore_errors=True)
+
+
+def captura_tutor(pasta_aluno):
+    """Conversa real com o Gemini; só roda se a chave estiver configurada.
+
+    A chave é lida pelo próprio app (assistente.ler_config_nuvem): este
+    script nunca a vê. As respostas entram na figura sem edição."""
+    from assistente import ler_config_nuvem
+    cfg = ler_config_nuvem()
+    if not (cfg["chave"] or cfg["servidor"]):
+        print("evolucao_tutor.png NÃO gerada: Gemini sem chave (ver docs/TUTOR_GEMINI.md)")
+        return
+    tmp = Path(tempfile.mkdtemp(prefix="bioq_tutor_"))
+    fotos = capturar(pasta_aluno, tmp, (400, 840), {"leitura_voz": True}, "\n".join([
+        'p(lambda: app.ir_para("tutor", animar=False), "inicio")',
+        'p(lambda: tela()._perguntar("ALT ou AST: qual a diferença?"), "resposta", 1.2, '
+        'ate=lambda: not tela().ocupado)',
+        'p(lambda: tela()._perguntar("E quando as duas sobem juntas?"), "seguimento", 1.2, '
+        'ate=lambda: not tela().ocupado)']), nuvem=True)
+    if len(fotos) < 3:
+        raise RuntimeError(f"capturas do tutor incompletas: {sorted(fotos)}")
+    prancha("evolucao_tutor", [fotos["inicio"], fotos["resposta"], fotos["seguimento"]])
+    json.dump({"modelo": cfg["modelo"], "data": date.today().isoformat()},
+              io.open(FIG / "evolucao_tutor.json", "w", encoding="utf-8"))
+    shutil.rmtree(tmp, ignore_errors=True)
+
+
 def main():
     # O progresso de exemplo vai para uma pasta temporária (BIOQ_PASTA_ALUNO,
     # herdada pelos processos de captura): o progresso real do estudante em
@@ -403,14 +711,21 @@ def main():
     try:
         json.dump(progresso_exemplo(), io.open(exemplo, "w", encoding="utf-8"),
                   ensure_ascii=False, indent=2)
-        metricas()
-        arquitetura()
-        sm2()
-        capturas_mobile()
-        # o quiz da captura mobile registra uma resposta; recomeça do exemplo
-        json.dump(progresso_exemplo(), io.open(exemplo, "w", encoding="utf-8"),
-                  ensure_ascii=False, indent=2)
-        captura_desktop()
+        if "--versao-avaliada" in sys.argv:
+            metricas()
+            arquitetura()
+            sm2()
+            capturas_mobile()
+            # o quiz da captura mobile registra uma resposta; recomeça do exemplo
+            json.dump(progresso_exemplo(), io.open(exemplo, "w", encoding="utf-8"),
+                      ensure_ascii=False, indent=2)
+            captura_desktop()
+            return
+        metricas_evolucao()
+        intervalos_por_avaliacao()
+        tutor_arquitetura()
+        capturas_evolucao(pasta)
+        captura_tutor(pasta)
     finally:
         shutil.rmtree(pasta, ignore_errors=True)
 

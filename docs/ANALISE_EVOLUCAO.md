@@ -330,8 +330,11 @@ Respondidas pelo aluno em 07/10/2026:
 6. **Fonte**: Atkinson Hyperlegible (Google Fonts, licença OFL), como opção
    em Acessibilidade › Leitura.
 7. **Revisão**: intervalos diferentes para Difícil, Bom e Fácil. Feito.
-8. **Relatório**: entra o que for escolhido da lista de novidades. A
-   avaliação com usuários foi feita com a versão anterior; o que entrar
-   aparece como evolução posterior à avaliação.
+8. **Relatório**: entraram as cinco novidades (intervalos da revisão; um
+   app que se complementa entre celular, tablet e computador;
+   acessibilidade; tutor com Gemini; abertura, apresentação e identidade,
+   esta com menos destaque), na seção 4.7 "Evolução do software após a
+   avaliação". As seções 4.1 a 4.6 continuam descrevendo a versão avaliada,
+   com as figuras congeladas no commit 329bed8.
 
 ![Antes e depois](antes_depois.png)

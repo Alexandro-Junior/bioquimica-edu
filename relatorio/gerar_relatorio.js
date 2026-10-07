@@ -49,6 +49,7 @@ const SUBTITULO = "marcadores bioquímicos e sua correlação com doenças";
 const LOCAL = "SÃO PAULO";
 const ANO = "2026";
 const ACESSO = "Acesso em: 6 out. 2026.";
+const ACESSO_7 = "Acesso em: 7 out. 2026.";
 const REPOSITORIO = "https://github.com/Alexandro-Junior/bioquimica-edu";
 
 // ════════════════════════════════════════════════════════════════════
@@ -142,8 +143,12 @@ const nota = (t) => new Paragraph({ style: "FonteIlustracao", children: runs(`No
 
 // Ordem das figuras no texto: as remissões ("Figura 3") saem daqui, e não
 // de números digitados à mão que ficariam errados ao mover uma figura.
+// A conversa real com o Gemini só existe depois que a chave é configurada
+// (docs/TUTOR_GEMINI.md); até lá, o texto traz um [PREENCHER] no lugar dela.
+const TEM_FIGURA_TUTOR = fs.existsSync(path.join(FIG, "evolucao_tutor.png"));
 const ORDEM_FIGURAS = ["arquitetura", "sm2", "telas_inicio", "telas_revisao", "telas_pratica",
-                       "desktop", "logo"];
+                       "desktop", "logo", "evolucao_formatos", "evolucao_acessibilidade",
+                       "tutor_arquitetura", ...(TEM_FIGURA_TUTOR ? ["evolucao_tutor"] : [])];
 const fig = (chave) => {
   const n = ORDEM_FIGURAS.indexOf(chave) + 1;
   if (!n) throw new Error(`figura desconhecida: ${chave}`);
@@ -284,17 +289,26 @@ const CITACAO_NBK = {
 };
 
 const REFERENCIAS = [
+  `ANDROID DEVELOPERS. **Behavior changes**: apps targeting Android 16 or higher. [S. l.], [2026a]. Disponível em: https://developer.android.com/about/versions/16/behavior-changes-16. ${ACESSO_7}`,
+  `ANDROID DEVELOPERS. **Use window size classes**. [S. l.], [2026b]. Disponível em: https://developer.android.com/develop/ui/compose/layouts/adaptive/use-window-size-classes. ${ACESSO_7}`,
+  `ANKI. Deck options. In: ANKI. **Anki manual**. [S. l.], [2026]. Disponível em: https://docs.ankiweb.net/deck-options.html. ${ACESSO_7}`,
   statpearls("BADDAM, S.; TUBBEN, R. E.", "Lactic acidosis", 2025, "NBK470202"),
   "BALCI, S.; SECAUR, J. M.; MORRIS, B. J. Comparing the effectiveness of badges and leaderboards on academic performance and motivation of students in fully versus partially gamified online physics classes. **Education and Information Technologies**, [s. l.], v. 27, n. 6, p. 8669-8704, 2022. DOI: https://doi.org/10.1007/s10639-022-10983-z.",
+  `BRAILLE INSTITUTE. **Atkinson Hyperlegible font**. [S. l.], [2026]. Disponível em: https://www.brailleinstitute.org/freefont/. ${ACESSO_7}`,
+  `BRASIL. Lei nº 13.146, de 6 de julho de 2015. Institui a Lei Brasileira de Inclusão da Pessoa com Deficiência (Estatuto da Pessoa com Deficiência). Brasília, DF: Presidência da República, 2015. Disponível em: https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13146.htm. ${ACESSO_7}`,
   `BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Dispõe sobre a proteção de dados pessoais e altera a Lei nº 12.965, de 23 de abril de 2014 (Marco Civil da Internet). Brasília, DF: Presidência da República, 2018. Disponível em: https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm. ${ACESSO}`,
+  `BRASIL. Ministério da Gestão e da Inovação em Serviços Públicos. **VLibras**. Brasília, DF, [2026]. Disponível em: https://www.gov.br/governodigital/pt-br/acessibilidade-e-usuario/vlibras. ${ACESSO_7}`,
   statpearls("CASTRO, D.; SHARMA, S.", "Hypokalemia", 2025, "NBK482465"),
   "CEPEDA, N. J. et al. Distributed practice in verbal recall tasks: a review and quantitative synthesis. **Psychological Bulletin**, [s. l.], v. 132, n. 3, p. 354-380, maio 2006. DOI: https://doi.org/10.1037/0033-2909.132.3.354.",
   "CLEARY, T. J. et al. First-year medical students' calibration bias and accuracy across clinical reasoning activities. **Advances in Health Sciences Education**: theory and practice, [s. l.], v. 24, n. 4, p. 767-781, out. 2019. DOI: https://doi.org/10.1007/s10459-019-09897-2.",
+  `CLOUDFLARE. Limits. In: CLOUDFLARE. **Cloudflare Workers docs**. [S. l.], [2026]. Disponível em: https://developers.cloudflare.com/workers/platform/limits/. ${ACESSO_7}`,
   "DECI, E. L.; KOESTNER, R.; RYAN, R. M. A meta-analytic review of experiments examining the effects of extrinsic rewards on intrinsic motivation. **Psychological Bulletin**, [s. l.], v. 125, n. 6, p. 627-668, nov. 1999. DOI: https://doi.org/10.1037/0033-2909.125.6.627.",
   "DENG, F.; GLUCKSTEIN, J. A.; LARSEN, D. P. Student-directed retrieval practice is a predictor of medical licensing examination performance. **Perspectives on Medical Education**, [s. l.], v. 4, n. 6, p. 308-313, dez. 2015. DOI: https://doi.org/10.1007/s40037-015-0220-x.",
   statpearls("EYTH, E.; ZUBAIR, M.; NAIK, R.", "Hemoglobin A1C", 2025, "NBK549816"),
   statpearls("FARHANA, A.; LAPPIN, S. L.", "Biochemistry, lactate dehydrogenase", 2023, "NBK557536"),
-  `GOOGLE. Target API level requirements for Google Play apps. In: GOOGLE. **Play Console Help**. [S. l.], [2026]. Disponível em: https://support.google.com/googleplay/android-developer/answer/11926878. ${ACESSO}`,
+  `GOOGLE. Gemini API additional terms of service. In: GOOGLE. **Google AI for Developers**. [S. l.], [2026a]. Disponível em: https://ai.google.dev/gemini-api/terms. ${ACESSO_7}`,
+  `GOOGLE. Models. In: GOOGLE. **Google AI for Developers**. [S. l.], [2026b]. Disponível em: https://ai.google.dev/gemini-api/docs/models. ${ACESSO_7}`,
+  `GOOGLE. Target API level requirements for Google Play apps. In: GOOGLE. **Play Console Help**. [S. l.], [2026c]. Disponível em: https://support.google.com/googleplay/android-developer/answer/11926878. ${ACESSO}`,
   statpearls("GOUNDEN, V.; BHATT, H.; JIALAL, I.", "Renal function tests", 2024, "NBK507821"),
   statpearls("HANTZIDIAMANTIS, P. J.; AWOSIKA, A. O.; LAPPIN, S. L.", "Physiology, glucose", 2024, "NBK545201"),
   statpearls("HUFF, T.; BOYD, B.; JIALAL, I.", "Physiology, cholesterol", 2023, "NBK470561"),
@@ -323,6 +337,7 @@ const REFERENCIAS = [
   statpearls("VENUGOPAL, S. K.; ANORUO, M.; JIALAL, I.", "Biochemistry, low density lipoprotein", 2023, "NBK500010"),
   clinicalMethods("Alkaline phosphatase and gamma glutamyltransferase", "1990a", "NBK203"),
   clinicalMethods("Aminotransferases", "1990b", "NBK425"),
+  `WORLD WIDE WEB CONSORTIUM. **Web content accessibility guidelines (WCAG) 2.2**. [S. l.]: W3C, 12 dez. 2024. Disponível em: https://www.w3.org/TR/WCAG22/. ${ACESSO_7}`,
   `WOZNIAK, P. A. **Optimization of learning**. 1990. Dissertação (Mestrado) – University of Technology in Poznan, Poznań, 1990. Seção 3.2: Application of a computer to improve the results obtained in working with the SuperMemo method. Disponível em: https://super-memory.com/english/ol/sm2.htm. ${ACESSO}`,
   statpearls("ZUBAIR, M.; SHARMA, S.", "Analytical and clinical aspects of troponin testing", 2026, "NBK507805"),
 ];
@@ -513,8 +528,12 @@ const resumo = [
     "diagramas, com fontes conferidas na literatura médica, e os dados do estudante permanecem no " +
     "próprio aparelho. A verificação funcional foi feita com testes automatizados que percorrem as " +
     "telas das versões para computador e para celular. [[PREENCHER: síntese da avaliação com usuários — " +
-    "número de participantes, instrumento e principais resultados.]] Conclui-se que [[PREENCHER: " +
-    "conclusão apoiada nos resultados da avaliação.]]", { semRecuo: true }),
+    "número de participantes, instrumento e principais resultados.]] Após a avaliação, as interfaces " +
+    "foram unificadas num único aplicativo, que se adapta ao celular, ao tablet e ao computador, com " +
+    "recursos de acessibilidade — texto ampliado, alto contraste, fonte para baixa visão, leitura em voz " +
+    "alta e atalho para Libras — e um tutor opcional com inteligência artificial generativa, ancorado no " +
+    "conteúdo curado. Conclui-se que [[PREENCHER: conclusão apoiada nos resultados da avaliação.]]",
+    { semRecuo: true }),
   p("**Palavras-chave:** bioquímica clínica; repetição espaçada; software educacional; aprendizagem " +
     "móvel; metacognição.", { semRecuo: true, antes: LINHA_15 }),
 ];
@@ -535,7 +554,11 @@ const abstract = [
     `${C.casos_clinicos} clinical cases, ${C.exemplos} clinical examples and ${C.diagramas} diagrams, with sources checked ` +
     "against the medical literature, and all student data stay on the device. Functional verification " +
     "used automated tests that go through the screens of the desktop and mobile versions. [[PREENCHER: " +
-    "summary of the user evaluation — participants, instrument and main results.]] [[PREENCHER: conclusion.]]",
+    "summary of the user evaluation — participants, instrument and main results.]] After the evaluation, " +
+    "the interfaces were merged into a single app that adapts to phones, tablets and computers, with " +
+    "accessibility features — larger text, high contrast, a typeface for low vision, read-aloud and a " +
+    "shortcut to Brazilian Sign Language (Libras) — and an optional generative artificial intelligence " +
+    "tutor grounded in the curated content. [[PREENCHER: conclusion.]]",
     { semRecuo: true }),
   p("**Keywords:** clinical biochemistry; spaced repetition; educational software; mobile learning; " +
     "metacognition.", { semRecuo: true, antes: LINHA_15 }),
@@ -554,18 +577,22 @@ const SIGLAS = [
   ["CK-MB", "Creatinoquinase, fração MB"],
   ["CNPq", "Conselho Nacional de Desenvolvimento Científico e Tecnológico"],
   ["CSV", "Valores separados por vírgula (~Comma-Separated Values~)"],
+  ["dp", "Pixel independente de densidade (~density-independent pixel~)"],
   ["EF", "Fator de facilidade (~Easiness Factor~)"],
   ["GGT", "Gama-glutamiltransferase"],
   ["HbA1c", "Hemoglobina glicada"],
   ["HDL", "Lipoproteína de alta densidade (~High-Density Lipoprotein~)"],
+  ["HTTPS", "Protocolo de transferência de hipertexto seguro (~Hypertext Transfer Protocol Secure~)"],
   ["IA", "Inteligência artificial"],
   ["JSON", "Notação de objetos JavaScript (~JavaScript Object Notation~)"],
   ["LDH", "Lactato desidrogenase"],
   ["LDL", "Lipoproteína de baixa densidade (~Low-Density Lipoprotein~)"],
   ["LGPD", "Lei Geral de Proteção de Dados Pessoais"],
+  ["Libras", "Língua Brasileira de Sinais"],
   ["PIBIC", "Programa Institucional de Bolsas de Iniciação Científica"],
   ["SM-2", "Algoritmo SuperMemo 2"],
   ["UNICID", "Universidade Cidade de São Paulo"],
+  ["WCAG", "Diretrizes de acessibilidade para conteúdo web (~Web Content Accessibility Guidelines~)"],
 ];
 const listaSiglas = [
   tituloPre("LISTA DE ABREVIATURAS E SIGLAS"),
@@ -622,7 +649,8 @@ const introducao = [
     "Universidade Cidade de São Paulo (UNICID), no curso de Ciência da Computação, apresenta o " +
     "BioquímicaEDU, software educacional para o estudo de marcadores bioquímicos construído sobre esses " +
     "princípios. O relatório descreve as decisões de projeto, a implementação das versões para " +
-    "computador e para dispositivos móveis, a verificação realizada e a avaliação com usuários."),
+    "computador e para dispositivos móveis, a verificação realizada, a avaliação com usuários e a " +
+    "evolução do software depois dela."),
 
   h2("1.1 OBJETIVOS"),
   h3("1.1.1 Objetivo geral"),
@@ -646,7 +674,7 @@ const introducao = [
 
   h2("1.2 ORGANIZAÇÃO DO RELATÓRIO"),
   p("A seção 2 apresenta a fundamentação teórica; a seção 3 descreve materiais e métodos; a seção 4 " +
-    "reúne os resultados, isto é, o software produzido e sua avaliação; a seção 5 discute as decisões " +
+    "reúne os resultados, isto é, o software produzido, sua avaliação e a evolução posterior; a seção 5 discute as decisões " +
     "de projeto e as limitações; e a seção 6 traz as considerações finais."),
 ];
 
@@ -759,7 +787,9 @@ const metodos = [
     "implementação do motor de aprendizagem e sua integração às atividades de estudo;",
     "redesenho da interface móvel e criação da identidade visual;",
     "verificação automatizada do funcionamento;",
-    "avaliação com usuários.",
+    "avaliação com usuários;",
+    "evolução após a avaliação: interface única para celular, tablet e computador, recursos de " +
+      "acessibilidade, intervalos diferenciados na revisão e tutor com inteligência artificial generativa.",
   ]),
 
   h2("3.2 CURADORIA DO CONTEÚDO"),
@@ -784,9 +814,12 @@ const metodos = [
   ...quadro("Tecnologias utilizadas", COLUNAS_TECNOLOGIAS, [
     ["Python", "3.12", "Linguagem de todas as versões e dos programas auxiliares"],
     ["Tkinter (Tk)", "8.6", "Interface das versões para computador"],
-    ["Kivy", "2.3.1", "Interface da versão para dispositivos móveis (Kivy Organization, 2024)"],
+    ["Kivy", "2.3.1", "Interface da versão para dispositivos móveis e, após a avaliação, do aplicativo único (Kivy Organization, 2024)"],
     ["Buildozer e python-for-android", "—", "Empacotamento da versão móvel para Android"],
     ["Ollama", "—", "Execução local do modelo de linguagem do tutor, opcional (Ollama, [2026])"],
+    ["Gemini API", "gemini-3.8-flash", "Modelo de linguagem em nuvem do tutor, opcional, após a avaliação (Google, [2026b])"],
+    ["Cloudflare Workers", "—", "Servidor intermediário que guarda a chave do Gemini para a versão móvel (Cloudflare, [2026])"],
+    ["Atkinson Hyperlegible", "—", "Fonte opcional para leitura facilitada (Braille Institute, [2026])"],
     ["Matplotlib", "3.11", "Diagramas do conteúdo e gráficos deste relatório"],
     ["Pillow", "12.3", "Ícone e tela de abertura do aplicativo; capturas de tela"],
     ["fontTools", "4.64", "Conversão do texto da logo em contornos vetoriais"],
@@ -804,18 +837,23 @@ const metodos = [
   p("A versão móvel é um pacote próprio, dividido em tema (cores e tipografia), componentes visuais " +
     "reutilizáveis, telas e acesso a dados. No Android, o empacotador sempre executa o arquivo " +
     "main.py; por isso esse arquivo verifica em que plataforma está e, no celular, inicia a versão " +
-    "móvel antes de carregar o Tkinter, que não existe no Android."),
+    "móvel antes de carregar o Tkinter, que não existe no Android. Depois da avaliação, a camada de " +
+    "interfaces passou a ter um único aplicativo, também iniciado pelo main.py (seção 4.7.2)."),
 
   h2("3.5 VERIFICAÇÃO DO SOFTWARE"),
-  p("O funcionamento foi verificado com dois programas de teste automatizado incluídos no " +
-    "repositório. O primeiro abre a versão móvel e percorre todas as abas, a busca e o filtro de " +
-    "marcadores, o detalhe com suas abas, uma revisão completa, os ~flashcards~, um quiz inteiro, um " +
-    "caso clínico e o tutor, conferindo ao final se o painel inicial reflete a sessão. O segundo abre " +
-    "cada tela das duas versões para computador e o detalhe de um marcador em todas as abas. Ambos " +
-    "salvam o progresso real do usuário antes de começar e o restauram ao terminar."),
-  p("Além disso, as telas da versão móvel foram renderizadas na resolução de um celular e inspecionadas " +
-    "uma a uma, e o comportamento do motor de agendamento foi conferido executando o próprio código com " +
-    "sequências de respostas cujo resultado esperado pode ser calculado à mão (seção 4.2)."),
+  p("O funcionamento foi verificado com programas de teste automatizado incluídos no repositório. O " +
+    "primeiro abre a versão móvel e percorre todas as abas, a busca e o filtro de marcadores, o detalhe " +
+    "com suas abas, uma revisão completa, os ~flashcards~, um quiz inteiro, um caso clínico e o tutor, " +
+    "conferindo ao final se o painel inicial reflete a sessão; depois da avaliação, passou a rodar nos " +
+    "formatos de celular e de computador e a conferir também os recursos de acessibilidade e a troca de " +
+    "formato ao redimensionar a janela. O segundo abre cada tela das duas versões para computador e o " +
+    "detalhe de um marcador em todas as abas. Um terceiro, criado com o tutor em nuvem, é descrito na " +
+    "seção 4.7.4. Os testes gravam numa pasta temporária, de modo que o progresso real do usuário não é " +
+    "lido nem alterado."),
+  p("Além disso, as telas da versão móvel foram renderizadas na resolução de um celular — e, depois da " +
+    "avaliação, também nas de tablet e de computador — e inspecionadas uma a uma, e o comportamento do " +
+    "motor de agendamento foi conferido executando o próprio código com sequências de respostas cujo " +
+    "resultado esperado pode ser calculado à mão (seção 4.2)."),
 
   h2("3.6 AVALIAÇÃO COM USUÁRIOS"),
   p("[[PREENCHER: tipo de estudo — por exemplo, estudo exploratório com questionário após uso do software.]]"),
@@ -867,6 +905,28 @@ const sm2 = JSON.parse(fs.readFileSync(path.join(FIG, "sm2_intervalos.json"), "u
 const seq = Object.values(sm2);
 const serie = (v) => v.join(", ");
 
+// Evolução após a avaliação (seção 4.7): números gerados por gerar_figuras.py
+const SM2E = JSON.parse(fs.readFileSync(path.join(FIG, "sm2_evolucao.json"), "utf8"));
+const ME = JSON.parse(fs.readFileSync(path.join(FIG, "metricas_evolucao.json"), "utf8"));
+const TUTOR = TEM_FIGURA_TUTOR
+  ? JSON.parse(fs.readFileSync(path.join(FIG, "evolucao_tutor.json"), "utf8")) : null;
+const trio = (v) => v.join(" / ");
+const MESES = ["jan.", "fev.", "mar.", "abr.", "maio", "jun.", "jul.", "ago.", "set.", "out.", "nov.", "dez."];
+const dataAbnt = (iso) => { const [a, m, d] = iso.split("-").map(Number); return `${d} ${MESES[m - 1]} ${a}`; };
+const COLUNAS_INTERVALOS = [
+  { titulo: "Revisão", largura: 2270 },
+  { titulo: "Versão avaliada (Difícil / Bom / Fácil)", largura: 3400, alinhamento: AlignmentType.CENTER },
+  { titulo: "Versão atual (Difícil / Bom / Fácil)", largura: 3400, alinhamento: AlignmentType.CENTER },
+];
+const COLUNAS_FORMATOS = [
+  { titulo: "Formato", largura: 1400 },
+  { titulo: "Largura da janela", largura: 1650 },
+  { titulo: "Aparelho típico", largura: 1800 },
+  { titulo: "Navegação", largura: 1550 },
+  { titulo: "Organização do conteúdo", largura: 2670 },
+];
+const ROTULO_REVISAO = { 1: "1ª (primeiro acerto)", 2: "2ª", 3: "3ª", 4: "4ª" };
+
 const resultados = [
   h1("4 RESULTADOS"),
   h2("4.1 VISÃO GERAL DO SOFTWARE"),
@@ -903,9 +963,10 @@ const resultados = [
     "sempre a mesma ordem: o estudante vê a pergunta, declara numa escala de cinco níveis o quanto acha " +
     "que sabe, vê a resposta e se autoavalia em quatro botões — “De novo”, “Difícil”, “Bom” e “Fácil” " +
     "—, que correspondem às notas 0, 3, 4 e 5 do SM-2. Cada botão mostra, antes de ser tocado, quando o " +
-    "marcador voltará. O próximo intervalo é calculado com o fator de facilidade anterior à resposta; " +
-    "por isso, depois do primeiro contato, “Difícil”, “Bom” e “Fácil” levam ao mesmo próximo intervalo, " +
-    "e a diferença entre essas avaliações aparece nos intervalos seguintes, pelo ajuste do fator."),
+    "marcador voltará. Na versão avaliada, o próximo intervalo é calculado com o fator de facilidade " +
+    "anterior à resposta; por isso, depois do primeiro contato, “Difícil”, “Bom” e “Fácil” levam ao mesmo " +
+    "próximo intervalo, e a diferença entre essas avaliações aparece nos intervalos seguintes, pelo " +
+    "ajuste do fator. Esse comportamento foi alterado depois da avaliação (seção 4.7.1)."),
   p("O Quadro 4 descreve as três adaptações feitas ao SM-2 original.", { manterComProximo: true }),
   ...quadro("Adaptações do BioquímicaEDU ao SM-2", COLUNAS_ADAPTACOES, [
     ["Fator de facilidade após erro (nota < 3)",
@@ -994,14 +1055,16 @@ const resultados = [
     "Prática e tutor na versão móvel",
     "elaborado pelo autor (2026), com progresso de exemplo.",
     { nota: "(a) quiz, com ~feedback~ após uma resposta errada; (b) caso clínico; (c) tutor." }),
-  p("No quiz e nos casos clínicos, cada resposta recebe ~feedback~ imediato com a explicação. O tutor " +
-    "da versão móvel funciona sem internet: responde a partir da base do próprio aplicativo, " +
-    "apresentando faixa de referência, interpretação e condições associadas ao marcador perguntado, e " +
-    "oferece sugestões de perguntas."),
+  p("No quiz e nos casos clínicos, cada resposta recebe ~feedback~ imediato com a explicação. Na versão " +
+    "avaliada, o tutor da versão móvel funciona sem internet: responde a partir da base do próprio " +
+    "aplicativo, apresentando faixa de referência, interpretação e condições associadas ao marcador " +
+    "perguntado, e oferece sugestões de perguntas. A seção 4.7.4 descreve o tutor com inteligência " +
+    "artificial generativa acrescentado depois."),
   p("Para o Android, o arquivo de configuração do empacotamento define a versão 36 da API como alvo, " +
     "exigência da Google Play para novos aplicativos e atualizações desde 31 de agosto de 2026 (Google, " +
-    "[2026]), e a versão 21 como mínima, abrangendo aparelhos antigos. O aplicativo não solicita nenhuma " +
-    "permissão: não acessa a internet, e as referências e vídeos abrem no navegador do sistema. " +
+    "[2026c]), e a versão 21 como mínima, abrangendo aparelhos antigos. O aplicativo não solicita nenhuma " +
+    "permissão: não acessa a internet, e as referências e vídeos abrem no navegador do sistema. Depois " +
+    "da avaliação, só o tutor em nuvem, opcional, passou a exigir acesso à internet (seção 4.7.4). " +
     "[[CONFIRMAR: se o APK foi gerado e testado em aparelho físico; em caso afirmativo, informar " +
     "modelo e versão do Android.]]"),
 
@@ -1031,6 +1094,168 @@ const resultados = [
   p("[[PREENCHER: resultados do instrumento — médias, desvios-padrão e distribuição das respostas; " +
     "se for usada escala de usabilidade, o escore médio e sua interpretação.]]"),
   p("[[PREENCHER: comentários abertos mais frequentes, com exemplos.]]"),
+
+  h2("4.7 EVOLUÇÃO DO SOFTWARE APÓS A AVALIAÇÃO"),
+  p("Depois da avaliação com usuários, o software continuou a ser desenvolvido. As mudanças são " +
+    "descritas aqui, separadas das seções anteriores, porque os participantes usaram a versão " +
+    "apresentada nas seções 4.1 a 4.5 [[CONFIRMAR: versão usada na avaliação]] e porque elas não foram " +
+    "avaliadas com usuários. Quatro frentes foram tratadas: os intervalos da revisão, que não " +
+    "diferenciavam de imediato as avaliações “Difícil”, “Bom” e “Fácil”; a existência de uma interface " +
+    "diferente para cada aparelho; a acessibilidade, que ainda não havia sido tratada de forma " +
+    "sistemática; e o tutor, que passou a contar, como opção, com um modelo de linguagem em nuvem. A " +
+    "tela de abertura, a apresentação do primeiro acesso e a identidade visual também foram completadas. " +
+    `Com essas mudanças, o código-fonte passou de ${fmt(M.codigo_total)} para ${fmt(ME.codigo_total)} ` +
+    "linhas não vazias, excluídos os comentários."),
+
+  h3("4.7.1 Intervalos da revisão"),
+  p("Na versão avaliada, “Difícil”, “Bom” e “Fácil” levavam ao mesmo próximo intervalo depois do " +
+    "primeiro contato (seção 4.2). Na versão atual, cada avaliação leva a um intervalo diferente já no " +
+    "agendamento seguinte. No primeiro acerto, os intervalos são de 1, 2 e 4 dias; no segundo, de 4, 6 e " +
+    "8 dias, isto é, o intervalo de 6 dias do SM-2 multiplicado por 0,6, 1,0 e 1,3. A partir do terceiro " +
+    "acerto, “Bom” mantém a regra do SM-2 — o intervalo anterior multiplicado pelo fator de facilidade —, " +
+    "“Difícil” multiplica o intervalo anterior por 1,2 e “Fácil” multiplica o intervalo de “Bom” por 1,3, " +
+    "os valores padrão do Anki para essas avaliações (Anki, [2026]). Os intervalos são arredondados para " +
+    "dias inteiros, mantêm a ordem “Difícil” < “Bom” < “Fácil” e não passam de 365 dias. A nota enviada " +
+    "ao SM-2 e o ajuste do fator de facilidade pela Equação 1 não mudaram. A Tabela 4 compara as duas " +
+    "versões para um marcador avaliado com “Bom” em todas as revisões anteriores.",
+    { manterComProximo: true }),
+  ...tabela("Próximo intervalo, em dias, conforme a avaliação, nas duas versões do motor", COLUNAS_INTERVALOS,
+    Object.keys(SM2E.atual).map((n) => [ROTULO_REVISAO[n], trio(SM2E.avaliada[n]), trio(SM2E.atual[n])]),
+    "elaborado pelo autor (2026), executando o código do motor (progresso.py) da versão avaliada e da atual."),
+  p("Com isso, a escolha do estudante passa a ter consequência visível no próprio botão, que já " +
+    `mostrava, antes do toque, quando o marcador voltaria (Figura ${fig("evolucao_formatos")}c, na seção ` +
+    "4.7.2). A sequência em que todas as respostas são “Bom” mudou apenas no primeiro intervalo, de 1 " +
+    "para 2 dias."),
+
+  h3("4.7.2 Um aplicativo para celular, tablet e computador"),
+  p("Na versão avaliada, o computador tinha duas interfaces em Tkinter, e o celular, uma em Kivy " +
+    "(Quadro 3), o que obrigava a manter interfaces separadas para o mesmo conteúdo, com aparência e " +
+    "recursos diferentes entre os aparelhos. Como a interface em Kivy também " +
+    "roda no computador, ela passou a ser a única: o comando python main.py abre o mesmo aplicativo no " +
+    "computador, e as versões em Tkinter continuam disponíveis pela opção --classico. Para isso, a " +
+    "interface passou a se adaptar à largura da janela, medida em pixels independentes de densidade " +
+    "(dp), unidade que mantém o tamanho físico aproximado dos elementos em telas de densidades " +
+    "diferentes. As faixas seguem as classes de tamanho de janela recomendadas para o Android (Android " +
+    "Developers, [2026b]), como resume o Quadro 5.", { manterComProximo: true }),
+  ...quadro("Adaptação da interface à largura da janela", COLUNAS_FORMATOS, [
+    ["Compacto", "menos de 600 dp", "celular", "barra inferior com cinco abas", "uma coluna"],
+    ["Médio", "de 600 a 839 dp", "tablet em pé", "menu lateral", "uma coluna; lista de marcadores em até duas"],
+    ["Expandido", "840 dp ou mais", "tablet deitado e computador", "menu lateral",
+      "tela inicial em até duas colunas; lista de marcadores em até três"],
+  ], "elaborado pelo autor (2026), com as faixas de Android Developers ([2026b])."),
+  p("Telas de leitura contínua, como a revisão, os ~flashcards~ e o tutor, ficam numa coluna central de " +
+    "largura limitada, para que as linhas não se estendam por toda a tela. Ao redimensionar a janela, o " +
+    "aplicativo troca de formato sem perder a tela aberta nem uma sessão de revisão em andamento, o que é " +
+    "conferido pelos testes automatizados. No Android, a configuração pede a orientação retrato, mas, a " +
+    "partir do Android 16, o sistema ignora restrições de orientação em telas cuja menor largura é de " +
+    "600 dp ou mais (Android Developers, [2026a]); por isso, o formato do tablet deitado também foi " +
+    "verificado."),
+  p("Os formatos se complementam no uso. O agendamento espaçado pede sessões curtas e frequentes, que " +
+    "cabem no celular, em qualquer intervalo do dia; o computador e o tablet favorecem o estudo mais " +
+    "longo — a leitura do detalhe de cada marcador, os casos clínicos e as conversas com o tutor —, com " +
+    "mais informação visível ao mesmo tempo. Como o conteúdo, o motor de aprendizagem e a interface são " +
+    "os mesmos, o estudante encontra as mesmas telas e as mesmas regras em qualquer aparelho. Hoje, porém, " +
+    "cada aparelho guarda o próprio progresso; a sincronização opcional, por meio da conta Google, está " +
+    "em desenvolvimento. [[CONFIRMAR: atualizar se a sincronização for concluída antes da entrega.]] " +
+    `A Figura ${fig("evolucao_formatos")} mostra o aplicativo nos três formatos.`,
+    { manterComProximo: true }),
+  ...figura("evolucao_formatos", path.join(FIG, "evolucao_formatos.png"),
+    "O mesmo aplicativo no computador, no tablet e no celular",
+    "elaborado pelo autor (2026), com progresso de exemplo.",
+    { nota: "(a) computador, com a tela inicial em duas colunas e o menu lateral; (b) tablet em pé, com a " +
+            "lista de marcadores em duas colunas; (c) celular, com a revisão depois da resposta e os novos " +
+            "intervalos nos botões de autoavaliação." }),
+
+  h3("4.7.3 Acessibilidade"),
+  p("A Lei Brasileira de Inclusão da Pessoa com Deficiência inclui a informação e a comunicação, com " +
+    "seus sistemas e tecnologias, entre o que deve ser acessível (Brasil, 2015). No BioquímicaEDU, os " +
+    "recursos de acessibilidade foram reunidos numa tela própria, aberta pelo ícone no topo da tela " +
+    "inicial e oferecida ao fim da apresentação do primeiro acesso, para que quem precisa deles não tenha " +
+    "de percorrer o aplicativo até encontrá-los. Eles funcionam da mesma forma no celular, no tablet e no " +
+    `computador (Figura ${fig("evolucao_acessibilidade")}):`, { manterComProximo: true }),
+  ...alineas([
+    "tamanho do texto em quatro níveis, até 150%, com os componentes reorganizados para que nenhum " +
+      "texto seja cortado;",
+    "tema de alto contraste, com texto preto sobre fundo branco e bordas no lugar de sombras;",
+    "fonte Atkinson Hyperlegible, opcional, criada pelo Braille Institute para leitores com baixa visão, " +
+      "com letras e números de formas bem distintas (Braille Institute, [2026]);",
+    "leitura em voz alta do conteúdo, com a voz do próprio sistema e três velocidades;",
+    "atalho para o VLibras, tradutor gratuito de português para Libras mantido pelo Governo Federal " +
+      "(Brasil, [2026]): o aplicativo copia o texto e abre o VLibras no celular, ou a página dele no " +
+      "computador, onde basta colar o texto;",
+    "modo foco, que reduz a tela inicial ao essencial, sessões de revisão de 5, 12 ou 20 itens e opção " +
+      "para reduzir as animações.",
+  ]),
+  ...figura("evolucao_acessibilidade", path.join(FIG, "evolucao_acessibilidade.png"),
+    "Recursos de acessibilidade na versão para celular",
+    "elaborado pelo autor (2026), com progresso de exemplo.",
+    { nota: "(a) tela de acessibilidade; (b) detalhe de um marcador com alto contraste, texto a 130% e a " +
+            "fonte Atkinson Hyperlegible, com os botões de ouvir e de Libras; (c) tela inicial no modo foco." }),
+  p("As cores de texto dos dois temas foram conferidas pela razão de contraste definida nas diretrizes " +
+    "WCAG 2.2: todas as combinações de texto e fundo usadas atingem pelo menos 4,5:1, o mínimo do nível " +
+    "AA (World Wide Web Consortium, 2024); a menor é de 4,79:1 no tema padrão e de 6,78:1 no de alto " +
+    "contraste. Botões e chips têm área de toque de pelo menos 44 dp. A leitura em voz alta existe porque " +
+    "o Kivy não se integra a leitores de tela, como o TalkBack, do Android: em vez de depender deles, o " +
+    "próprio aplicativo lê o conteúdo, com o serviço de voz do Android ou, no Windows, com a voz do " +
+    "sistema. O VLibras, por sua vez, não oferece integração direta para aplicativos nativos; por isso, o " +
+    "atalho leva o texto pela área de transferência."),
+
+  h3("4.7.4 Tutor com inteligência artificial generativa"),
+  p("Na versão avaliada, o tutor do celular respondia apenas pela base do aplicativo, e o do computador " +
+    "podia usar um modelo de linguagem local, executado com o Ollama (seção 4.4). Modelos locais, porém, " +
+    "não rodam no celular e, nos tamanhos que cabem num computador comum, tendem a responder mais devagar " +
+    "e com qualidade inferior à de modelos maiores. O tutor passou a aceitar, como opção, o Gemini, " +
+    "modelo de linguagem do Google acessado pela internet (Google, [2026b]). Os provedores de resposta são " +
+    "tentados em ordem — Gemini, modelo local e base do aplicativo —, e a base, que sempre responde, é a " +
+    `reserva de todos (Figura ${fig("tutor_arquitetura")}).`, { manterComProximo: true }),
+  ...figura("tutor_arquitetura", path.join(FIG, "tutor_arquitetura.png"),
+    "Provedores de resposta do tutor e local da chave de acesso",
+    "elaborado pelo autor (2026)."),
+  p("A principal decisão foi manter o conteúdo curado como fonte da verdade. A cada pergunta, o tutor " +
+    "envia ao modelo uma instrução fixa e as fichas dos 20 marcadores do aplicativo — faixa de " +
+    "referência, interpretação e condições associadas —, com o marcador da pergunta em destaque, além das " +
+    "últimas seis mensagens da conversa. A instrução determina que valores e interpretações venham somente " +
+    "desses dados, que o modelo não faça diagnóstico nem indique conduta para pacientes reais e que " +
+    "ignore pedidos para mudar as regras. Assim, o tutor pode explicar mecanismos, comparar marcadores e " +
+    "responder a perguntas de continuidade, como “e quando está baixo?”, sem se afastar do conteúdo " +
+    "curado. A temperatura de geração foi fixada em 0,3, para respostas mais estáveis."),
+  p("A chave de acesso à API do Gemini dá acesso à conta de quem a criou e, por isso, não fica no " +
+    "código-fonte nem no pacote do aplicativo, de onde poderia ser extraída. No computador, ela é lida de " +
+    "um arquivo local excluído do controle de versões; no celular, o aplicativo não tem chave e envia a " +
+    "pergunta a um servidor intermediário, executado no Cloudflare Workers, que guarda a chave como " +
+    "segredo e aplica a mesma instrução fixa (Cloudflare, [2026]). Só são aceitas conexões criptografadas " +
+    "(HTTPS). Essa é a única função que exige acesso à internet no Android, e a permissão só precisa ser " +
+    "incluída no pacote quando o servidor é configurado."),
+  p("O projeto usa a camada gratuita da API, adequada a demonstrações. Nela, o Google pode usar as " +
+    "perguntas e respostas para melhorar seus produtos, com possibilidade de revisão humana, e os termos " +
+    "pedem que não se enviem informações pessoais ou sensíveis; na camada paga, os dados não são usados " +
+    "para esse fim (Google, [2026a]). Por isso, o tutor avisa o estudante antes da primeira pergunta. Os " +
+    "termos também exigem que os usuários tenham pelo menos 18 anos, o que é compatível com o público de " +
+    "graduação, mas precisaria ser garantido num uso em produção. Quando o Gemini não responde — por " +
+    "falta de internet, limite de uso da camada gratuita, chave recusada ou bloqueio pelo filtro de " +
+    "segurança —, o tutor informa o motivo em linguagem simples e responde pela base."),
+  p("Esse comportamento é verificado por um programa de testes que substitui a conexão com o Google por " +
+    "uma simulada: ele confere o conteúdo enviado, a leitura das respostas, cada tipo de falha, o caminho " +
+    "do celular, a igualdade entre as instruções do aplicativo e do servidor e a ausência de chaves de API " +
+    "nos arquivos do projeto." +
+    (TEM_FIGURA_TUTOR ? ` A Figura ${fig("evolucao_tutor")} mostra uma conversa real com o tutor.` : ""),
+    { manterComProximo: TEM_FIGURA_TUTOR }),
+  ...(TEM_FIGURA_TUTOR
+    ? figura("evolucao_tutor", path.join(FIG, "evolucao_tutor.png"),
+        "Conversa com o tutor usando o Gemini na versão para celular",
+        `elaborado pelo autor (2026). Respostas geradas pelo modelo ${TUTOR.modelo} em ` +
+          `${dataAbnt(TUTOR.data)}, sem edição.`,
+        { nota: "(a) início da conversa, com o aviso sobre a camada gratuita; (b) resposta a uma pergunta " +
+                "de comparação; (c) resposta a uma pergunta de continuidade." })
+    : [p("[[PREENCHER: figura com uma conversa real com o tutor usando o Gemini — gerada por " +
+         "relatorio/gerar_figuras.py depois que a chave for configurada (docs/TUTOR_GEMINI.md).]]")]),
+
+  h3("4.7.5 Abertura, apresentação e identidade visual"),
+  p("Por fim, o aplicativo ganhou uma tela de abertura com a logo, exibida enquanto o conteúdo e o " +
+    "progresso são carregados, que, se a leitura dos dados falhar, explica o problema e oferece nova " +
+    "tentativa; uma apresentação de três passos no primeiro acesso, que termina nos ajustes de " +
+    "acessibilidade; e as variações da identidade visual de que um aplicativo precisa, como o ícone " +
+    "adaptativo do Android, que se ajusta ao formato de ícone de cada aparelho."),
 ];
 
 const discussao = [
@@ -1040,10 +1265,11 @@ const discussao = [
     `Figura ${fig("sm2")}. As adaptações não pretenderam melhorar a previsão de esquecimento do algoritmo, mas ` +
     "integrar ao mesmo agendamento atividades de natureza diferente — revisão, ~flashcards~, quiz e casos " +
     "— e manter as sessões curtas. O efeito dessas adaptações sobre a retenção não foi medido neste " +
-    "trabalho. Um ponto a melhorar é que, depois do primeiro contato, “Difícil”, “Bom” e “Fácil” " +
-    "mostram o mesmo próximo intervalo, o que pode fazer a autoavaliação graduada parecer sem efeito; " +
-    "aplicar ao próximo intervalo o fator já atualizado pela resposta, ou multiplicadores próprios para " +
-    "“Difícil” e “Fácil”, tornaria a diferença visível de imediato."),
+    "trabalho. Na versão avaliada, depois do primeiro contato, “Difícil”, “Bom” e “Fácil” mostravam o " +
+    "mesmo próximo intervalo, o que podia fazer a autoavaliação graduada parecer sem efeito. A versão " +
+    "atual diferencia os intervalos já no agendamento seguinte (seção 4.7.1), com os multiplicadores " +
+    "padrão do Anki para “Difícil” e “Fácil”; esses valores não foram calibrados com dados de estudantes " +
+    "do próprio software, o que exigiria acompanhar o desempenho por meses."),
   p("A ausência deliberada de pontos, medalhas e classificações segue a evidência discutida na seção " +
     "2.4: recompensas esperadas podem reduzir a motivação intrínseca (Deci; Koestner; Ryan, 1999), e " +
     "medalhas e classificações não melhoraram o desempenho em turmas ~online~ (Balci; Secaur; Morris, " +
@@ -1061,11 +1287,29 @@ const discussao = [
     "móvel não solicita acesso à internet. A escolha está alinhada ao princípio da necessidade da Lei " +
     "Geral de Proteção de Dados Pessoais (LGPD), que limita o tratamento ao mínimo necessário para sua " +
     "finalidade (Brasil, 2018). O custo é a falta de sincronização: o progresso no celular e no " +
-    "computador é independente."),
+    "computador é independente. Na versão atual, isso continua valendo enquanto o tutor com Gemini não é " +
+    "usado. Quando é, a pergunta e o conteúdo curado saem do aparelho para um serviço externo, e a camada " +
+    "gratuita permite ao Google usá-los para melhorar seus produtos (Google, [2026a]). O aviso ao " +
+    "estudante e o fato de o aplicativo não enviar nenhuma identificação dele reduzem esse risco, mas não " +
+    "o eliminam, porque o estudante pode digitar dados pessoais na pergunta; fora de demonstrações, a " +
+    "camada paga seria a escolha adequada. A sincronização pela conta Google, por sua vez, trará dados " +
+    "pessoais, como nome e e-mail, e exigirá base legal, aviso de privacidade e consentimento, nos termos " +
+    "da LGPD."),
+  p("Os recursos de acessibilidade seguem critérios verificáveis, como a razão mínima de contraste da " +
+    "WCAG 2.2, mas a falta de integração do Kivy com leitores de tela é uma limitação estrutural: a " +
+    "leitura em voz alta do próprio aplicativo atende a quem prefere ouvir o conteúdo, mas não substitui a " +
+    "navegação por leitor de tela de que dependem pessoas cegas. Uma aplicação web instalável, que tem " +
+    "acesso às tecnologias assistivas do sistema e permitiria integrar o VLibras à própria página, é uma " +
+    "alternativa para uma próxima fase, com reaproveitamento do motor de aprendizagem e do conteúdo."),
+  p("No tutor, ancorar o modelo de linguagem no conteúdo curado reduz a chance de valores de referência " +
+    "inventados, mas não a elimina, e a qualidade das explicações não foi avaliada. Antes de recomendar o " +
+    "recurso para estudo autônomo, seria necessário que docentes da área da saúde avaliassem as respostas " +
+    "a um conjunto representativo de perguntas."),
   p("O trabalho tem limitações. O conteúdo cobre 20 marcadores, e o banco de 12 questões é pequeno, o " +
     "que favorece a repetição das mesmas perguntas. As questões geradas pelo modelo de linguagem na " +
     "versão com tutor não passam por curadoria e podem conter erros. A versão para iOS, possível com o " +
-    "Kivy, não foi testada. Por fim, a avaliação [[PREENCHER: limitações da avaliação — tamanho e perfil " +
+    "Kivy, não foi testada. Os recursos acrescentados depois da avaliação (seção 4.7) não foram testados " +
+    "com usuários, em particular com estudantes com deficiência. Por fim, a avaliação [[PREENCHER: limitações da avaliação — tamanho e perfil " +
     "da amostra, duração do uso]], e o efeito do software sobre a retenção de longo prazo exigiria um " +
     "estudo longitudinal."),
 ];
@@ -1080,12 +1324,18 @@ const consideracoes = [
     "comparada com seu desempenho; e o software foi disponibilizado em versões para computador e para " +
     "dispositivos móveis, com os dados mantidos no aparelho. [[PREENCHER: o que a avaliação com " +
     "usuários permitiu concluir sobre o último objetivo.]]"),
+  p("Depois da avaliação, o software foi unificado num único aplicativo, que se adapta ao celular, ao " +
+    "tablet e ao computador e cujos formatos se complementam no estudo; ganhou recursos de " +
+    "acessibilidade — texto ampliado, alto contraste, fonte para baixa visão, leitura em voz alta e " +
+    "atalho para Libras —; passou a diferenciar os intervalos de “Difícil”, “Bom” e “Fácil”; e recebeu, " +
+    "como opção, um tutor com inteligência artificial generativa ancorado no conteúdo curado, com a chave " +
+    "de acesso mantida fora do aplicativo."),
   p("Como trabalhos futuros, sugerem-se: ampliar o número de marcadores e de questões, com revisão por " +
-    "docentes da área da saúde; diferenciar já no próximo intervalo as avaliações “Difícil”, “Bom” e " +
-    "“Fácil”; realizar estudo longitudinal que compare a retenção com e sem o " +
+    "docentes da área da saúde; realizar estudo longitudinal que compare a retenção com e sem o " +
     "agendamento espaçado; publicar a versão móvel na Google Play, após testes em diferentes aparelhos; " +
-    "oferecer sincronização opcional entre aparelhos, mediante consentimento explícito; e testar a " +
-    "versão para iOS."),
+    "concluir a sincronização opcional entre aparelhos pela conta Google, mediante consentimento " +
+    "explícito; avaliar os recursos de acessibilidade com estudantes com deficiência e a qualidade das " +
+    "respostas do tutor com docentes; e testar a versão para iOS."),
 ];
 
 const referencias = [
@@ -1111,13 +1361,15 @@ const apendices = [
   p(`O código-fonte, os dados e este relatório estão em ${REPOSITORIO}. As versões são iniciadas pelos ` +
     "comandos abaixo, executados na pasta do projeto com Python 3 instalado:", { manterComProximo: true }),
   ...alineas([
-    "versão para computador: python main.py;",
-    "versão com tutor: python main_enhanced.py (o Ollama é opcional);",
-    "versão móvel no computador: python main_kivy_completo.py, após instalar o Kivy;",
-    "testes automatizados: python test_kivy_completo.py e python test_desktop.py.",
+    "aplicativo para celular, tablet e computador: python main.py, após instalar o Kivy;",
+    "o mesmo aplicativo em formato de celular: python main.py --celular;",
+    "versão clássica para computador, em Tkinter: python main.py --classico;",
+    "versão com tutor local: python main_enhanced.py (o Ollama é opcional);",
+    "testes automatizados: python test_kivy_completo.py, python test_tutor.py e python test_desktop.py.",
   ]),
   p("O pacote Android é gerado com o Buildozer, a partir do arquivo buildozer.spec, conforme o guia " +
-    "GUIA_MOBILE.md do repositório. As figuras deste relatório são refeitas por " +
+    "GUIA_MOBILE.md do repositório. O tutor com Gemini é configurado conforme docs/TUTOR_GEMINI.md, sem " +
+    "que a chave de acesso entre no repositório. As figuras deste relatório são refeitas por " +
     "relatorio/gerar_figuras.py."),
 ];
 
