@@ -99,8 +99,7 @@ def metricas():
         "Desktop com tutor (main_enhanced.py, ollama_ia.py)": ["main_enhanced.py", "ollama_ia.py"],
         "Versão mobile (mobile/)": [str(p.relative_to(RAIZ)) for p in (RAIZ / "mobile").rglob("*.py")],
         "Motor de aprendizagem (progresso.py)": ["progresso.py"],
-        "Geradores (imagens, logo, ícones)": ["criar_imagens.py", "criar_logo.py",
-                                              "criar_assets_mobile.py"],
+        "Geradores (imagens, logo, ícones)": ["criar_imagens.py", "criar_logo.py"],
         "Testes automatizados": ["test_kivy_completo.py", "test_desktop.py"],
     }
     codigo = {nome: sum(contar_linhas(RAIZ / a) for a in arqs) for nome, arqs in modulos.items()}

@@ -25,7 +25,7 @@ source.include_patterns = data/*,data/images/*,mobile/*,assets/*
 source.exclude_dirs = .git,.claude,.buildozer,bin,__pycache__,.venv,venv,tests,relatorio,docs,android
 
 # (list) Arquivos só da versão desktop, geradores e dados locais do computador
-source.exclude_patterns = main_enhanced.py,tela_painel.py,tela_revisao.py,painel_inicio.py,criar_imagens.py,criar_assets_mobile.py,criar_logo.py,ollama_ia.py,test_*.py,data/progresso.json,data/preferencias_mobile.json
+source.exclude_patterns = main_enhanced.py,tela_painel.py,tela_revisao.py,painel_inicio.py,criar_imagens.py,criar_logo.py,ollama_ia.py,test_*.py,data/progresso.json,data/preferencias_mobile.json
 
 # (str) Versão da aplicação
 version = 0.4

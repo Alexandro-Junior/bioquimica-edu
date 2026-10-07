@@ -265,8 +265,16 @@ reaproveitável.
 
 ## 7. Verificação
 
-- `python test_kivy_completo.py` — 15 passos, todos passando.
-- `python test_desktop.py` — todas as telas das duas versões desktop abrem.
+- `python test_kivy_completo.py` — 16 passos, todos passando (o 16º, da
+  auditoria posterior: resposta atrasada do tutor não invade a conversa
+  remontada).
+- `python test_desktop.py` — todas as telas das duas versões desktop abrem,
+  os 15 casos clínicos são resolvidos e um quiz dinâmico vai até o fim, sem
+  erros de segundo plano do Tk.
+- `python test_progresso.py` — 26 testes do motor SM-2, da gravação do
+  progresso e da leitura das questões geradas pelo modelo.
+- `python test_simple.py` — dependências e integridade dos arquivos de
+  `data/` (resposta de cada caso entre as alternativas, imagens, links).
 - Telas renderizadas e inspecionadas em três configurações: padrão; alto
   contraste com texto a 130%, voz e Libras; modo foco com texto a 150% e
   animações desligadas.

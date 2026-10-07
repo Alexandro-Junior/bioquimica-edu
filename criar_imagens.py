@@ -9,8 +9,9 @@ import matplotlib.patches as patches
 import numpy as np
 from pathlib import Path
 
-IMG_DIR = Path("data/images")
-IMG_DIR.mkdir(exist_ok=True)
+# relativo a este arquivo, e não à pasta de onde o script é chamado
+IMG_DIR = Path(__file__).resolve().parent / "data" / "images"
+IMG_DIR.mkdir(parents=True, exist_ok=True)
 
 # ──────────────────────────────────────────
 # 1. ALT - Localização
