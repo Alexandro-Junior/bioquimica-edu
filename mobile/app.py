@@ -24,7 +24,17 @@ import time
 import webbrowser
 from pathlib import Path
 
-from kivy.animation import Animation
+from kivy.config import Config
+from kivy.utils import platform
+
+NO_CELULAR = platform in ("android", "ios")
+if not NO_CELULAR:
+    # tamanho mínimo da janela antes de ela existir: definido depois, um
+    # valor por vez, o Kivy avisa que falta o outro
+    Config.set("graphics", "minimum_width", "360")
+    Config.set("graphics", "minimum_height", "560")
+
+from kivy.animation import Animation  # noqa: E402  (depois da configuração)
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -33,7 +43,6 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.screenmanager import (FadeTransition, NoTransition, ScreenManager,
                                     SlideTransition)
-from kivy.utils import platform
 
 from mobile import dados, tema
 from mobile.componentes import Aviso, BarraNavegacao, TrilhoNavegacao
@@ -49,8 +58,6 @@ from mobile.telas.pratica import TelaPratica
 from mobile.telas.revisao import TelaRevisao
 from mobile.telas.tutor import TelaTutor
 
-NO_CELULAR = platform in ("android", "ios")
-
 if not NO_CELULAR:
     import os
     import sys
@@ -59,7 +66,8 @@ if not NO_CELULAR:
         Window.size = (400, 840)
     else:
         Window.size = (1180, 760)
-    Window.minimum_width, Window.minimum_height = 360, 560
+    if not Window.minimum_width:   # janela criada antes deste módulo (testes)
+        Window.minimum_width, Window.minimum_height = 360, 560
 # o teclado empurra a tela em vez de cobrir o campo de digitação
 Window.softinput_mode = "below_target"
 
@@ -104,6 +112,7 @@ class BioquimicaApp(App):
     }
 
     def build(self):
+        self._liberar_rotacao_no_tablet()
         self.prefs = Preferencias(self._arquivo("preferencias.json",
                                                 "preferencias_mobile.json"))
         self._aplicar_tema()
@@ -233,6 +242,32 @@ class BioquimicaApp(App):
             return None  # Progresso usa data/progresso.json (ou BIOQ_PASTA_ALUNO)
         from progresso import PASTA_ALUNO
         return PASTA_ALUNO / nome_computador
+
+    @staticmethod
+    def _liberar_rotacao_no_tablet():
+        """O buildozer.spec trava o app em retrato, o certo para celular. Em
+        tablet (menor lado com 600 dp ou mais), o app gira com o aparelho,
+        respeitando a trava de rotação do sistema. Do Android 16 em diante o
+        próprio sistema já ignora a trava em telas grandes; antes dele (um
+        Galaxy Tab S4 vai até o Android 10), quem libera é o app."""
+        if platform != "android" or min(Window.size) / dp(1) < 600:
+            return
+        try:
+            from android.runnable import run_on_ui_thread
+            from jnius import autoclass
+        except ImportError:
+            return
+
+        @run_on_ui_thread
+        def liberar():
+            info = autoclass("android.content.pm.ActivityInfo")
+            atividade = autoclass("org.kivy.android.PythonActivity").mActivity
+            atividade.setRequestedOrientation(info.SCREEN_ORIENTATION_FULL_USER)
+
+        try:
+            liberar()
+        except Exception as e:
+            print(f"[tela] não foi possível liberar a rotação: {e}")
 
     @staticmethod
     def _iniciar_ia():
