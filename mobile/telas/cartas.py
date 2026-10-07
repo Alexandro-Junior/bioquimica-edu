@@ -19,7 +19,7 @@ from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 
 from mobile import componentes as C
-from mobile.tema import COR
+from mobile.tema import COR, dpt, movimento
 from mobile.telas.base import TelaBase
 
 
@@ -39,12 +39,13 @@ class TelaCartas(TelaBase):
         raiz = BoxLayout(orientation="vertical", padding=(dp(16), dp(12), dp(16), dp(14)),
                          spacing=dp(12))
 
-        embaralhar = C.BotaoIcone("embaralhar", cor=COR["superficie"], elevacao=1)
+        embaralhar = C.BotaoIcone("embaralhar", cor=COR["superficie"], elevacao=1,
+                                  descricao="Embaralhar os cards")
         embaralhar.bind(on_release=lambda *_: self._embaralhar())
         raiz.add_widget(C.titulo_pagina("Cards", "Toque no card para virar",
                                         acao=embaralhar))
 
-        andamento = BoxLayout(size_hint_y=None, height=dp(20), spacing=dp(12))
+        andamento = BoxLayout(size_hint_y=None, height=dpt(20), spacing=dp(12))
         self.barra = C.BarraProgresso(pos_hint={"center_y": 0.5})
         andamento.add_widget(self.barra)
         self.contador = C.rotulo("", "13sp", COR["tinta2"], negrito=True,
@@ -56,7 +57,8 @@ class TelaCartas(TelaBase):
                                   spacing=dp(10), raio=dp(28), elevacao=2,
                                   cor_fundo=COR["superficie"])
         self.cartao.bind(on_release=lambda *_: self._virar())
-        topo = BoxLayout(size_hint_y=None, height=dp(26))
+        self.cartao.descricao = "Virar o card"
+        topo = BoxLayout(size_hint_y=None, height=dpt(26))
         self.etiqueta = C.Etiqueta("Pergunta", COR["acento_suave"], COR["acento_escuro"])
         topo.add_widget(self.etiqueta)
         topo.add_widget(Widget())
@@ -65,7 +67,7 @@ class TelaCartas(TelaBase):
         self.texto_face = C.Texto(text="", estilo="titulo", halign="center")
         self.cartao.add_widget(self.texto_face)
         self.cartao.add_widget(Widget())
-        dica = BoxLayout(size_hint_y=None, height=dp(22), spacing=dp(6))
+        dica = BoxLayout(size_hint_y=None, height=dpt(22), spacing=dp(6))
         dica.add_widget(Widget())
         self.icone_dica = C.Icone("repetir", tamanho=dp(14), color=COR["tinta3"],
                                   pos_hint={"center_y": 0.5})
@@ -78,6 +80,10 @@ class TelaCartas(TelaBase):
         self.cartao.add_widget(dica)
         raiz.add_widget(self.cartao)
 
+        ouvir = C.botao_ouvir(self.app, self._texto_da_face)
+        if ouvir is not None:
+            raiz.add_widget(C.linha_acoes(ouvir))
+
         self.aviso = C.rotulo("", "13sp", COR["acento_escuro"], negrito=True,
                               alinhar="center", size_hint_y=None, height=dp(18))
         raiz.add_widget(self.aviso)
@@ -86,12 +92,12 @@ class TelaCartas(TelaBase):
                                         height=0, spacing=dp(8))
         raiz.add_widget(self.area_avaliacao)
 
-        navegacao = BoxLayout(size_hint_y=None, height=dp(50), spacing=dp(10))
         anterior = C.Botao("Anterior", variante="neutro", icone="voltar", height=dp(50),
-                           tamanho_fonte="14sp")
+                           tamanho_fonte="14.5sp")
         anterior.bind(on_release=lambda *_: self._mover(-1))
         proximo = C.Botao("Próximo", variante="neutro", icone="avancar", height=dp(50),
-                          tamanho_fonte="14sp")
+                          tamanho_fonte="14.5sp")
+        navegacao = BoxLayout(size_hint_y=None, height=anterior.height, spacing=dp(10))
         proximo.bind(on_release=lambda *_: self._mover(1))
         navegacao.add_widget(anterior)
         navegacao.add_widget(proximo)
@@ -101,6 +107,12 @@ class TelaCartas(TelaBase):
         self._atualizar()
 
     # ── face do card ────────────────────────────────────────────────
+    def _texto_da_face(self):
+        if not self.cards:
+            return ""
+        card = self.cards[self.indice]
+        return card["resposta"] if self.virado else card["pergunta"]
+
     def _pintar_face(self):
         if not self.cards:
             self.texto_face.text = "Nenhum card disponível"
@@ -143,9 +155,13 @@ class TelaCartas(TelaBase):
         if not self.cards:
             return
         self.virado = not self.virado
+        self.app.parar_fala()
         # O estado muda na hora; só a face espera o meio do giro para trocar,
         # exatamente quando o card está de lado e nenhuma face aparece.
         self._montar_avaliacao()
+        if not movimento():
+            self._pintar_face()
+            return
         Animation.cancel_all(self.cartao, "escala_x")
         ida = Animation(escala_x=0.0, duration=0.13, t="in_quad")
 
@@ -161,7 +177,10 @@ class TelaCartas(TelaBase):
             return
         self.indice = (self.indice + passo) % len(self.cards)
         self.virado = False
+        self.app.parar_fala()
         self._atualizar()
+        if not movimento():
+            return
         self.cartao.opacity = 0
         self.cartao.desloc_y = -dp(10)
         Animation(opacity=1, desloc_y=0, duration=0.24, t="out_cubic").start(self.cartao)
@@ -195,26 +214,26 @@ class TelaCartas(TelaBase):
                 text="Este card é de um exame fora dos 20 marcadores da base, "
                      "então não entra nas suas revisões.",
                 estilo="micro", halign="center"))
-            area.height = dp(34)
+            area.height = dpt(34)
             return
         if card["pergunta"] in self.avaliados:
             area.add_widget(C.Texto(text="Você já avaliou este card nesta sessão.",
                                     estilo="micro", halign="center"))
-            area.height = dp(22)
+            area.height = dpt(22)
             return
 
         area.add_widget(C.Texto(text="Você lembrou antes de virar?", estilo="apoio",
                                 halign="center"))
-        botoes = BoxLayout(size_hint_y=None, height=dp(52), spacing=dp(10))
         nao = C.Botao("Não lembrei", cor=COR["rubro_suave"], cor_texto=COR["rubro"],
                       icone="erro")
         nao.bind(on_release=lambda *_: self._avaliar(False))
         sim = C.Botao("Lembrei", variante="primario", icone="check")
         sim.bind(on_release=lambda *_: self._avaliar(True))
+        botoes = BoxLayout(size_hint_y=None, height=sim.height, spacing=dp(10))
         botoes.add_widget(nao)
         botoes.add_widget(sim)
         area.add_widget(botoes)
-        area.height = dp(84)
+        area.height = sim.height + dpt(24)
         C.aparecer([nao, sim], atraso=0.14, passo=0.04)
 
     def _avaliar(self, lembrou):
@@ -230,6 +249,7 @@ class TelaCartas(TelaBase):
         self.app.progresso.registrar_atividade(alvos, lembrou, peso="flashcard")
         self.avaliados.add(card["pergunta"])
         self.aviso.text = self.app.progresso.efeito_resumido(alvos, lembrou)
-        self.aviso.opacity = 0
-        Animation(opacity=1, duration=0.3).start(self.aviso)
+        if movimento():
+            self.aviso.opacity = 0
+            Animation(opacity=1, duration=0.3).start(self.aviso)
         self._mover(1)

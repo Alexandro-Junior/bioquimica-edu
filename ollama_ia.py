@@ -72,6 +72,13 @@ class OllamaIA:
             print(f"   5. Reinicie este app")
             print(f"\n   Enquanto isso, o app funciona com respostas padrão.\n")
 
+    def gerar(self, prompt: str, callback: Optional[Callable] = None) -> str:
+        """Gera uma resposta para um prompt já montado (ver assistente.py).
+
+        Temperatura baixa: o tutor explica dados curados, não cria texto livre.
+        """
+        return self._gerar_resposta(prompt, callback, temperatura=0.3)
+
     def chat_marcador(self, nome_marcador: str, pergunta: str,
                      callback: Optional[Callable] = None) -> str:
         """
@@ -182,7 +189,8 @@ Máximo 250 palavras, tom motivador."""
 
         return self._gerar_resposta(prompt, callback)
 
-    def _gerar_resposta(self, prompt: str, callback: Optional[Callable] = None) -> str:
+    def _gerar_resposta(self, prompt: str, callback: Optional[Callable] = None,
+                        temperatura: float = 0.7) -> str:
         """Gera resposta via Ollama com streaming"""
         try:
             resposta_completa = ""
@@ -193,7 +201,9 @@ Máximo 250 palavras, tom motivador."""
                     "model": self.model,
                     "prompt": prompt,
                     "stream": True,
-                    "temperature": 0.7,
+                    # a API do Ollama só lê parâmetros de amostragem dentro
+                    # de "options"; no nível de cima eram ignorados
+                    "options": {"temperature": temperatura},
                 },
                 stream=True,
                 timeout=60

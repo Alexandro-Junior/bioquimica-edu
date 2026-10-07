@@ -8,13 +8,27 @@ reagente — refinada para telas pequenas:
 - âmbar, rubro e índigo com significado fixo (atenção, fragilidade,
   metacognição), nunca como decoração;
 - cores por sistema só em pontos e etiquetas, para orientar sem pesar.
+
+Acessibilidade faz parte do tema, não é um modo à parte:
+
+- toda cor usada em texto tem contraste de pelo menos 4,5:1 com o fundo
+  em que aparece (WCAG 2.2, nível AA) — inclusive as de sistema, que têm
+  um tom de ponto e outro, mais escuro, para texto;
+- o tema de alto contraste troca a paleta inteira (preto no branco,
+  bordas visíveis no lugar de sombras);
+- o tamanho do texto segue a escala escolhida no app multiplicada pela
+  do sistema, e `dpt()` faz as caixas de texto crescerem junto;
+- com movimento reduzido, as animações viram mudanças instantâneas.
+
+As cores são listas alteradas no lugar: quem guardou uma referência
+(ESTILO_TEXTO, variantes de botão) enxerga a paleta nova sem reimportar.
 """
 
 import os
 
 from kivy import kivy_data_dir
 from kivy.core.text import LabelBase
-from kivy.metrics import dp
+from kivy.metrics import Metrics, dp
 from kivy.utils import get_color_from_hex as _hex
 
 
@@ -24,49 +38,97 @@ def rgba(hexa, alfa=1.0):
     return cor
 
 
-# ── Cores ───────────────────────────────────────────────────────────
-COR = {
-    "fundo":          rgba("#F6F4EF"),
-    "superficie":     rgba("#FFFFFF"),
-    "superficie_alt": rgba("#EFEBE3"),
-    "borda":          rgba("#E6E1D8"),
+# ── Paletas ─────────────────────────────────────────────────────────
+# Contrastes conferidos com a fórmula da WCAG; os comentários trazem a
+# razão contra o fundo em que cada tom aparece como texto.
+PALETAS = {
+    "padrao": {
+        "fundo":          "#F6F4EF",
+        "superficie":     "#FFFFFF",
+        "superficie_alt": "#EFEBE3",
+        "borda":          "#E3DED4",
+        "borda_forte":    "#C9C2B6",
 
-    "tinta":          rgba("#17211C"),
-    "tinta2":         rgba("#5B6560"),
-    "tinta3":         rgba("#98A19C"),
+        "tinta":          "#17211C",   # 15,9:1 no fundo
+        "tinta2":         "#4A534E",   # 7,2:1 no fundo, 6,7:1 em superficie_alt
+        "tinta3":         "#5F6964",   # 5,2:1 no fundo, 4,8:1 em superficie_alt
 
-    "acento":         rgba("#0E7C5A"),
-    "acento_escuro":  rgba("#0A5F45"),
-    "acento_suave":   rgba("#E1F1EA"),
+        "acento":         "#0E7C5A",   # branco sobre ele: 5,2:1
+        "acento_escuro":  "#0A5F45",   # 6,6:1 em acento_suave
+        "acento_suave":   "#E1F1EA",
 
-    "ambar":          rgba("#C27818"),
-    "ambar_suave":    rgba("#FBEFDB"),
-    "rubro":          rgba("#B5392F"),
-    "rubro_suave":    rgba("#FBE8E5"),
-    "indigo":         rgba("#3F5C9A"),
-    "indigo_suave":   rgba("#E8EDF7"),
+        "ambar":          "#9A5A0A",   # branco sobre ele: 5,5:1
+        "ambar_suave":    "#FBEFDB",   # âmbar sobre ele: 4,8:1
+        "rubro":          "#B5392F",   # branco sobre ele: 5,9:1
+        "rubro_suave":    "#FBE8E5",   # rubro sobre ele: 5,0:1
+        "indigo":         "#3F5C9A",   # branco sobre ele: 6,5:1
+        "indigo_suave":   "#E8EDF7",
 
-    "branco":         rgba("#FFFFFF"),
-    "transparente":   (0, 0, 0, 0),
-    "sombra":         rgba("#17211C"),
+        "branco":         "#FFFFFF",
+        "sombra":         "#17211C",
+    },
+    "alto_contraste": {
+        "fundo":          "#FFFFFF",
+        "superficie":     "#FFFFFF",
+        "superficie_alt": "#EDEDED",
+        "borda":          "#1A1A1A",
+        "borda_forte":    "#000000",
+
+        "tinta":          "#000000",
+        "tinta2":         "#1F1F1F",
+        "tinta3":         "#383838",   # 11:1 no branco
+
+        "acento":         "#005A3E",   # branco sobre ele: 8,6:1
+        "acento_escuro":  "#003D2A",
+        "acento_suave":   "#DDF0E7",
+
+        "ambar":          "#6E3D00",
+        "ambar_suave":    "#FCEBD2",
+        "rubro":          "#8C1A11",
+        "rubro_suave":    "#FBE3E0",
+        "indigo":         "#1F3570",
+        "indigo_suave":   "#E2E8F6",
+
+        "branco":         "#FFFFFF",
+        "sombra":         "#000000",
+    },
 }
 
-# Um tom por sistema, usado só em pontos e etiquetas
-COR_CATEGORIA = {
-    "Hepático":   rgba("#B7791F"),
-    "Renal":      rgba("#2E7DB5"),
-    "Glicêmico":  rgba("#7B5CB8"),
-    "Lipídico":   rgba("#C0567B"),
-    "Eletrólito": rgba("#1C9A92"),
-    "Cardíaco":   rgba("#B5392F"),
+# Cada sistema tem dois tons: o do ponto/barra (pode ser claro) e o de
+# texto (escuro o bastante para 4,5:1 sobre o fundo tingido da etiqueta).
+CATEGORIAS = {
+    "padrao": {
+        "Hepático":   ("#B7791F", "#8A5A12"),
+        "Renal":      ("#2E7DB5", "#1F6699"),
+        "Glicêmico":  ("#7B5CB8", "#6B4FA3"),
+        "Lipídico":   ("#C0567B", "#A23E66"),
+        "Eletrólito": ("#1C9A92", "#0F716A"),
+        "Cardíaco":   ("#B5392F", "#A3322A"),
+    },
+    "alto_contraste": {
+        "Hepático":   ("#7A4D00", "#5C3A00"),
+        "Renal":      ("#0B4F80", "#0B4F80"),
+        "Glicêmico":  ("#4E2F8C", "#4E2F8C"),
+        "Lipídico":   ("#80244A", "#80244A"),
+        "Eletrólito": ("#005650", "#005650"),
+        "Cardíaco":   ("#8C1A11", "#8C1A11"),
+    },
 }
 
 # Estágios de memória: frio para quente conforme o item fixa
-COR_ESTAGIO = {
-    "novo":        rgba("#CBD2CD"),
-    "aprendendo":  rgba("#E0A458"),
-    "firmando":    rgba("#5B9BD5"),
-    "consolidado": rgba("#0E7C5A"),
+ESTAGIOS = {
+    "padrao": {
+        "novo":        "#CBD2CD",
+        "aprendendo":  "#E0A458",
+        "firmando":    "#5B9BD5",
+        "consolidado": "#0E7C5A",
+    },
+    "alto_contraste": {
+        "novo":        "#9A9A9A",
+        "aprendendo":  "#B86B00",
+        "firmando":    "#1F5FA8",
+        "consolidado": "#005A3E",
+    },
 }
 
 ROTULO_ESTAGIO = {
@@ -76,57 +138,99 @@ ROTULO_ESTAGIO = {
     "consolidado": "Consolidados",
 }
 
+COR = {"transparente": [0, 0, 0, 0]}
+COR_CATEGORIA = {}
+COR_CATEGORIA_TEXTO = {}
+COR_ESTAGIO = {}
+
+# Ajustes vigentes; quem altera é aplicar_ajustes()
+AJUSTES = {"tema": "padrao", "escala_texto": 1.0, "movimento_reduzido": False}
+_ESCALA_SISTEMA = Metrics.fontscale   # fonte grande do Android, se houver
+
+
+def _trocar(destino, chave, valor):
+    """Atualiza a lista no lugar, preservando quem já a referencia."""
+    if chave in destino:
+        destino[chave][:] = valor
+    else:
+        destino[chave] = list(valor)
+
+
+def aplicar_tema(nome):
+    nome = nome if nome in PALETAS else "padrao"
+    for chave, hexa in PALETAS[nome].items():
+        _trocar(COR, chave, rgba(hexa))
+    for categoria, (ponto, texto) in CATEGORIAS[nome].items():
+        _trocar(COR_CATEGORIA, categoria, rgba(ponto))
+        _trocar(COR_CATEGORIA_TEXTO, categoria, rgba(texto))
+    for estagio, hexa in ESTAGIOS[nome].items():
+        _trocar(COR_ESTAGIO, estagio, rgba(hexa))
+    AJUSTES["tema"] = nome
+
+
+def aplicar_ajustes(tema="padrao", escala_texto=1.0, movimento_reduzido=False):
+    """Aplica as preferências de leitura antes de a interface ser montada."""
+    aplicar_tema(tema)
+    AJUSTES["escala_texto"] = escala_texto
+    AJUSTES["movimento_reduzido"] = bool(movimento_reduzido)
+    Metrics.fontscale = _ESCALA_SISTEMA * escala_texto
+
+
+def alto_contraste():
+    return AJUSTES["tema"] == "alto_contraste"
+
+
+def movimento():
+    """False quando o estudante pediu menos animação."""
+    return not AJUSTES["movimento_reduzido"]
+
+
+def escala():
+    """Fator total de texto (sistema × app)."""
+    return Metrics.fontscale
+
+
+def texto_grande():
+    """Texto grande o bastante para pedir layouts em mais linhas."""
+    return Metrics.fontscale > 1.12
+
+
+def dpt(valor):
+    """dp que cresce com o texto: para caixas cuja altura é de um texto."""
+    return dp(valor) * max(1.0, Metrics.fontscale)
+
 
 def cor_categoria(categoria):
     return COR_CATEGORIA.get(categoria, COR["tinta3"])
 
 
+def cor_categoria_texto(categoria):
+    return COR_CATEGORIA_TEXTO.get(categoria, COR["tinta2"])
+
+
+aplicar_tema("padrao")
+
+
 # ── Tipografia ──────────────────────────────────────────────────────
-# Roboto (padrão do Kivy) tem todos os acentos do português.
+# Roboto (padrão do Kivy) tem todos os acentos do português. Escala de
+# poucos degraus, para a hierarquia vir do tamanho e do peso, não da cor.
 ESTILO_TEXTO = {
-    "display":   {"font_size": "30sp", "bold": True,  "color": COR["tinta"]},
-    "titulo":    {"font_size": "22sp", "bold": True,  "color": COR["tinta"]},
+    "display":   {"font_size": "28sp", "bold": True,  "color": COR["tinta"]},
+    "titulo":    {"font_size": "21sp", "bold": True,  "color": COR["tinta"]},
     "subtitulo": {"font_size": "17sp", "bold": True,  "color": COR["tinta"]},
-    "corpo":     {"font_size": "14.5sp", "bold": False, "color": COR["tinta"]},
-    "apoio":     {"font_size": "13sp", "bold": False, "color": COR["tinta2"]},
-    "micro":     {"font_size": "11.5sp", "bold": False, "color": COR["tinta3"]},
-    "secao":     {"font_size": "13sp", "bold": True,  "color": COR["tinta2"]},
+    "corpo":     {"font_size": "15sp", "bold": False, "color": COR["tinta"]},
+    "apoio":     {"font_size": "13.5sp", "bold": False, "color": COR["tinta2"]},
+    "micro":     {"font_size": "12sp", "bold": False, "color": COR["tinta3"]},
+    "secao":     {"font_size": "12sp", "bold": True,  "color": COR["tinta2"]},
 }
 
-# ── Ícones ──────────────────────────────────────────────────────────
-# A DejaVuSans vem com o Kivy (inclusive no APK) e desenha estes símbolos.
-# Glifos que ela não tem (lupa, fogo, troféu) são desenhados no canvas.
+# Mantido para quem ainda use texto com a fonte de símbolos; os ícones
+# da interface são vetoriais (mobile/icones.py).
 LabelBase.register(name="Icones",
                    fn_regular=os.path.join(kivy_data_dir, "fonts", "DejaVuSans.ttf"))
 
-ICONE = {
-    "inicio":     "⌂",  # ⌂
-    "estudo":     "▤",  # ▤
-    "cartas":     "❐",  # ❐
-    "pratica":    "◎",  # ◎
-    "tutor":      "✉",  # ✉
-    "voltar":     "‹",  # ‹
-    "avancar":    "›",  # ›
-    "seta":       "→",  # →
-    "fechar":     "✕",  # ✕
-    "check":      "✓",  # ✓
-    "erro":       "✗",  # ✗
-    "estrela":    "★",  # ★
-    "estrela_v":  "☆",  # ☆
-    "raio":       "⚡",  # ⚡
-    "embaralhar": "⇄",  # ⇄
-    "repetir":    "↻",  # ↻
-    "link":       "↗",  # ↗
-    "play":       "▶",  # ▶
-    "frasco":     "⚗",  # ⚗
-    "atomo":      "⚛",  # ⚛
-    "sobe":       "↑",  # ↑
-    "desce":      "↓",  # ↓
-    "ponto":      "●",  # ●
-}
-
 # ── Medidas ─────────────────────────────────────────────────────────
-RAIO_CARTAO = dp(20)
+RAIO_CARTAO = dp(18)
 RAIO_BOTAO = dp(14)
 MARGEM = dp(16)
 ALTURA_TOQUE = dp(48)   # mínimo recomendado para alvos de toque

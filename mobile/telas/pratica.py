@@ -15,10 +15,16 @@ from kivy.uix.widget import Widget
 
 from mobile import componentes as C
 from mobile.dados import formatar_numero
-from mobile.tema import COR, ICONE, cor_categoria
+from mobile.tema import COR, cor_categoria, cor_categoria_texto, dpt, texto_grande
 from mobile.telas.base import TelaBase
 
 LETRAS = "ABCDEF"
+
+
+def texto_da_questao(enunciado, alternativas):
+    """Enunciado e alternativas em frases, para a leitura em voz alta."""
+    opcoes = " ".join(f"Alternativa {LETRAS[i]}: {a}." for i, a in enumerate(alternativas))
+    return f"{enunciado} {opcoes}"
 
 
 def titulo_caso(caso):
@@ -28,21 +34,25 @@ def titulo_caso(caso):
 
 class TelaPratica(TelaBase):
 
-    ALTURA_TOPO = dp(132)
-
     def montar(self, modo="quiz", iniciar=False, **_):
         raiz = BoxLayout(orientation="vertical")
-        self.topo = BoxLayout(orientation="vertical", size_hint_y=None,
-                              height=self.ALTURA_TOPO,
-                              padding=(dp(16), dp(8), dp(16), dp(6)), spacing=dp(12))
-        self.topo.add_widget(C.titulo_pagina("Prática", "Teste o que você lembra"))
-
-        seletor = C.Superficie(size_hint_y=None, height=dp(46), cor_fundo=COR["superficie_alt"],
+        cabecalho = C.titulo_pagina("Prática", "Teste o que você lembra")
+        seletor = C.Superficie(size_hint_y=None, height=max(dp(52), dpt(46)),
+                               cor_fundo=COR["superficie_alt"],
                                raio=dp(15), padding=dp(4), spacing=dp(4))
-        self.seg_quiz = C.Botao("Quiz", variante="claro", height=dp(38), raio=dp(12),
-                                tamanho_fonte="14sp")
-        self.seg_casos = C.Botao("Casos clínicos", variante="claro", height=dp(38),
-                                 raio=dp(12), tamanho_fonte="14sp")
+        # padding (8 + 6) + espaço entre título e seletor (12)
+        self.altura_topo = cabecalho.height + seletor.height + dp(26)
+        self.topo = BoxLayout(orientation="vertical", size_hint_y=None,
+                              height=self.altura_topo,
+                              padding=(dp(16), dp(8), dp(16), dp(6)), spacing=dp(12))
+        self.topo.add_widget(cabecalho)
+
+        self.seg_quiz = C.Botao("Quiz", variante="claro", height=dp(44), raio=dp(12),
+                                tamanho_fonte="14.5sp")
+        self.seg_casos = C.Botao("Casos clínicos", variante="claro", height=dp(44),
+                                 raio=dp(12), tamanho_fonte="14.5sp")
+        for botao in (self.seg_quiz, self.seg_casos):
+            botao.size_hint_y = 1
         self.seg_quiz.bind(on_release=lambda *_: self.trocar_modo("quiz"))
         self.seg_casos.bind(on_release=lambda *_: self.trocar_modo("casos"))
         seletor.add_widget(self.seg_quiz)
@@ -60,7 +70,7 @@ class TelaPratica(TelaBase):
 
     # ── estrutura ───────────────────────────────────────────────────
     def _topo_visivel(self, visivel):
-        self.topo.height = self.ALTURA_TOPO if visivel else 0
+        self.topo.height = self.altura_topo if visivel else 0
         self.topo.opacity = 1 if visivel else 0
         self.topo.disabled = not visivel
 
@@ -81,9 +91,9 @@ class TelaPratica(TelaBase):
             self._lista_casos()
 
     def _barra_sessao(self, ao_fechar, fracao, texto):
-        barra = BoxLayout(size_hint_y=None, height=dp(64),
-                          padding=(dp(6), dp(10), dp(18), dp(10)), spacing=dp(10))
-        fechar = C.BotaoIcone("fechar", pos_hint={"center_y": 0.5})
+        barra = BoxLayout(size_hint_y=None, height=max(dp(64), dpt(56)),
+                          padding=(dp(6), dp(8), dp(18), dp(8)), spacing=dp(10))
+        fechar = C.BotaoIcone("fechar", pos_hint={"center_y": 0.5}, descricao="Fechar")
         fechar.bind(on_release=lambda *_: ao_fechar())
         barra.add_widget(fechar)
         progresso = C.BarraProgresso(cor=COR["indigo"], pos_hint={"center_y": 0.5})
@@ -120,9 +130,12 @@ class TelaPratica(TelaBase):
             opcao.cor_borda = COR["acento"] if certo else COR["rubro"]
             opcao.elevacao = 0
             opcao.selo.cor_fundo = COR["acento"] if certo else COR["rubro"]
-            opcao.letra.font_name = "Icones"
-            opcao.letra.text = ICONE["check" if certo else "erro"]
-            opcao.letra.color = COR["branco"]
+            # a letra vira ✓ ou ✗: o resultado não depende só da cor
+            opcao.selo.clear_widgets()
+            opcao.selo.add_widget(C.Icone("check" if certo else "erro", tamanho=dp(16),
+                                          color=COR["branco"], size_hint=(1, 1)))
+            opcao.descricao = f"{'Correta' if certo else 'Sua resposta, errada'}: " \
+                              f"{opcao.corpo.text}"
         else:
             Clock.schedule_once(lambda _dt: setattr(opcao, "opacity", 0.5), 0)
 
@@ -131,7 +144,7 @@ class TelaPratica(TelaBase):
         cartao = C.Cartao(elevacao=0, cor_fundo=COR["acento_suave"] if acertou
                           else COR["rubro_suave"], padding=dp(18), spacing=dp(10),
                           raio=dp(20))
-        cab = BoxLayout(size_hint_y=None, height=dp(32), spacing=dp(10))
+        cab = BoxLayout(size_hint_y=None, height=dpt(32), spacing=dp(10))
         cab.add_widget(C.SeloIcone("check" if acertou else "erro", cor_fundo=cor,
                                    cor_icone=COR["branco"], tamanho=dp(32),
                                    pos_hint={"center_y": 0.5}))
@@ -142,6 +155,9 @@ class TelaPratica(TelaBase):
             cartao.add_widget(C.Texto(text=destaque, estilo="corpo", bold=True))
         if texto:
             cartao.add_widget(C.Texto(text=texto, estilo="corpo"))
+            ouvir = C.botao_ouvir(self.app, lambda: f"{titulo}. {destaque or ''} {texto}")
+            if ouvir is not None:
+                cartao.add_widget(C.linha_acoes(ouvir))
         for rotulo_botao, variante, funcao in acoes:
             botao = C.Botao(rotulo_botao, variante=variante)
             botao.bind(on_release=lambda *_, f=funcao: f())
@@ -220,11 +236,16 @@ class TelaPratica(TelaBase):
         self.scroll, self.col = scroll, col
         categoria = p.get("categoria", "")
         cor = cor_categoria(categoria)
-        etiquetas = BoxLayout(size_hint_y=None, height=dp(24))
-        etiquetas.add_widget(C.Etiqueta(categoria, (*cor[:3], 0.14), cor))
+        etiquetas = BoxLayout(size_hint_y=None, height=dpt(24))
+        etiquetas.add_widget(C.Etiqueta(categoria, (*cor[:3], 0.14),
+                                        cor_categoria_texto(categoria)))
         etiquetas.add_widget(Widget())
         col.add_widget(etiquetas)
         col.add_widget(C.Texto(text=p["pergunta"], estilo="titulo", font_size="19.5sp"))
+        ouvir = C.botao_ouvir(self.app, lambda: texto_da_questao(p["pergunta"],
+                                                                 p["alternativas"]))
+        if ouvir is not None:
+            col.add_widget(C.linha_acoes(ouvir))
         col.add_widget(C.espacador(dp(2)))
 
         self.opcoes = []
@@ -343,12 +364,13 @@ class TelaPratica(TelaBase):
         resolvido = caso["id"] in self.app.casos_resolvidos
         item = C.LinhaToque(auto_altura=True, orientation="vertical", elevacao=1,
                             padding=dp(16), spacing=dp(8), raio=dp(20))
-        etiquetas = BoxLayout(size_hint_y=None, height=dp(24), spacing=dp(6))
+        etiquetas = BoxLayout(size_hint_y=None, height=dpt(24), spacing=dp(6))
         etiquetas.add_widget(C.Etiqueta(f"Caso {caso['id']}", COR["superficie_alt"],
                                         COR["tinta2"]))
         for sistema in self._sistemas_do_caso(caso)[:2]:
             cor = cor_categoria(sistema)
-            etiquetas.add_widget(C.Etiqueta(sistema, (*cor[:3], 0.13), cor))
+            etiquetas.add_widget(C.Etiqueta(sistema, (*cor[:3], 0.13),
+                                            cor_categoria_texto(sistema)))
         etiquetas.add_widget(Widget())
         if resolvido:
             etiquetas.add_widget(C.Etiqueta("Resolvido", COR["acento_suave"],
@@ -377,12 +399,15 @@ class TelaPratica(TelaBase):
         col.add_widget(C.Texto(text=titulo_caso(caso), estilo="titulo"))
 
         historia = C.Cartao(spacing=dp(8))
-        historia.add_widget(C.Texto(text="HISTÓRIA CLÍNICA", estilo="micro", bold=True))
+        historia.add_widget(C.Texto(text="HISTÓRIA CLÍNICA", estilo="secao"))
         historia.add_widget(C.Texto(text=caso.get("historia", ""), estilo="corpo"))
+        ouvir = C.botao_ouvir(self.app, lambda: caso.get("historia", ""))
+        if ouvir is not None:
+            historia.add_widget(C.linha_acoes(ouvir))
         col.add_widget(historia)
 
         exames = C.Cartao(spacing=dp(10))
-        exames.add_widget(C.Texto(text="EXAMES", estilo="micro", bold=True))
+        exames.add_widget(C.Texto(text="EXAMES", estilo="secao"))
         itens = list(caso.get("exames", {}).items())
         for i, (nome, dados) in enumerate(itens):
             exames.add_widget(self._linha_exame(nome, dados))
@@ -427,16 +452,30 @@ class TelaPratica(TelaBase):
             referencia = f"ref. {str(minimo).lower()}" if minimo else ""
             texto_valor = str(valor).capitalize()
 
-        linha = BoxLayout(size_hint_y=None, height=dp(46), spacing=dp(10))
+        if texto_grande():
+            # letra grande: nome inteiro numa linha, valor e situação na de baixo,
+            # em vez de espremer tudo lado a lado e cortar o nome do exame
+            bloco = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(4))
+            bloco.bind(minimum_height=bloco.setter("height"))
+            bloco.add_widget(C.Texto(text=nome, estilo="corpo", bold=True))
+            if referencia:
+                bloco.add_widget(C.Texto(text=referencia, estilo="micro"))
+            baixo = BoxLayout(size_hint_y=None, height=dpt(28), spacing=dp(10))
+            baixo.add_widget(C.rotulo(texto_valor, "15sp", COR["tinta"], negrito=True))
+            baixo.add_widget(C.Etiqueta(situacao, fundo, tinta))
+            bloco.add_widget(baixo)
+            return bloco
+
+        linha = BoxLayout(size_hint_y=None, height=dpt(46), spacing=dp(10))
         textos = BoxLayout(orientation="vertical")
         textos.add_widget(C.rotulo(nome, "14.5sp", COR["tinta"], vertical="bottom",
                                    encurtar=True))
-        textos.add_widget(C.rotulo(referencia, "11.5sp", COR["tinta3"], vertical="top",
+        textos.add_widget(C.rotulo(referencia, "12sp", COR["tinta3"], vertical="top",
                                    encurtar=True))
         linha.add_widget(textos)
         linha.add_widget(C.rotulo(texto_valor, "14.5sp", COR["tinta"], negrito=True,
                                   alinhar="right", size_hint_x=None, width=dp(100)))
-        caixa = BoxLayout(size_hint_x=None, width=dp(78))
+        caixa = BoxLayout(size_hint_x=None, width=dpt(80))
         caixa.add_widget(Widget())
         caixa.add_widget(C.Etiqueta(situacao, fundo, tinta))
         linha.add_widget(caixa)
@@ -448,7 +487,7 @@ class TelaPratica(TelaBase):
         self.respondido = True
         acertou = escolha == caso["resposta_correta"]
         if acertou:
-            self.app.casos_resolvidos.add(caso["id"])
+            self.app.registrar_caso_resolvido(caso["id"])
         # interpretar um caso é recuperação sobre vários marcadores de uma vez
         self.app.alimentar_memoria(" ".join(caso.get("exames", {}).keys()), acertou,
                                    peso="diagnostico")
