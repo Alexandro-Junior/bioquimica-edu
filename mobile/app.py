@@ -3,10 +3,12 @@
 Sequência de abertura:
   1. o Android mostra a imagem de abertura (presplash) enquanto o Python
      inicia — é a mesma logo, no mesmo fundo, então a troca não pisca;
-  2. a tela de abertura do app aplica as preferências de leitura e
-     carrega conteúdo, progresso e voz, sem travar a animação da logo;
-  3. no primeiro acesso, segue para a apresentação (com os ajustes de
-     acessibilidade); nos demais, direto para o Início.
+  2. a tela de abertura do app (logo e nome) aplica as preferências de
+     leitura e carrega conteúdo, progresso e voz, sem travar a animação;
+  3. tela de acesso, se o estudante ainda não escolheu: entrar com o
+     Google ou usar sem conta (a escolha fica salva; mobile/conta.py);
+  4. apresentação (tutorial) só se ainda não foi vista — no aparelho ou,
+     com conta, em qualquer aparelho; depois, o Início.
 
 Navegação em dois níveis, como nos apps de estudo atuais:
 - abas na barra inferior (Início, Estudo, Cards, Prática, Tutor), trocadas
@@ -20,6 +22,7 @@ a interface inteira na hora: as telas já se montam a cada visita, então
 reconstruir custa pouco e garante que nada fique com a aparência antiga.
 """
 
+import threading
 import time
 import webbrowser
 from pathlib import Path
@@ -49,11 +52,13 @@ from mobile.componentes import Aviso, BarraNavegacao, TrilhoNavegacao
 from mobile.preferencias import Preferencias
 from mobile.tema import COR
 from mobile.telas.abertura import TelaAbertura
+from mobile.telas.acesso import TelaAcesso
 from mobile.telas.acessibilidade import TelaAcessibilidade
 from mobile.telas.boas_vindas import TelaBoasVindas
 from mobile.telas.cartas import TelaCartas
 from mobile.telas.estudo import TelaDetalhe, TelaEstudo
 from mobile.telas.inicio import TelaInicio
+from mobile.telas.minha_conta import TelaConta
 from mobile.telas.pratica import TelaPratica
 from mobile.telas.revisao import TelaRevisao
 from mobile.telas.tutor import TelaTutor
@@ -103,14 +108,14 @@ if not NO_CELULAR:
 Window.softinput_mode = "below_target"
 
 # Telas de aprofundamento: sem barra inferior e com voltar
-EMPILHADAS = {"detalhe", "revisao", "acessibilidade"}
-# Telas sem barra inferior e sem pilha
-SEM_BARRA = EMPILHADAS | {"boas_vindas"}
+EMPILHADAS = {"detalhe", "revisao", "acessibilidade", "conta"}
+# Telas sem barra inferior e sem pilha (o fluxo de entrada)
+SEM_BARRA = EMPILHADAS | {"boas_vindas", "acesso"}
 
 ABA_DA_TELA = {
     "inicio": "inicio", "estudo": "estudo", "detalhe": "estudo",
     "cartas": "cartas", "pratica": "pratica", "tutor": "tutor",
-    "revisao": "inicio", "acessibilidade": "inicio",
+    "revisao": "inicio", "acessibilidade": "inicio", "conta": "inicio",
 }
 
 # Nomes da versão anterior, mantidos para quem ainda chama ir_para com eles
@@ -123,7 +128,8 @@ APELIDOS = {
 VLIBRAS_ANDROID = "com.lavid.vlibrasdroid"
 VLIBRAS_PAGINA = "https://www.gov.br/governodigital/pt-br/acessibilidade-e-usuario/vlibras"
 
-TEMPO_MINIMO_ABERTURA = 0.7   # segundos: a logo aparece sem atrasar quem já carregou
+TEMPO_MINIMO_ABERTURA = 1.0   # segundos: a logo e o nome são vistos, sem atrasar ninguém
+ESPERA_MAXIMA_NUVEM = 3.0     # segundos que a abertura espera a conta responder
 
 
 class BioquimicaApp(App):
@@ -140,6 +146,8 @@ class BioquimicaApp(App):
         "tutor": TelaTutor,
         "acessibilidade": TelaAcessibilidade,
         "boas_vindas": TelaBoasVindas,
+        "acesso": TelaAcesso,
+        "conta": TelaConta,
     }
 
     def build(self):
@@ -187,6 +195,8 @@ class BioquimicaApp(App):
             self.casos = dados.carregar_casos()
             self.progresso = Progresso(self._arquivo("progresso.json", None))
             self.casos_resolvidos = self.progresso.casos_resolvidos()
+            from mobile.conta import Acesso
+            self.acesso = Acesso(self.prefs, self._pasta_sessao())
         except Exception as e:
             print(f"[abertura] falha ao carregar: {type(e).__name__}: {e}")
             self.gerenciador.get_screen("abertura").mostrar_erro(
@@ -199,10 +209,65 @@ class BioquimicaApp(App):
         from mobile.voz import criar_voz
         self.voz = criar_voz()
         self.carregado = True
+        self._conferir_conta()
 
-        destino = "inicio" if self.prefs["boas_vindas_vista"] else "boas_vindas"
+    # ── fluxo de entrada ────────────────────────────────────────────
+    def _conferir_conta(self):
+        """Com conta, confere a sessão e o tutorial na nuvem, numa thread.
+
+        Se a cópia local ainda não sabe se o tutorial foi visto (ele pode ter
+        sido feito em outro aparelho), a abertura espera a resposta por até
+        ESPERA_MAXIMA_NUVEM segundos; sem internet, segue com a cópia local.
+        """
+        if not self.acesso.conectado:
+            self._agendar_saida()
+            return
+        esperar = self.acesso.precisa_confirmar_na_nuvem()
+        sincronizando = threading.Thread(target=self.acesso.sincronizar, daemon=True)
+        sincronizando.start()
+        limite = time.monotonic() + ESPERA_MAXIMA_NUVEM
+
+        def acompanhar(_dt):
+            if sincronizando.is_alive():
+                if esperar and time.monotonic() > limite:
+                    self._agendar_saida()
+                    return Clock.schedule_once(lambda _d: self._avisar_sessao(sincronizando), 1)
+                return Clock.schedule_once(acompanhar, 0.1)
+            if esperar:
+                self._agendar_saida()
+            self._avisar_sessao(sincronizando)
+
+        if not esperar:
+            self._agendar_saida()
+        Clock.schedule_once(acompanhar, 0.1)
+
+    def _avisar_sessao(self, sincronizando):
+        """Se a nuvem disser que a sessão não vale mais, avisa sem tirar o
+        estudante do que está fazendo; na próxima abertura, ele escolhe de novo."""
+        if sincronizando.is_alive():
+            Clock.schedule_once(lambda _d: self._avisar_sessao(sincronizando), 1)
+        elif self.acesso.sessao_encerrada and getattr(self, "navegacao", None) is not None:
+            self.mostrar_mensagem("Sua sessão do Google expirou. Entre de novo em Conta.",
+                                  "atencao", duracao=6)
+
+    def _destino_inicial(self):
+        """Abertura → acesso (se preciso) → tutorial (só se não visto) → Início."""
+        if self.acesso.precisa_escolher():
+            return "acesso"
+        return "inicio" if self.acesso.tutorial_visto() else "boas_vindas"
+
+    def _agendar_saida(self):
+        if getattr(self, "_saida_agendada", False):
+            return
+        self._saida_agendada = True
+        destino = self._destino_inicial()
         espera = max(0.0, TEMPO_MINIMO_ABERTURA - (time.monotonic() - self._inicio_abertura))
         Clock.schedule_once(lambda _dt: self._sair_da_abertura(destino), espera)
+
+    def seguir_apos_acesso(self):
+        """Depois de escolher como entrar: tutorial no primeiro acesso, senão o Início."""
+        self.historico.clear()
+        self.ir_para("inicio" if self.acesso.tutorial_visto() else "boas_vindas")
 
     def _sair_da_abertura(self, destino):
         self._montar_interface()
@@ -273,6 +338,24 @@ class BioquimicaApp(App):
             return None  # Progresso usa data/progresso.json (ou BIOQ_PASTA_ALUNO)
         from progresso import PASTA_ALUNO
         return PASTA_ALUNO / nome_computador
+
+    def _pasta_sessao(self):
+        """Onde fica a sessão do Google (cifrada no Windows; ver autenticacao.Cofre).
+
+        No Android, na pasta do app que o sistema deixa fora do backup: a
+        sessão não deve ser restaurada em outro aparelho. No computador, ao
+        lado do progresso (no executável, em %APPDATA%\\BioquimicaEDU)."""
+        if platform == "android":
+            try:
+                from jnius import autoclass
+                atividade = autoclass("org.kivy.android.PythonActivity").mActivity
+                return Path(atividade.getNoBackupFilesDir().getAbsolutePath())
+            except Exception as e:   # noqa: BLE001
+                print(f"[conta] pasta sem backup indisponível ({e}); usando a do app")
+        if NO_CELULAR:
+            return Path(self.user_data_dir)
+        from progresso import PASTA_ALUNO
+        return PASTA_ALUNO
 
     @staticmethod
     def _liberar_rotacao_no_tablet():
@@ -491,10 +574,10 @@ class BioquimicaApp(App):
         if atual in EMPILHADAS:
             self.voltar()
             return True
-        if atual not in ("inicio", "boas_vindas"):
+        if atual not in ("inicio", "boas_vindas", "acesso"):
             self.ir_para("inicio")
             return True
-        return False  # no início, voltar fecha o app
+        return False  # no início (e no fluxo de entrada), voltar fecha o app
 
     # ── motor de estudo ─────────────────────────────────────────────
     def alimentar_memoria(self, texto, acertou, peso):

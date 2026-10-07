@@ -64,3 +64,10 @@ google-services.json
 GoogleService-Info.plist
 client_secret*.json
 data/progresso.json
+
+# Login com Google: configuração do Firebase (modelo em config/firebase.exemplo.json),
+# sessão cifrada do computador e chave de assinatura do APK
+config/firebase.json
+data/sessao_google.dat
+data/sessao_google.tmp
+*.p12

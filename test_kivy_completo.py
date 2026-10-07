@@ -85,16 +85,27 @@ def main():
         atual = app.gerenciador.current
         assert atual == nome, f"esperava a tela '{nome}', está em '{atual}'"
 
-    @passo("abertura leva à apresentação no primeiro acesso")
+    @passo("abertura leva à tela de acesso no primeiro uso")
     def _():
         assert app.carregado, "o conteúdo deveria ter carregado na abertura"
+        esperar_tela("acesso")
+        assert app.navegacao.opacity == 0, "a tela de acesso não mostra a barra de abas"
+        assert app.acesso.precisa_escolher()
+        # sem config/firebase.json (BIOQ_SEM_NUVEM), o Google aparece desligado
+        assert tela().botao_google.disabled
+        tela()._usar_sem_conta()
         esperar_tela("boas_vindas")
-        assert app.navegacao.opacity == 0, "a apresentação não mostra a barra de abas"
-        for n in (2, 3):
+
+    @passo("tutorial: quatro passos, com pular, e não volta na próxima abertura")
+    def _():
+        assert procurar(tela(), lambda w: getattr(w, "text", "") == "Pular") is not None
+        for n in (2, 3, 4):
             tela().preparar(passo=n)
         tela()._concluir()
         esperar_tela("inicio")
-        assert app.prefs["boas_vindas_vista"], "a apresentação deveria ficar marcada como vista"
+        assert app.prefs["boas_vindas_vista"], "o tutorial deveria ficar marcado como visto"
+        assert app.prefs["modo_acesso"] == "sem_conta"
+        assert app._destino_inicial() == "inicio", "a próxima abertura repetiria o fluxo"
         app.voz = VozFalsa()
 
     @passo("abrir todas as abas")
@@ -208,7 +219,8 @@ def main():
         app.mudar_preferencia("movimento_reduzido", True)
         assert not tema.movimento()
         # todas as telas precisam montar com as três opções ligadas juntas
-        for nome in ("inicio", "estudo", "cartas", "pratica", "tutor", "revisao"):
+        for nome in ("inicio", "estudo", "cartas", "pratica", "tutor", "revisao", "conta",
+                     "acesso", "boas_vindas"):
             app.ir_para(nome, animar=False)
             esperar_tela(nome)
         app.voltar()
@@ -280,6 +292,62 @@ def main():
         app.voltar()
         esperar_tela("inicio")
         assert app.navegacao.opacity == 1, "a navegação deveria voltar visível"
+
+    @passo("conta: Google (simulado) em outro aparelho pula o tutorial já visto; sair volta ao acesso")
+    def _():
+        import threading
+        import time as relogio
+
+        import autenticacao as A
+        from kivy.base import EventLoop
+        from mobile.conta import Acesso
+        from mobile.preferencias import Preferencias
+
+        nuvem = {"uid-9": {"tutorial_visto": True}}   # visto no celular, dias atrás
+
+        class NuvemFalsa:
+            def entrar(self, _token, _nonce):
+                return A.Sessao("uid-9", "ana@exemplo.com", "Ana Souza", "renova",
+                                token_acesso="acesso", expira_em=relogio.time() + 3600)
+
+            def renovar(self, sessao):
+                return sessao
+
+            def ler_aluno(self, sessao):
+                return dict(nuvem.get(sessao.uid, {}))
+
+            def marcar_tutorial(self, sessao):
+                nuvem.setdefault(sessao.uid, {})["tutorial_visto"] = True
+
+        cfg = {"apiKey": "k", "projectId": "p", "webClientId": "w.apps.googleusercontent.com",
+               "desktopClientId": "d.apps.googleusercontent.com", "desktopClientSecret": "s"}
+        computador = PASTA_TESTE / "outro_aparelho"   # aparelho novo: nada salvo nele
+        original = app.acesso
+        app.acesso = Acesso(Preferencias(computador / "preferencias_mobile.json"), computador,
+                            cfg=cfg, obter_token=lambda _c=None: ("token", "nonce"),
+                            firebase=NuvemFalsa())
+        app.acesso.em_segundo_plano = lambda fn: fn()
+        try:
+            app.ir_para("acesso", animar=False)
+            assert not tela().botao_google.disabled, "com configuração, o Google fica ativo"
+            evento = threading.Event()
+            tela().cancelar = evento
+            tela()._login(evento)            # o que a thread faria
+            for _ in range(10):
+                EventLoop.idle()             # entrega o resultado à tela, como o Clock faria
+            esperar_tela("inicio")           # tutorial visto na conta: pula direto
+            assert app.acesso.conectado and (computador / "sessao_google.dat").exists()
+
+            app.ir_para("conta", animar=False)
+            assert procurar(tela(), lambda w: getattr(w, "text", "") == "Ana Souza")
+            tela()._confirmar()
+            tela()._sair()
+            esperar_tela("acesso")
+            assert not app.acesso.conectado and not (computador / "sessao_google.dat").exists()
+            assert app.progresso.estado(app.marcadores[0]["sigla"]) is not None
+        finally:
+            app.acesso = original
+            app.ir_para("inicio", animar=False)
 
     @passo("preferências corrompidas voltam ao padrão")
     def _():

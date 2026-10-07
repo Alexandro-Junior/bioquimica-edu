@@ -589,7 +589,8 @@ def capturar(pasta_aluno, saida, tamanho, prefs, passos, nuvem=False):
     """Roda o app com estas preferências e devolve {nome da foto: arquivo}."""
     json.dump(progresso_exemplo(), io.open(pasta_aluno / "progresso.json", "w", encoding="utf-8"),
               ensure_ascii=False, indent=2)
-    json.dump({"boas_vindas_vista": True, **prefs},
+    # direto ao Início: tutorial visto e acesso já escolhido (sem conta)
+    json.dump({"boas_vindas_vista": True, "modo_acesso": "sem_conta", **prefs},
               io.open(pasta_aluno / "preferencias_mobile.json", "w", encoding="utf-8"))
     saida.mkdir(parents=True, exist_ok=True)
     roteiro = (ROTEIRO_CAPTURA.replace("RAIZ", repr(str(RAIZ))).replace("TAMANHO", repr(tamanho))
@@ -707,7 +708,7 @@ def main():
     os.environ["BIOQ_PASTA_ALUNO"] = str(pasta)
     exemplo = pasta / "progresso.json"
     with io.open(pasta / "preferencias_mobile.json", "w", encoding="utf-8") as f:
-        json.dump({"boas_vindas_vista": True}, f)   # capturas sem a apresentação
+        json.dump({"boas_vindas_vista": True, "modo_acesso": "sem_conta"}, f)   # direto ao Início
     try:
         json.dump(progresso_exemplo(), io.open(exemplo, "w", encoding="utf-8"),
                   ensure_ascii=False, indent=2)

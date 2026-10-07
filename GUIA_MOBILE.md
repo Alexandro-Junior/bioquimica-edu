@@ -26,11 +26,20 @@ largura de leitura confortável, em vez de esticar até a borda.
 | **Revisão** | Sessão guiada: pergunta → confiança → resposta → autoavaliação em 4 níveis; cada botão mostra quando o marcador volta (Difícil, Bom e Fácil levam a intervalos diferentes) |
 | **Acessibilidade** | (ícone no topo do Início) tamanho do texto até 150%, alto contraste, fonte para leitura facilitada (Atkinson Hyperlegible), leitura em voz alta com velocidade, modo foco, sessões curtas, reduzir animações e atalho para o VLibras |
 
-Ao abrir, o app mostra a logo enquanto carrega; no primeiro acesso, uma
-apresentação de três passos termina nos ajustes de acessibilidade.
+Ao abrir, o app mostra a logo e o nome enquanto carrega. Depois:
 
-Tudo funciona offline; só o tutor com IA, opcional, usa a internet. O
-progresso e as preferências ficam só no aparelho.
+1. **Tela de acesso**, se o estudante ainda não escolheu: **Entrar com o
+   Google** ou **Usar sem conta**. A escolha fica salva.
+2. **Apresentação** de quatro passos, com "Pular", só se ainda não foi
+   vista. Com conta Google, o registro de que já foi vista vale em
+   qualquer aparelho.
+3. **Início**. O ícone de pessoa no topo abre a tela **Conta**, para
+   entrar, sair ou rever a apresentação.
+
+O login é opcional e configurado em [docs/LOGIN_GOOGLE.md](docs/LOGIN_GOOGLE.md).
+O estudo funciona offline; a internet só é usada pelo login e pelo tutor
+com IA. O progresso de estudo fica no aparelho e não é apagado ao entrar
+ou sair de uma conta.
 Análise completa das decisões: [docs/ANALISE_EVOLUCAO.md](docs/ANALISE_EVOLUCAO.md).
 
 ## Usar no computador
@@ -67,6 +76,10 @@ python test_kivy_completo.py
 
 ```bash
 python test_tutor.py
+```
+
+```bash
+python test_login.py
 ```
 
 ## Gerar o APK (Android)

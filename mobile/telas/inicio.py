@@ -90,7 +90,8 @@ class TelaInicio(TelaBase):
     # ── topo ────────────────────────────────────────────────────────
     def _topo(self):
         agora = datetime.now()
-        linha = BoxLayout(size_hint_y=None, height=dpt(66), padding=(dp(2), dp(8), 0, 0))
+        linha = BoxLayout(size_hint_y=None, height=dpt(66), padding=(dp(2), dp(8), 0, 0),
+                          spacing=dp(10))
         textos = BoxLayout(orientation="vertical")
         textos.add_widget(C.rotulo("Hoje", "26sp", COR["tinta"], negrito=True,
                                    vertical="bottom"))
@@ -103,6 +104,11 @@ class TelaInicio(TelaBase):
                                pos_hint={"center_y": 0.45})
         ajustes.bind(on_release=lambda *_: self.app.ir_para("acessibilidade"))
         linha.add_widget(ajustes)
+        conta = C.BotaoIcone("pessoa", cor=COR["superficie"], elevacao=1,
+                             cor_icone=COR["tinta"], descricao="Conta",
+                             pos_hint={"center_y": 0.45})
+        conta.bind(on_release=lambda *_: self.app.ir_para("conta"))
+        linha.add_widget(conta)
         return linha
 
     # ── 1. hoje ─────────────────────────────────────────────────────
