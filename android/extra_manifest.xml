@@ -1,0 +1,14 @@
+<!--
+  Inserido pelo Buildozer dentro de <manifest> (android.extra_manifest_xml).
+
+  A partir do Android 11, um app só enxerga outros apps e serviços que
+  declara aqui. Não é permissão: não dá acesso a dados de ninguém.
+-->
+<queries>
+    <!-- leitura em voz alta: encontrar o mecanismo de voz do sistema -->
+    <intent>
+        <action android:name="android.intent.action.TTS_SERVICE" />
+    </intent>
+    <!-- atalho para Libras: saber se o VLibras está instalado, para abri-lo -->
+    <package android:name="com.lavid.vlibrasdroid" />
+</queries>

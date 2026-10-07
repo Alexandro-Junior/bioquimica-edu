@@ -5,8 +5,9 @@ Teste de regressão das versões desktop (main.py e main_enhanced.py).
 Abre cada tela das duas versões e o detalhe de um marcador com todas as
 abas. Falha se alguma tela levantar exceção ao ser montada.
 
-O progresso real (data/progresso.json) é salvo antes e restaurado no
-final, então rodar o teste não mexe no estudo de ninguém.
+O teste grava numa pasta temporária própria (BIOQ_PASTA_ALUNO), então
+o progresso real (data/progresso.json) nunca é tocado — nem se o teste
+for interrompido no meio.
 
 Uso:  python test_desktop.py
 """
@@ -20,6 +21,8 @@ import traceback
 RAIZ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, RAIZ)
 os.chdir(RAIZ)
+PASTA_TESTE = tempfile.mkdtemp(prefix="bioquimicaedu_teste_desktop_")
+os.environ["BIOQ_PASTA_ALUNO"] = PASTA_TESTE   # antes de importar progresso
 try:
     sys.stdout.reconfigure(encoding="utf-8")
 except AttributeError:
@@ -71,21 +74,12 @@ def testar_versao(modulo, telas, falhas):
 
 
 def main():
-    real = os.path.join(RAIZ, "data", "progresso.json")
-    copia = os.path.join(tempfile.gettempdir(), "bioquimica_progresso_teste.json")
-    existia = os.path.exists(real)
-    if existia:
-        shutil.copy(real, copia)
-
     falhas = []
     try:
         for modulo, telas in VERSOES:
             testar_versao(modulo, telas, falhas)
     finally:
-        if existia:
-            shutil.copy(copia, real)
-        elif os.path.exists(real):
-            os.remove(real)
+        shutil.rmtree(PASTA_TESTE, ignore_errors=True)
 
     print("TODAS AS TELAS ABRIRAM" if not falhas else f"{len(falhas)} falha(s): {falhas}")
     return 1 if falhas else 0
