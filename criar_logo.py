@@ -15,8 +15,19 @@ Saída em assets/logo/:
   horizontal.svg / .png         símbolo + nome + subtítulo (documento, cabeçalho)
   vertical.svg / .png           empilhada (capa, centro de banner)
   horizontal_negativo.svg/.png  versão clara para fundo verde ou escuro
+  vertical_negativo.svg/.png    empilhada clara, para fundo verde ou escuro
+  marca_mono.svg / .png         só o desenho, numa cor (carimbo, impressão P&B)
+  marca_mono_branca.svg / .png  idem, branca, para foto ou fundo escuro
+  avatar_redes.png              1080 × 1080, sobrevive ao recorte em círculo
+  favicon-32.png, apple-touch-icon.png (180), icone-512.png   para o site
+  abertura.png                  logo vertical leve, para a tela de abertura
 
-Também atualiza assets/icon.png e assets/presplash.png do app.
+Também atualiza, no app: assets/icon.png (ícone clássico), assets/presplash.png
+(abertura do Android) e assets/icone_frente.png + assets/icone_fundo.png — as
+duas camadas do ícone adaptativo, sem as quais o Android 8+ encaixa o ícone
+quadrado dentro de uma máscara e ele aparece "numa caixinha".
+
+Identidade completa (conceito, cores, tipografia, usos): docs/IDENTIDADE_VISUAL.md
 
 Uso:  python criar_logo.py
 """
@@ -137,15 +148,31 @@ def arco(cx, cy, r, de, ate, cor, espessura):
     return Forma(contorno=cor, espessura=espessura).M(p0).C(c1, c2, p3)
 
 
-def simbolo(fundo=VERDE, traco=BRANCO, gota_cor=BRANCO, brilho=VERDE):
-    """O símbolo em 512 × 512."""
-    formas = [retangulo_arredondado(0, 0, 512, 512, 114, fundo)]
-    formas.append(hexagono(256, 256, 150, traco, 30))
+def marca(traco=BRANCO, gota_cor=BRANCO, brilho=VERDE):
+    """Só o desenho (hexágono + gota), sem a placa, em coordenadas 512 × 512.
+
+    `brilho=None` tira o reflexo: na versão de uma cor só, ele sumiria
+    contra o fundo ou viraria um risco solto.
+    """
+    formas = [hexagono(256, 256, 150, traco, 30)]
     cx, cy, R = 256, 290, 54
     formas.append(gota(cx, cy, R, 176, gota_cor))
-    # reflexo curto na base da gota: é o que a faz ler como líquido
-    formas.append(arco(cx, cy, R * 0.60, 105, 165, brilho, 11))
+    if brilho:
+        # reflexo curto na base da gota: é o que a faz ler como líquido
+        formas.append(arco(cx, cy, R * 0.60, 105, 165, brilho, 11))
     return formas
+
+
+def simbolo(fundo=VERDE, traco=BRANCO, gota_cor=BRANCO, brilho=VERDE):
+    """O símbolo em 512 × 512: a marca sobre a placa arredondada."""
+    return [retangulo_arredondado(0, 0, 512, 512, 114, fundo),
+            *marca(traco, gota_cor, brilho)]
+
+
+def centralizada(formas, escala, lado=512):
+    """A marca reduzida em torno do centro do quadro de 512."""
+    deslocamento = lado / 2 * (1 - escala)
+    return [f.transformada(escala, deslocamento, deslocamento) for f in formas]
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -231,7 +258,12 @@ def composicao_horizontal(negrito, regular, negativo=False):
     return formas, (x + largura_nome + 8, lado)
 
 
-def composicao_vertical(negrito, regular):
+def composicao_vertical(negrito, regular, negativo=False):
+    cor_nome = BRANCO if negativo else TINTA
+    cor_edu = MENTA if negativo else VERDE
+    cor_sub = "#D7EDE4" if negativo else TINTA2
+    placa = (simbolo(fundo=BRANCO, traco=VERDE, gota_cor=VERDE, brilho=BRANCO)
+             if negativo else simbolo())
     lado = 420
     t_nome = 150
     t_sub = 46
@@ -245,16 +277,16 @@ def composicao_vertical(negrito, regular):
     centro = largura_total / 2
 
     s = lado / 512
-    formas = [f.transformada(s, centro - lado / 2, 0) for f in simbolo()]
+    formas = [f.transformada(s, centro - lado / 2, 0) for f in placa]
 
     altura_maiuscula = negrito.altura_maiuscula * t_nome / negrito.upem
     base = lado + 80 + altura_maiuscula
     x = centro - w_nome / 2
-    formas.append(negrito.texto(NOME[0], t_nome, x, base, TINTA, espaco=-0.01))
-    formas.append(negrito.texto(NOME[1], t_nome, x + w_bio + VAO_EDU, base, VERDE,
+    formas.append(negrito.texto(NOME[0], t_nome, x, base, cor_nome, espaco=-0.01))
+    formas.append(negrito.texto(NOME[1], t_nome, x + w_bio + VAO_EDU, base, cor_edu,
                                 espaco=-0.01))
     formas.append(regular.texto(SUBTITULO, t_sub, centro - w_sub / 2,
-                                base + 88, TINTA2, espaco=0.005))
+                                base + 88, cor_sub, espaco=0.005))
     return formas, (largura_total, base + 110)
 
 
@@ -369,13 +401,43 @@ def atualizar_assets_app(simbolo_formas):
     print("assets/presplash.png")
 
 
+def icone_adaptativo(desenho):
+    """As duas camadas do ícone adaptativo do Android (8.0 em diante).
+
+    O sistema recorta a camada da frente com a máscara do fabricante
+    (círculo, squircle, gota...). Só o círculo central de 66 dp, num quadro
+    de 108 dp (61%), nunca é cortado: o desenho fica dentro dele.
+    """
+    lado_px = 432  # 108 dp em xxxhdpi
+    # o hexágono, com o traço, ocupa 64% do quadro de 512; a 0,72 fica com
+    # 46% da camada, ~70% da área visível (72 dp), como os ícones do sistema
+    frente = centralizada(desenho, 0.72)
+    salvar_png(frente, (512, 512), BASE / "assets" / "icone_frente.png", lado_px)
+    salvar_png([retangulo_arredondado(0, 0, 512, 512, 0, VERDE)], (512, 512),
+               BASE / "assets" / "icone_fundo.png", lado_px)
+
+
+def avatar_redes(desenho):
+    """Quadrado cheio de verde: redes sociais recortam o avatar em círculo."""
+    formas = [retangulo_arredondado(0, 0, 512, 512, 0, VERDE), *centralizada(desenho, 0.82)]
+    salvar_png(formas, (512, 512), SAIDA / "avatar_redes.png", 1080)
+
+
+def icones_site(placa):
+    salvar_png(placa, (512, 512), SAIDA / "favicon-32.png", 32)
+    # o iOS arredonda sozinho: placa sem cantos, com o desenho com folga
+    quadrada = [retangulo_arredondado(0, 0, 512, 512, 0, VERDE), *centralizada(marca(), 0.86)]
+    salvar_png(quadrada, (512, 512), SAIDA / "apple-touch-icon.png", 180)
+    salvar_png(placa, (512, 512), SAIDA / "icone-512.png", 512)
+
+
 def main():
     SAIDA.mkdir(parents=True, exist_ok=True)
     negrito = fonte_kivy("Roboto-Bold.ttf")
     regular = fonte_kivy("Roboto-Regular.ttf")
 
-    marca = simbolo()
-    salvar(marca, (512, 512), "simbolo", 2048, "BioquímicaEDU")
+    placa = simbolo()
+    salvar(placa, (512, 512), "simbolo", 2048, "BioquímicaEDU")
 
     formas, tam = composicao_horizontal(negrito, regular)
     formas, tam = enquadrar(formas, tam, 24)
@@ -388,8 +450,24 @@ def main():
     formas, tam = composicao_vertical(negrito, regular)
     formas, tam = enquadrar(formas, tam, 24)
     salvar(formas, tam, "vertical", 2400, "BioquímicaEDU")
+    # versão leve para a tela de abertura do app (a de 2400 px pesa na memória)
+    salvar_png(formas, tam, SAIDA / "abertura.png", 720)
 
-    atualizar_assets_app(marca)
+    formas, tam = composicao_vertical(negrito, regular, negativo=True)
+    formas, tam = enquadrar(formas, tam, 24)
+    salvar(formas, tam, "vertical_negativo", 2400, "BioquímicaEDU")
+
+    # uma cor só: sem placa e sem reflexo
+    mono = marca(traco=TINTA, gota_cor=TINTA, brilho=None)
+    salvar(mono, (512, 512), "marca_mono", 1024, "BioquímicaEDU")
+    branca = marca(traco=BRANCO, gota_cor=BRANCO, brilho=None)
+    salvar(branca, (512, 512), "marca_mono_branca", 1024, "BioquímicaEDU")
+
+    desenho_app = marca()
+    avatar_redes(desenho_app)
+    icones_site(placa)
+    icone_adaptativo(desenho_app)
+    atualizar_assets_app(placa)
 
 
 if __name__ == "__main__":
