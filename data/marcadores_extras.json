@@ -1,5 +1,5 @@
 {
-  "_sobre": "Material complementar por marcador. As referências apontam para StatPearls / NCBI Bookshelf (revisão por pares, acesso aberto) e foram verificadas com requisição HTTP. Os vídeos são de canais institucionais ou de docentes identificados.",
+  "_sobre": "Material complementar por marcador. As referências apontam para StatPearls / NCBI Bookshelf (revisão por pares, acesso aberto) e foram verificadas com requisição HTTP. Os vídeos, em português, são de canais de estudo de bioquímica clínica e de profissionais ou professores identificados; cada link foi conferido no YouTube (título e canal) em 07/10/2026.",
   "marcadores_extras": [
     {
       "sigla": "ALT",
@@ -25,10 +25,14 @@
       ],
       "videos": [
         {
-          "titulo": "Liver Function Tests",
-          "canal": "Rahul Patwari (medicina de emergência)",
-          "url": "https://www.youtube.com/watch?v=f4ILvVqBhk4",
-          "duracao": "13:12"
+          "titulo": "Exames hepáticos: como avaliar com segurança",
+          "canal": "Médico na Prática (canal de educação médica)",
+          "url": "https://www.youtube.com/watch?v=_dtfUwfsSQc"
+        },
+        {
+          "titulo": "Transaminases (TGO/AST e TGP/ALT): aula completa",
+          "canal": "Lícia Biotec (aula de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=RPx0HCZtGEE"
         }
       ],
       "exemplos": [
@@ -68,7 +72,18 @@
           "nota": "Padrões hepatocelular e colestático."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Exames hepáticos: como avaliar com segurança",
+          "canal": "Médico na Prática (canal de educação médica)",
+          "url": "https://www.youtube.com/watch?v=_dtfUwfsSQc"
+        },
+        {
+          "titulo": "Transaminases (TGO/AST e TGP/ALT): aula completa",
+          "canal": "Lícia Biotec (aula de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=RPx0HCZtGEE"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Doença hepática alcoólica",
@@ -100,7 +115,13 @@
           "nota": "Padrão colestático no painel hepático."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Exames hepáticos: como avaliar com segurança",
+          "canal": "Médico na Prática (canal de educação médica)",
+          "url": "https://www.youtube.com/watch?v=_dtfUwfsSQc"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Colestase extra-hepática",
@@ -132,7 +153,18 @@
           "nota": "Abordagem diagnóstica da icterícia pela fração predominante."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Diferença entre bilirrubina direta e indireta no diagnóstico da doença hepática",
+          "canal": "Bioquímica Clínica Fácil (canal de estudo de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=ztunIol0lMs"
+        },
+        {
+          "titulo": "Entenda as bilirrubinas",
+          "canal": "Médico na Prática (canal de educação médica)",
+          "url": "https://www.youtube.com/watch?v=upGNH18YYMg"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Obstrução biliar por cálculo",
@@ -158,7 +190,18 @@
           "nota": "Creatinina, ureia, clearance e interferentes do método de Jaffé."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Como avaliar a função renal",
+          "canal": "Bioquímica Clínica Fácil (canal de estudo de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=nZ17AAnJXgk"
+        },
+        {
+          "titulo": "Taxa de filtração glomerular: como avaliar sem cometer erros",
+          "canal": "Dr. Roberto Galvão, nefrologista",
+          "url": "https://www.youtube.com/watch?v=wPKqMeoI-N8"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Lesão renal aguda",
@@ -190,7 +233,18 @@
           "nota": "Ureia e creatinina como marcadores complementares."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Como avaliar a função renal",
+          "canal": "Bioquímica Clínica Fácil (canal de estudo de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=nZ17AAnJXgk"
+        },
+        {
+          "titulo": "Análises clínicas dos marcadores renais: creatinina, ureia e ácido úrico",
+          "canal": "Prof. Fabio Cordeiro",
+          "url": "https://www.youtube.com/watch?v=GVIJ4sa-Bec"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Azotemia pré-renal",
@@ -216,7 +270,18 @@
           "nota": "Cerca de 90% dos casos decorrem de excreção renal deficiente."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Ácido úrico como marcador metabólico: muito além da gota",
+          "canal": "Bioquímica Clínica Fácil (canal de estudo de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=YV8VAWnfOPI"
+        },
+        {
+          "titulo": "Exame de ácido úrico no sangue (uricemia): o que é e para que serve",
+          "canal": "Prof. Dr. Victor Proença",
+          "url": "https://www.youtube.com/watch?v=DYUzFOtQkkk"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Crise de gota",
@@ -250,10 +315,14 @@
       ],
       "videos": [
         {
-          "titulo": "Diabetes: apresentação clínica",
-          "canal": "Medscape",
-          "url": "https://www.youtube.com/watch?v=YUT33Lgo0jo",
-          "duracao": "6:24"
+          "titulo": "Como saber se você tem diabetes (Diabetes Explicada #6)",
+          "canal": "Olá, Ciência! (divulgação científica)",
+          "url": "https://www.youtube.com/watch?v=c0yVGVFZ1KY"
+        },
+        {
+          "titulo": "O que não fazer antes do exame de glicemia de jejum",
+          "canal": "Dr. João Sório, endocrinologista",
+          "url": "https://www.youtube.com/watch?v=1fAc-Eu4RN0"
         }
       ],
       "exemplos": [
@@ -287,7 +356,13 @@
           "nota": "Reflete a glicemia média de cerca de 3 meses; tem limitações nas hemoglobinopatias."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Hemoglobina glicada serve para o diagnóstico de pré-diabetes?",
+          "canal": "Dra. Suzana Vieira, endocrinologista",
+          "url": "https://www.youtube.com/watch?v=zHXn4sWxJ7o"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Diagnóstico de diabetes",
@@ -319,7 +394,18 @@
           "nota": "Avaliação e conduta na hipercolesterolemia."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Conheça os marcadores bioquímicos do risco cardiovascular",
+          "canal": "Bioquímica Clínica Fácil (canal de estudo de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=Z-7_eWKBkqE"
+        },
+        {
+          "titulo": "Colesterol, triglicerídios e a saúde dos vasos: dislipidemias",
+          "canal": "Doutor von Mühlen, cardiologista",
+          "url": "https://www.youtube.com/watch?v=LpWWobgom7U"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Hipercolesterolemia familiar",
@@ -345,7 +431,18 @@
           "nota": "Papel do HDL no transporte reverso do colesterol."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Conheça os marcadores bioquímicos do risco cardiovascular",
+          "canal": "Bioquímica Clínica Fácil (canal de estudo de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=Z-7_eWKBkqE"
+        },
+        {
+          "titulo": "Colesterol, triglicerídios e a saúde dos vasos: dislipidemias",
+          "canal": "Doutor von Mühlen, cardiologista",
+          "url": "https://www.youtube.com/watch?v=LpWWobgom7U"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "HDL baixo na síndrome metabólica",
@@ -371,7 +468,18 @@
           "nota": "Metas de LDL conforme o risco cardiovascular."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Como calcular o colesterol LDL",
+          "canal": "Dr. Mateus, endocrinologista",
+          "url": "https://www.youtube.com/watch?v=19faktZ2VP0"
+        },
+        {
+          "titulo": "Conheça os marcadores bioquímicos do risco cardiovascular",
+          "canal": "Bioquímica Clínica Fácil (canal de estudo de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=Z-7_eWKBkqE"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "LDL calculado não confiável",
@@ -397,7 +505,18 @@
           "nota": "Classificação e conduta na hipertrigliceridemia."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Exame de lipidograma: tempo de jejum e outras informações importantes",
+          "canal": "O Farmacêutico Esclarecedor",
+          "url": "https://www.youtube.com/watch?v=CbmMtJywfbY"
+        },
+        {
+          "titulo": "Colesterol, triglicerídios e a saúde dos vasos: dislipidemias",
+          "canal": "Doutor von Mühlen, cardiologista",
+          "url": "https://www.youtube.com/watch?v=LpWWobgom7U"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Pancreatite por hipertrigliceridemia",
@@ -423,7 +542,18 @@
           "nota": "Visão geral dos principais eletrólitos."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Hiponatremia: distúrbios hidroeletrolíticos",
+          "canal": "Medicina Resumida (canal de estudo de medicina)",
+          "url": "https://www.youtube.com/watch?v=tfyret-whiM"
+        },
+        {
+          "titulo": "Hiponatremia na emergência em 3 passos: sintomas, glicemia, volemia",
+          "canal": "Médico na Prática (canal de educação médica)",
+          "url": "https://www.youtube.com/watch?v=r4GZUYBFFfg"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Hiponatremia por SIADH",
@@ -455,7 +585,13 @@
           "nota": "Perdas renais e digestivas e o papel do magnésio na reposição."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Hipercalemia: distúrbios hidroeletrolíticos",
+          "canal": "Medicina Resumida (canal de estudo de medicina)",
+          "url": "https://www.youtube.com/watch?v=wecWpeOBr8k"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Hipercalemia na doença renal crônica",
@@ -487,7 +623,13 @@
           "nota": "O cloro no equilíbrio ácido-base e no cálculo do ânion gap."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Alcalose e acidose metabólica (com o cálculo do ânion gap)",
+          "canal": "Profa. Tatiana Lavich",
+          "url": "https://www.youtube.com/watch?v=sfrjkmDQRqY"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Acidose metabólica hiperclorêmica",
@@ -513,7 +655,18 @@
           "nota": "Bicarbonato e equilíbrio ácido-base."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Gasometria: aprendendo a interpretar",
+          "canal": "Bioquímica Clínica Fácil (canal de estudo de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=LTvJzI1PyyQ"
+        },
+        {
+          "titulo": "Gasometria: distúrbios de acidose",
+          "canal": "Prof. Rodrigo Storck",
+          "url": "https://www.youtube.com/watch?v=iVTXLss3I4I"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Acidose lática no choque séptico",
@@ -539,7 +692,18 @@
           "nota": "Por que a CK-MB foi superada pela troponina de alta sensibilidade."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Marcadores bioquímicos do infarto agudo do miocárdio",
+          "canal": "Bioquímica Clínica Fácil (canal de estudo de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=SARfpZHi9Tg"
+        },
+        {
+          "titulo": "Aula aberta: marcadores de necrose miocárdica",
+          "canal": "LACORA, Liga Acadêmica do Coração (UFPE)",
+          "url": "https://www.youtube.com/watch?v=-lF7POB4Z0g"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Suspeita de reinfarto",
@@ -559,7 +723,18 @@
           "nota": "Ensaios de alta sensibilidade e protocolos acelerados de exclusão."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Marcadores bioquímicos do infarto agudo do miocárdio",
+          "canal": "Bioquímica Clínica Fácil (canal de estudo de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=SARfpZHi9Tg"
+        },
+        {
+          "titulo": "Aula aberta: marcadores de necrose miocárdica",
+          "canal": "LACORA, Liga Acadêmica do Coração (UFPE)",
+          "url": "https://www.youtube.com/watch?v=-lF7POB4Z0g"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Infarto com supradesnivelamento de ST",
@@ -591,7 +766,18 @@
           "nota": "Isoenzimas da LDH e por que o marcador é pouco específico."
         }
       ],
-      "videos": [],
+      "videos": [
+        {
+          "titulo": "Marcadores bioquímicos do infarto agudo do miocárdio",
+          "canal": "Bioquímica Clínica Fácil (canal de estudo de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=SARfpZHi9Tg"
+        },
+        {
+          "titulo": "Aula aberta: marcadores de necrose miocárdica",
+          "canal": "LACORA, Liga Acadêmica do Coração (UFPE)",
+          "url": "https://www.youtube.com/watch?v=-lF7POB4Z0g"
+        }
+      ],
       "exemplos": [
         {
           "titulo": "Anemia hemolítica",
