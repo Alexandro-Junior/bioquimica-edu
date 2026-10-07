@@ -205,15 +205,19 @@ def servidor_usa_as_mesmas_regras_do_app():
 
 @teste
 def chave_nao_esta_em_nenhum_arquivo_do_projeto():
+    """Nenhum arquivo que vai para o GitHub pode ter chave do Google. Os
+    arquivos locais fora do Git (.env, config/firebase.json) podem."""
     import re
+    import subprocess
     formato_chave = re.compile(r"AIza[0-9A-Za-z_\-]{35}")   # chaves do Google
     raiz = Path(__file__).resolve().parent
-    ignorados = {".git", "node_modules", ".buildozer", "bin", "__pycache__", "venv", ".venv"}
+    rastreados = subprocess.run(["git", "ls-files", "--cached", "--others", "--exclude-standard"],
+                                cwd=raiz, capture_output=True, text=True, encoding="utf-8",
+                                check=True).stdout.splitlines()
     suspeitos = []
-    for arquivo in raiz.rglob("*"):
-        if (arquivo.is_dir() or arquivo.name == ".env" or arquivo.suffix not in
-                {".py", ".js", ".json", ".spec", ".md", ".txt", ".toml", ".xml"}
-                or ignorados & set(arquivo.relative_to(raiz).parts)):
+    for nome in rastreados:
+        arquivo = raiz / nome
+        if arquivo.suffix not in {".py", ".js", ".json", ".spec", ".md", ".txt", ".toml", ".xml"}:
             continue
         texto = arquivo.read_text(encoding="utf-8", errors="ignore")
         if formato_chave.search(texto):
