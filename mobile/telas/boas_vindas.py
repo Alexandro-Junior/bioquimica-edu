@@ -1,13 +1,16 @@
-"""Apresentação do primeiro acesso: três passos, sem obrigar ninguém.
+"""Apresentação (tutorial) do primeiro acesso: quatro passos, sem obrigar ninguém.
 
 1. O que é o app.
-2. Como ele ajuda a lembrar (o ciclo da revisão), para que o primeiro
+2. O que há em cada parte dele (as cinco abas).
+3. Como ele ajuda a lembrar (o ciclo da revisão), para que o primeiro
    "quanto você acha que sabe?" não pareça estranho.
-3. Ajustes de leitura e foco — oferecidos logo no começo, porque quem
+4. Ajustes de leitura e foco — oferecidos logo no começo, porque quem
    precisa de letra maior ou de alto contraste não deveria ter de
    atravessar o app inteiro até achar a tela de acessibilidade.
 
-"Pular" leva direto ao Início; tudo pode ser revisto depois.
+"Pular" leva direto ao Início. Concluir ou pular marca o tutorial como
+visto (mobile/conta.py): no aparelho e, com conta Google, na conta, para
+não aparecer de novo em nenhum aparelho. Dá para revê-lo na tela Conta.
 """
 
 from pathlib import Path
@@ -24,7 +27,14 @@ from mobile.telas.acessibilidade import ajustes_foco, ajustes_leitura, ajustes_v
 from mobile.telas.base import TelaBase
 
 SIMBOLO = Path(__file__).resolve().parents[2] / "assets" / "logo" / "simbolo.png"
-TOTAL = 3
+TOTAL = 4
+PARTES = [
+    ("inicio", "Início", "A revisão do dia, o estado da sua memória e o que está mais frágil."),
+    ("estudo", "Estudo", "Os 20 marcadores, com faixa de referência, casos, imagens e fontes."),
+    ("cartas", "Cards", "Pergunta de um lado, resposta do outro, para treinar a memória."),
+    ("pratica", "Prática", "Quiz e casos clínicos em que você lê vários exames juntos."),
+    ("tutor", "Tutor", "Tire dúvidas sobre os marcadores, como faria com um colega."),
+]
 
 
 class TelaBoasVindas(TelaBase):
@@ -37,7 +47,7 @@ class TelaBoasVindas(TelaBase):
                          spacing=dp(12))
 
         topo = BoxLayout(size_hint_y=None, height=dp(48))
-        pontos = BoxLayout(size_hint_x=None, width=dp(60), spacing=dp(8))
+        pontos = BoxLayout(size_hint_x=None, width=dp(80), spacing=dp(8))
         for i in range(1, TOTAL + 1):
             pontos.add_widget(C.Ponto(COR["acento"] if i == self.passo else COR["borda_forte"],
                                       tamanho=dp(10 if i == self.passo else 8)))
@@ -51,7 +61,8 @@ class TelaBoasVindas(TelaBase):
         raiz.add_widget(topo)
 
         scroll, col = C.coluna_rolavel(padding=(0, dp(4), 0, dp(8)), spacing=dp(14))
-        {1: self._apresentacao, 2: self._como_funciona, 3: self._ajustes}[self.passo](col)
+        {1: self._apresentacao, 2: self._partes, 3: self._como_funciona,
+         4: self._ajustes}[self.passo](col)
         raiz.add_widget(scroll)
 
         acoes = BoxLayout(size_hint_y=None, height=max(dp(52), C.dpt(46)), spacing=dp(10))
@@ -83,17 +94,14 @@ class TelaBoasVindas(TelaBase):
                  "bibliografia para conferir.",
             estilo="corpo", halign="center", color=COR["tinta2"]))
 
-    def _como_funciona(self, col):
-        col.add_widget(C.Texto(text="Como o app ajuda você a lembrar", estilo="display"))
-        passos = [
-            ("estudo", "Tente lembrar antes de ver",
-             "Puxar da memória fixa mais do que reler a resposta."),
-            ("info", "Diga o quanto tem certeza",
-             "Comparar sua confiança com seus acertos mostra o que você acha que sabe."),
-            ("calendario", "Cada marcador volta na hora certa",
-             "Acertou, ele demora mais a voltar; errou, volta ainda hoje."),
-        ]
-        for icone, titulo, texto in passos:
+    def _partes(self, col):
+        col.add_widget(C.Texto(text="O que você encontra no app", estilo="display"))
+        col.add_widget(C.Texto(text="Cada parte fica numa aba: embaixo, no celular; na "
+                                    "lateral, no tablet e no computador.", estilo="apoio"))
+        self._linhas(col, PARTES)
+
+    def _linhas(self, col, itens):
+        for icone, titulo, texto in itens:
             linha = C.Cartao(orientation="horizontal", spacing=dp(14), elevacao=0,
                              cor_fundo=COR["superficie"])
             linha.add_widget(C.SeloIcone(icone, cor_fundo=COR["acento_suave"],
@@ -106,6 +114,18 @@ class TelaBoasVindas(TelaBase):
             linha.add_widget(textos)
             linha.bind(minimum_height=linha.setter("height"))
             col.add_widget(linha)
+
+    def _como_funciona(self, col):
+        col.add_widget(C.Texto(text="Como o app ajuda você a lembrar", estilo="display"))
+        passos = [
+            ("estudo", "Tente lembrar antes de ver",
+             "Puxar da memória fixa mais do que reler a resposta."),
+            ("info", "Diga o quanto tem certeza",
+             "Comparar sua confiança com seus acertos mostra o que você acha que sabe."),
+            ("calendario", "Cada marcador volta na hora certa",
+             "Acertou, ele demora mais a voltar; errou, volta ainda hoje."),
+        ]
+        self._linhas(col, passos)
 
     def _ajustes(self, col):
         col.add_widget(C.Texto(text="Deixe a leitura do seu jeito", estilo="display"))
@@ -122,5 +142,6 @@ class TelaBoasVindas(TelaBase):
         col.add_widget(foco)
 
     def _concluir(self):
-        self.app.prefs.definir("boas_vindas_vista", True)
+        """Concluir e pular dão no mesmo: o tutorial fica marcado como visto."""
+        self.app.acesso.marcar_tutorial_visto()
         self.app.ir_para("inicio")

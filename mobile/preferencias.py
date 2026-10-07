@@ -22,7 +22,9 @@ ESQUEMA = {
     "leitura_voz":          (False, (True, False)),
     "velocidade_voz":       (1.0, (0.8, 1.0, 1.25)),
     "atalho_libras":        (False, (True, False)),
-    "boas_vindas_vista":    (False, (True, False)),
+    "boas_vindas_vista":    (False, (True, False)),   # tutorial visto neste aparelho
+    # "" = ainda não escolheu; a sessão do Google em si fica no cofre (conta.py)
+    "modo_acesso":          ("", ("", "sem_conta", "google")),
 }
 
 ESCALAS_TEXTO = [(1.0, "Padrão"), (1.15, "Grande"), (1.3, "Maior"), (1.5, "Máximo")]

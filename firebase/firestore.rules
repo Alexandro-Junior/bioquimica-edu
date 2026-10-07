@@ -1,0 +1,21 @@
+rules_version = '2';
+
+// Regras do Cloud Firestore do BioquímicaEDU.
+// Cada estudante lê e grava só o próprio documento (alunos/{uid}), e só os
+// campos que o app usa. Todo o resto do banco é fechado.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /alunos/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['tutorial_visto', 'atualizado_em'])
+        && request.resource.data.tutorial_visto is bool
+        && request.resource.data.atualizado_em is timestamp;
+      allow delete: if false;
+    }
+    match /{documento=**} {
+      allow read, write: if false;
+    }
+  }
+}

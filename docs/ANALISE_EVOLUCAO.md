@@ -319,9 +319,14 @@ reaproveitável.
 
 Respondidas pelo aluno em 07/10/2026:
 
-1. **Login com Google**: objetivo (a), sincronizar o progresso entre
-   computador e celular. Depende de criar o projeto no Firebase com a conta
-   do aluno; a implementação vem depois disso.
+1. **Login com Google**: objetivo (a), sincronizar entre computador e
+   celular. **Primeira etapa implementada em 07/10/2026**: fluxo abertura →
+   acesso (Google ou sem conta) → tutorial só no primeiro acesso → Início.
+   O "tutorial visto" fica na conta (Firestore) e vale em qualquer
+   aparelho. Login pelo navegador com PKCE no computador e pelo Credential
+   Manager no Android; sessão cifrada (DPAPI) ou fora do backup (Android).
+   Depende do projeto no Firebase ([`LOGIN_GOOGLE.md`](LOGIN_GOOGLE.md)).
+   O progresso de estudo ainda fica em cada aparelho.
 2. **Gemini**: camada gratuita, para apresentação; camada paga só se o app
    virar produto. Implementado (seção 2.4).
 3. **Computador**: o mesmo app do celular, responsivo (seção 2.7).

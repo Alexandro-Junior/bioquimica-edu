@@ -26,7 +26,7 @@ source.exclude_dirs = .git,.claude,.buildozer,bin,__pycache__,.venv,venv,tests,r
 
 # (list) Arquivos só da versão desktop, geradores e dados locais do computador.
 # .env guarda a chave do Gemini do computador: nunca vai para o APK.
-source.exclude_patterns = main_enhanced.py,tela_painel.py,tela_revisao.py,painel_inicio.py,criar_imagens.py,criar_assets_mobile.py,criar_logo.py,ollama_ia.py,test_*.py,data/progresso.json,data/preferencias_mobile.json,.env
+source.exclude_patterns = main_enhanced.py,tela_painel.py,tela_revisao.py,painel_inicio.py,criar_imagens.py,criar_assets_mobile.py,criar_logo.py,ollama_ia.py,test_*.py,data/progresso.json,data/preferencias_mobile.json,data/sessao_google.dat,.env
 
 # (str) Versão da aplicação
 version = 0.4
@@ -57,11 +57,15 @@ orientation = portrait
 fullscreen = 0
 
 # (list) Permissões Android.
-# Nenhuma: o app funciona offline e guarda o progresso na pasta privada do
-# próprio app, então não precisa de internet nem de acesso ao armazenamento.
-# Para o tutor com Gemini no celular (docs/TUTOR_GEMINI.md, parte 3), troque por:
-# android.permissions = INTERNET
-android.permissions =
+# Só internet, usada pelo login com Google (opcional) e pelo tutor com IA.
+# O estudo funciona offline, e o progresso fica na pasta privada do app,
+# sem permissão de armazenamento.
+android.permissions = INTERNET
+
+# (bool / list) Login com Google pelo seletor de contas do Android
+# (Credential Manager; mobile/login_android.py)
+android.enable_androidx = True
+android.gradle_dependencies = androidx.credentials:credentials:1.3.0, androidx.credentials:credentials-play-services-auth:1.3.0, com.google.android.libraries.identity.googleid:googleid:1.1.1
 
 # (str) Trecho extra do manifesto: declara a consulta ao serviço de voz
 # (leitura em voz alta) e ao app VLibras (atalho para Libras), exigida a

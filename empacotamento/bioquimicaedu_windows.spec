@@ -19,16 +19,18 @@ from kivy_deps import angle, glew, sdl2
 from PIL import Image
 
 RAIZ = Path(SPECPATH).resolve().parent
-PESSOAIS = {"progresso.json", "preferencias_mobile.json", "preferencias.json"}
+PESSOAIS = {"progresso.json", "preferencias_mobile.json", "preferencias.json",
+            "sessao_google.dat", "sessao_google.tmp"}
 
 dados = []
 for pasta in ("data", "assets"):
     for arquivo in sorted((RAIZ / pasta).rglob("*")):
         if arquivo.is_file() and arquivo.name not in PESSOAIS and not arquivo.name.startswith("~$"):
             dados.append((str(arquivo), str(arquivo.parent.relative_to(RAIZ))))
-config_nuvem = RAIZ / "config" / "tutor_nuvem.json"
-if config_nuvem.exists():
-    dados.append((str(config_nuvem), "config"))
+for nome in ("tutor_nuvem.json", "firebase.json"):   # servidor do tutor; login com Google
+    arquivo = RAIZ / "config" / nome
+    if arquivo.exists():
+        dados.append((str(arquivo), "config"))
 assert not any(Path(origem).name == ".env" for origem, _ in dados), ".env não pode ir no executável"
 
 # ícone do Windows, a partir do ícone do app
