@@ -257,7 +257,13 @@ def main():
         from kivy.core.clipboard import Clipboard
         app.abrir_libras("Potássio. Faixa de referência: 3,5 a 5 mEq/L.")
         assert Clipboard.paste().startswith("Potássio"), Clipboard.paste()
-        assert abertos and "vlibras" in abertos[-1].lower(), abertos
+        assert abertos and abertos[-1].startswith("https://bioquimicaedu.web.app/libras#t="), abertos
+        from urllib.parse import unquote
+        assert unquote(abertos[-1].split("#t=", 1)[1]).startswith("Potássio. Faixa"), abertos[-1]
+        # texto longo: cortado numa frase inteira, para o endereço não ficar grande demais
+        from mobile.app import LIMITE_LIBRAS, endereco_libras
+        longo = endereco_libras("Frase de teste com conteúdo. " * 60)
+        assert len(unquote(longo.split("#t=", 1)[1])) <= LIMITE_LIBRAS + 2, len(longo)
 
     @passo("tamanho da tela: barra no celular, menu lateral no tablet/PC, sessão preservada")
     def _():
