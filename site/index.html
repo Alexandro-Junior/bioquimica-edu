@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BioquímicaEDU — estude bioquímica clínica no ritmo da sua memória</title>
+  <meta name="description" content="App gratuito para estudar 20 marcadores bioquímicos com revisão espaçada, casos clínicos e tutor com inteligência artificial. Para computador, tablet e celular.">
+  <meta name="theme-color" content="#0E7C5A">
+  <meta property="og:title" content="BioquímicaEDU">
+  <meta property="og:description" content="Estude bioquímica clínica no ritmo da sua memória. Grátis, para computador, tablet e celular.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="imagens/compartilhar.png">
+  <link rel="icon" type="image/svg+xml" href="imagens/simbolo.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="imagens/favicon-32.png">
+  <link rel="apple-touch-icon" href="imagens/apple-touch-icon.png">
+  <link rel="stylesheet" href="estilo.css">
+  <script src="config.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="topo">
+    <div class="largura topo__linha">
+      <a href="#" class="topo__marca" aria-label="BioquímicaEDU, início da página">
+        <picture>
+          <source srcset="imagens/logo-negativo.svg" media="(prefers-color-scheme: dark)">
+          <img src="imagens/logo.svg" alt="BioquímicaEDU" width="196" height="44">
+        </picture>
+      </a>
+      <nav aria-label="Seções">
+        <ul class="topo__menu">
+          <li><a href="#recursos">Recursos</a></li>
+          <li><a href="#acessibilidade">Acessibilidade</a></li>
+          <li><a href="#tutor">Tutor com IA</a></li>
+          <li><a href="#sobre">Sobre</a></li>
+          <li><a href="#baixar" class="botao botao--pequeno">Baixar</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <!-- ═════ Abertura ═════ -->
+    <section class="heroi">
+      <div class="largura heroi__grade">
+        <div class="heroi__texto">
+          <p class="selo">Projeto de iniciação científica · UNICID · PIBIC/CNPq</p>
+          <h1>Bioquímica clínica no ritmo da sua memória</h1>
+          <p class="destaque">
+            O BioquímicaEDU ajuda estudantes da área da saúde a aprender e a não esquecer
+            20 marcadores bioquímicos, com revisão espaçada, casos clínicos e um tutor com
+            inteligência artificial. Grátis, sem anúncios e sem cadastro obrigatório.
+          </p>
+          <div class="heroi__acoes">
+            <a class="botao" data-download="windows" href="#baixar">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+              <span>Baixar para computador</span>
+            </a>
+            <a class="botao botao--contorno" data-download="android" href="#baixar">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg>
+              <span>Baixar para Android</span>
+            </a>
+          </div>
+          <p class="nota">Windows 10 ou 11 · Android 5.0 ou mais recente · versão <span data-info="versao">0.4</span></p>
+        </div>
+        <div class="heroi__telas" aria-hidden="true">
+          <img class="moldura moldura--computador" src="imagens/computador-inicio.webp" alt="" width="1480" height="950">
+          <img class="moldura moldura--celular heroi__celular" src="imagens/celular-revisao.webp" alt="" width="500" height="1050">
+        </div>
+      </div>
+    </section>
+
+    <!-- ═════ Um app, três telas ═════ -->
+    <section class="secao" aria-labelledby="t-telas">
+      <div class="largura">
+        <h2 id="t-telas">Um app, três telas que se completam</h2>
+        <p class="secao__intro">
+          É o mesmo aplicativo no computador, no tablet e no celular: o mesmo conteúdo, as mesmas
+          regras de revisão e a mesma aparência, que se ajusta ao tamanho da tela. Cada formato
+          tem a sua hora no estudo.
+        </p>
+        <div class="trio">
+          <figure>
+            <img class="moldura moldura--computador" src="imagens/computador-inicio.webp" width="1480" height="950" loading="lazy"
+                 alt="Tela inicial no computador, com o resumo do dia, o estado da memória e o domínio por sistema em duas colunas.">
+            <figcaption><strong>Computador.</strong> Para sessões longas: ler o detalhe de cada marcador, resolver casos clínicos e conversar com o tutor, com mais informação à vista.</figcaption>
+          </figure>
+          <figure>
+            <img class="moldura moldura--tablet" src="imagens/tablet-estudo.webp" width="1000" height="1600" loading="lazy"
+                 alt="Lista de marcadores no tablet, em duas colunas, com menu lateral.">
+            <figcaption><strong>Tablet.</strong> Leitura confortável, em pé ou deitado, com menu lateral e mais colunas.</figcaption>
+          </figure>
+          <figure>
+            <img class="moldura moldura--celular" src="imagens/celular-inicio.webp" width="500" height="1050" loading="lazy"
+                 alt="Tela inicial no celular, mostrando a revisão de hoje pronta.">
+            <figcaption><strong>Celular.</strong> Para a revisão de todo dia, em poucos minutos, onde você estiver.</figcaption>
+          </figure>
+        </div>
+        <p class="nota nota--centro">Por enquanto, cada aparelho guarda o próprio progresso. A sincronização entre eles, pela conta Google, está a caminho.</p>
+      </div>
+    </section>
+
+    <!-- ═════ Recursos ═════ -->
+    <section class="secao secao--alternada" id="recursos" aria-labelledby="t-recursos">
+      <div class="largura dupla">
+        <div>
+          <h2 id="t-recursos">Estudar para lembrar, não só para a prova</h2>
+          <p class="secao__intro">
+            O que se estuda na véspera tende a ser esquecido antes de ser usado. O app aplica duas
+            estratégias com evidência científica: tentar lembrar antes de ver a resposta e revisar
+            em intervalos que crescem com o tempo.
+          </p>
+          <ul class="lista-recursos">
+            <li><strong>Revisão espaçada.</strong> O app decide o que revisar a cada dia, com base no algoritmo SM-2. Cada botão mostra quando o marcador volta: “Difícil”, “Bom” e “Fácil” levam a intervalos diferentes.</li>
+            <li><strong>20 marcadores, 6 sistemas.</strong> Hepático, renal, glicêmico, lipídico, eletrólitos e cardíaco, com faixa de referência, interpretação e condições associadas.</li>
+            <li><strong>Cards, quiz e casos clínicos.</strong> 52 cards, 12 questões e 15 casos em que é preciso ler vários exames juntos. Tudo alimenta a revisão.</li>
+            <li><strong>Autoavaliação.</strong> Antes de ver a resposta, você diz o quanto acha que sabe. O app compara com os acertos e mostra se você está se superestimando.</li>
+            <li><strong>Fontes conferidas.</strong> Cada marcador traz as referências usadas, de obras médicas abertas, como o StatPearls.</li>
+          </ul>
+        </div>
+        <figure class="dupla__figura">
+          <img class="moldura moldura--celular" src="imagens/celular-revisao.webp" width="500" height="1050" loading="lazy"
+               alt="Revisão no celular depois de mostrar a resposta: faixa de referência da ureia e os botões De novo, Difícil 4 dias, Bom 6 dias e Fácil 8 dias.">
+          <figcaption>Na revisão, cada avaliação mostra quando o marcador volta.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ═════ Acessibilidade ═════ -->
+    <section class="secao" id="acessibilidade" aria-labelledby="t-acessibilidade">
+      <div class="largura dupla dupla--invertida">
+        <div>
+          <h2 id="t-acessibilidade">Feito para todo mundo ler</h2>
+          <p class="secao__intro">
+            Os ajustes ficam numa tela própria, oferecida logo no primeiro acesso, e funcionam igual
+            no computador, no tablet e no celular.
+          </p>
+          <ul class="lista-checada">
+            <li>Texto em quatro tamanhos, até 150%, sem cortar nada</li>
+            <li>Tema de alto contraste, com texto preto sobre branco</li>
+            <li>Fonte Atkinson Hyperlegible, criada para pessoas com baixa visão</li>
+            <li>Leitura em voz alta, com três velocidades</li>
+            <li>Atalho para o VLibras, que traduz o texto para Libras</li>
+            <li>Modo foco, sessões curtas e menos animações</li>
+          </ul>
+          <p class="nota">As cores de texto atingem pelo menos 4,5:1 de contraste, o mínimo do nível AA das diretrizes WCAG 2.2.</p>
+        </div>
+        <div class="par-telas">
+          <img class="moldura moldura--celular" src="imagens/celular-acessibilidade.webp" width="500" height="1050" loading="lazy"
+               alt="Tela de acessibilidade com tamanho do texto, alto contraste, fonte para leitura facilitada e leitura em voz alta.">
+          <img class="moldura moldura--celular" src="imagens/celular-alto-contraste.webp" width="500" height="1050" loading="lazy"
+               alt="Detalhe do potássio com alto contraste, texto ampliado e a fonte Atkinson Hyperlegible, com os botões Ouvir e Libras.">
+        </div>
+      </div>
+    </section>
+
+    <!-- ═════ Tutor ═════ -->
+    <section class="secao secao--alternada" id="tutor" aria-labelledby="t-tutor">
+      <div class="largura estreita">
+        <h2 id="t-tutor">Um tutor com IA que não inventa valores</h2>
+        <p class="secao__intro">
+          Pergunte em português, como a um colega: “ALT ou AST, qual a diferença?”, “e quando está
+          baixo?”. O tutor usa o Gemini, do Google, e responde com base no conteúdo conferido do
+          app, que vai junto de cada pergunta. Ele lembra o que já conversaram e não faz diagnóstico
+          de pacientes reais.
+        </p>
+        <div class="cartoes">
+          <div class="cartao">
+            <h3>Fiel ao conteúdo</h3>
+            <p>Faixas de referência e interpretações vêm dos dados do app, nunca da imaginação do modelo.</p>
+          </div>
+          <div class="cartao">
+            <h3>Funciona sem internet</h3>
+            <p>Sem conexão, o tutor responde com a ficha do próprio app e avisa o motivo.</p>
+          </div>
+          <div class="cartao">
+            <h3>Nenhuma senha no app</h3>
+            <p>O app não carrega a chave de acesso à IA: quem fala com o Google é um servidor intermediário.</p>
+          </div>
+        </div>
+        <p class="aviso" role="note">
+          <strong>Privacidade:</strong> o tutor usa a versão gratuita do Gemini, em que o Google pode
+          usar as perguntas para melhorar os produtos dele. Não digite dados pessoais nem de pacientes.
+        </p>
+        <p class="aviso aviso--neutro" data-se-tutor="desligado" hidden>
+          O tutor com IA das versões para baixar está sendo ativado. Até lá, ele responde pelo conteúdo do próprio app.
+        </p>
+      </div>
+    </section>
+
+    <!-- ═════ Baixar ═════ -->
+    <section class="secao" id="baixar" aria-labelledby="t-baixar">
+      <div class="largura">
+        <h2 id="t-baixar">Baixar o BioquímicaEDU</h2>
+        <p class="secao__intro">Grátis. Versão <span data-info="versao">0.4</span>, de <span data-info="dataVersao">outubro de 2026</span>.</p>
+        <p class="aviso aviso--neutro" id="aviso-iphone" hidden>
+          Você está num iPhone ou iPad. Por enquanto o BioquímicaEDU não está disponível para iOS:
+          a Apple só permite instalar apps pela App Store.
+        </p>
+        <div class="downloads">
+          <article class="download" data-plataforma="windows">
+            <div class="download__cabeca">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+              <div>
+                <h3>Computador</h3>
+                <p>Windows 10 ou 11, 64 bits</p>
+              </div>
+            </div>
+            <a class="botao botao--largo" data-download="windows" href="#baixar">Baixar para Windows</a>
+            <ol class="passos">
+              <li>Baixe o arquivo <code>BioquimicaEDU-Windows.exe</code> e abra.</li>
+              <li>Se aparecer “O Windows protegeu o computador”, clique em <strong>Mais informações</strong> e em <strong>Executar assim mesmo</strong>. O aviso aparece porque o app não tem assinatura digital paga, não por haver algum problema; o código é aberto.</li>
+              <li>Pronto: não precisa instalar nada. O progresso fica salvo na sua pasta de usuário.</li>
+            </ol>
+          </article>
+          <article class="download" data-plataforma="android">
+            <div class="download__cabeca">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg>
+              <div>
+                <h3>Celular e tablet</h3>
+                <p>Android 5.0 ou mais recente</p>
+              </div>
+            </div>
+            <a class="botao botao--largo" data-download="android" href="#baixar">Baixar para Android</a>
+            <ol class="passos">
+              <li>No celular, baixe o arquivo <code>BioquimicaEDU-Android.apk</code> e toque nele.</li>
+              <li>Se o Android pedir, permita que o navegador instale apps. O app ainda não está na Google Play, por isso o aviso.</li>
+              <li>Toque em <strong>Instalar</strong>. O progresso fica só no aparelho.</li>
+            </ol>
+          </article>
+        </div>
+        <p class="nota nota--centro">
+          Usa Mac ou Linux? Dá para rodar pelo <a data-link="codigoFonte" href="https://github.com/Alexandro-Junior/bioquimica-edu">código-fonte</a>, com Python.
+        </p>
+      </div>
+    </section>
+
+    <!-- ═════ Perguntas ═════ -->
+    <section class="secao secao--alternada" aria-labelledby="t-perguntas">
+      <div class="largura estreita">
+        <h2 id="t-perguntas">Perguntas frequentes</h2>
+        <div class="perguntas">
+          <details>
+            <summary>É gratuito mesmo?</summary>
+            <p>Sim. O BioquímicaEDU é um projeto acadêmico, sem anúncios e sem cobrança. Entrar com a conta Google é opcional: dá para usar sem conta.</p>
+          </details>
+          <details>
+            <summary>Precisa de internet?</summary>
+            <p>Não. Estudo, revisão, cards, quiz e casos funcionam sem conexão. A internet só é usada pelo tutor com IA e para abrir fontes e vídeos.</p>
+          </details>
+          <details>
+            <summary>Para onde vão os meus dados?</summary>
+            <p>O progresso fica só no seu aparelho: o app não tem cadastro e não envia nada sobre você. A exceção são as perguntas feitas ao tutor com IA, que vão para o Gemini, do Google. Por isso, não digite dados pessoais nem de pacientes no tutor.</p>
+          </details>
+          <details>
+            <summary>O antivírus ou o Windows desconfiou do arquivo. É seguro?</summary>
+            <p>O aviso aparece com programas novos que não têm certificado de assinatura digital, que é pago. O código-fonte completo está aberto no GitHub para quem quiser conferir.</p>
+          </details>
+          <details>
+            <summary>O app substitui o livro ou o professor?</summary>
+            <p>Não. É um material de apoio ao estudo, baseado em obras de referência. Não serve para diagnóstico nem para decidir conduta com pacientes.</p>
+          </details>
+          <details>
+            <summary>Funciona no iPhone ou no Mac?</summary>
+            <p>No iPhone e no iPad, ainda não. No Mac e no Linux, dá para rodar pelo código-fonte, com Python.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═════ História e projeto ═════ -->
+    <section class="secao" id="sobre" aria-labelledby="t-sobre">
+      <div class="largura dupla dupla--texto">
+        <div>
+          <h2 id="t-sobre">Como o projeto evoluiu</h2>
+          <ol class="linha-tempo">
+            <li><strong>Começamos sem IA.</strong> A primeira versão era um app de estudo para computador: marcadores, cards, quiz e casos clínicos.</li>
+            <li><strong>Primeira IA.</strong> Um tutor numa versão à parte, com um modelo de linguagem que roda no próprio computador.</li>
+            <li><strong>No celular.</strong> Surgiu a versão para Android, com o mesmo conteúdo.</li>
+            <li><strong>Revisão espaçada.</strong> O app passou a decidir o que revisar a cada dia e a comparar a confiança do estudante com os acertos.</li>
+            <li><strong>Um app só, para todos.</strong> Em outubro de 2026, computador, tablet e celular viraram o mesmo aplicativo, com recursos de acessibilidade e tutor com o Gemini.</li>
+          </ol>
+        </div>
+        <div>
+          <h2>Sobre o projeto</h2>
+          <p>
+            O BioquímicaEDU é resultado do projeto de iniciação científica
+            <cite>Desenvolvimento de software educacional para o ensino interativo de bioquímica clínica:
+            marcadores bioquímicos e sua correlação com doenças</cite>, do curso de Ciência da Computação
+            da Universidade Cidade de São Paulo (UNICID), no Programa Institucional de Bolsas de
+            Iniciação Científica (PIBIC/CNPq).
+          </p>
+          <dl class="ficha">
+            <dt>Aluno</dt><dd>Alexandro de Araujo Junior</dd>
+            <dt>Orientador</dt><dd>Prof. Francisco de Assis Cavallaro</dd>
+            <dt>Código-fonte</dt><dd><a data-link="codigoFonte" href="https://github.com/Alexandro-Junior/bioquimica-edu">github.com/Alexandro-Junior/bioquimica-edu</a></dd>
+          </dl>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <div class="largura rodape__linha">
+      <img src="imagens/simbolo.svg" alt="" width="36" height="36">
+      <p>
+        BioquímicaEDU · UNICID · PIBIC/CNPq · 2026.<br>
+        Material de apoio ao estudo; não substitui orientação profissional nem serve para diagnóstico.
+        Fonte Atkinson Hyperlegible, do Braille Institute, sob a licença SIL Open Font License.
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

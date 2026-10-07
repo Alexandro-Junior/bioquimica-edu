@@ -58,14 +58,45 @@ from mobile.telas.pratica import TelaPratica
 from mobile.telas.revisao import TelaRevisao
 from mobile.telas.tutor import TelaTutor
 
+def _encaixar_na_tela(largura, altura):
+    """Tamanho e posição da janela dentro da área livre da tela do Windows
+    (sem a barra de tarefas), em dp. Num notebook de 1366 × 768, ou numa
+    tela Full HD com escala de 125%, a janela padrão passaria da borda de
+    baixo e esconderia os botões do rodapé."""
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        from kivy.metrics import Metrics
+        area = wintypes.RECT()
+        if not ctypes.windll.user32.SystemParametersInfoW(0x30, 0, ctypes.byref(area), 0):
+            return largura, altura, None   # 0x30 = SPI_GETWORKAREA
+    except (AttributeError, OSError, ImportError):
+        return largura, altura, None
+    escala = Metrics.density or 1
+    livre_l = (area.right - area.left) / escala
+    livre_a = (area.bottom - area.top) / escala
+    titulo = 32   # barra de título do Windows, fora da área do app
+    largura = max(360, int(min(largura, livre_l - 32)))
+    altura = max(560, int(min(altura, livre_a - titulo - 16)))
+    esquerda = area.left / escala + (livre_l - largura) / 2
+    topo = area.top / escala + titulo + max(0, (livre_a - titulo - altura) / 2)
+    return largura, altura, (esquerda, topo)
+
+
 if not NO_CELULAR:
     import os
     import sys
     if "--celular" in sys.argv or os.environ.get("BIOQ_JANELA") == "celular":
-        # para testar o formato de celular no computador
-        Window.size = (400, 840)
+        tamanho = (400, 840)   # para testar o formato de celular no computador
     else:
-        Window.size = (1180, 760)
+        tamanho = (1180, 760)
+    posicao = None
+    if sys.platform == "win32":
+        *tamanho, posicao = _encaixar_na_tela(*tamanho)
+    Window.size = tuple(tamanho)
+    if posicao is not None:
+        Window.left, Window.top = posicao
     if not Window.minimum_width:   # janela criada antes deste módulo (testes)
         Window.minimum_width, Window.minimum_height = 360, 560
 # o teclado empurra a tela em vez de cobrir o campo de digitação
