@@ -50,4 +50,17 @@ Desktop.ini
 
 # Arquivos temporários do Word (documento aberto)
 ~$*
+
+# Preferências de acessibilidade da versão mobile rodando no computador
+data/preferencias_mobile.json
+
+# Chaves e credenciais nunca entram no repositório (público). Se o app um
+# dia usar uma API de nuvem, a chave fica no servidor intermediário, lida
+# de variável de ambiente; localmente, num .env fora do controle de versão.
+.env
+.env.*
+*.pem
+google-services.json
+GoogleService-Info.plist
+client_secret*.json
 data/progresso.json

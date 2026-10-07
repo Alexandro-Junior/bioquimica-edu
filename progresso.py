@@ -43,7 +43,10 @@ from datetime import date, timedelta
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent
-ARQUIVO = BASE_DIR / "data" / "progresso.json"
+# BIOQ_PASTA_ALUNO aponta para outra pasta (os testes usam uma temporária,
+# para nunca tocar no progresso real de quem roda o teste)
+PASTA_ALUNO = Path(os.environ.get("BIOQ_PASTA_ALUNO") or BASE_DIR / "data")
+ARQUIVO = PASTA_ALUNO / "progresso.json"
 
 # ── SM-2 ────────────────────────────────────────────────────────────
 FACILIDADE_INICIAL = 2.5
@@ -172,6 +175,7 @@ class Progresso:
             "sessoes": [],      # histórico diário
             "calibracao": [],   # (confiança declarada, acertou)
             "conquistas": [],
+            "casos_resolvidos": [],  # ids dos casos clínicos já acertados
         }
 
     def _carregar(self) -> dict:
@@ -186,23 +190,35 @@ class Progresso:
 
         base = self._vazio()
         if not isinstance(dados, dict):
-            print("[progresso] arquivo fora do formato esperado; começando do zero")
+            print("[progresso] formato inesperado; começando do zero")
             return base
-        # Só aceita cada campo se o tipo bate com o esperado: um arquivo
-        # editado à mão ou de outra versão não pode derrubar o app depois.
-        for chave, padrao in base.items():
-            valor = dados.get(chave)
-            if isinstance(valor, type(padrao)):
-                base[chave] = valor
+        # só entra o que tem o tipo esperado: um campo corrompido volta ao
+        # padrão sem levar o resto junto (arquivo editado à mão, de outra
+        # versão ou gravado pela metade)
+        base.update({k: v for k, v in dados.items()
+                     if k in base and isinstance(v, type(base[k]))})
         base["itens"] = {s: e for s, e in base["itens"].items()
-                         if isinstance(s, str) and isinstance(e, dict)}
+                         if isinstance(s, str) and self._item_valido(e)}
         base["sessoes"] = [s for s in base["sessoes"]
                            if isinstance(s, dict) and isinstance(s.get("data"), str)
                            and isinstance(s.get("revisados"), int)
                            and isinstance(s.get("acertos"), int)]
         base["calibracao"] = [r for r in base["calibracao"]
                               if isinstance(r, dict) and "confianca" in r and "acertou" in r]
+        # ids viram um set: algo não hashável aqui derrubaria a tela de casos
+        base["casos_resolvidos"] = [c for c in base["casos_resolvidos"]
+                                    if isinstance(c, (int, str)) and not isinstance(c, bool)]
         return base
+
+    @staticmethod
+    def _item_valido(e):
+        try:
+            return (isinstance(e, dict)
+                    and int(e["repeticoes"]) >= 0 and int(e["tentativas"]) >= 0
+                    and int(e["acertos"]) >= 0 and float(e["facilidade"]) > 0
+                    and int(e["intervalo"]) >= 0)
+        except (KeyError, TypeError, ValueError):
+            return False
 
     def salvar(self) -> None:
         """Grava em arquivo temporário e troca de uma vez.
@@ -570,10 +586,20 @@ class Progresso:
             })
         return obtidas
 
+    # ── casos clínicos ──────────────────────────────────────────────
+    def casos_resolvidos(self) -> set:
+        return set(self.dados["casos_resolvidos"])
+
+    def marcar_caso_resolvido(self, caso_id) -> None:
+        if caso_id not in self.dados["casos_resolvidos"]:
+            self.dados["casos_resolvidos"].append(caso_id)
+            self.salvar()
+
     # ── resumo para a tela inicial ──────────────────────────────────
-    def resumo(self, siglas: list[str], categorias: dict[str, str]) -> dict:
+    def resumo(self, siglas: list[str], categorias: dict[str, str],
+               limite: int = 12) -> dict:
         """Tudo que a tela inicial precisa, em uma chamada."""
-        fila = self.fila_do_dia(siglas)
+        fila = self.fila_do_dia(siglas, limite)
         vencidos = self.vencidos(siglas)
         reforco = self.reforco_hoje(siglas)
         contagem = self.contagem_estagios(siglas)

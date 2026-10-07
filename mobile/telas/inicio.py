@@ -5,6 +5,10 @@ o cartão verde do topo responde em poucos segundos. Tudo abaixo é
 contexto, na ordem em que ajuda a decidir: o que existe para praticar,
 como está a memória, onde está frágil, e por fim a autoavaliação, a
 constância e os marcos.
+
+No modo foco (TDAH, dificuldade de concentração), a tela para no que
+decide o dia: o cartão de hoje e os atalhos. O restante continua a um
+toque, em "Ver meu progresso", em vez de competir pela atenção.
 """
 
 from datetime import datetime
@@ -17,7 +21,8 @@ from kivy.uix.widget import Widget
 
 from mobile import componentes as C
 from mobile.dados import contar
-from mobile.tema import COR, COR_ESTAGIO, ROTULO_ESTAGIO, cor_categoria
+from mobile.tema import (COR, COR_ESTAGIO, ROTULO_ESTAGIO, cor_categoria, dpt,
+                         texto_grande)
 from mobile.telas.base import TelaBase
 
 DIAS = ["segunda-feira", "terça-feira", "quarta-feira", "quinta-feira",
@@ -26,28 +31,24 @@ MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho",
          "agosto", "setembro", "outubro", "novembro", "dezembro"]
 
 
-def saudacao(agora):
-    if 5 <= agora.hour < 12:
-        return "Bom dia"
-    if 12 <= agora.hour < 18:
-        return "Boa tarde"
-    return "Boa noite"
-
-
 class TelaInicio(TelaBase):
 
-    def montar(self, **_):
+    def montar(self, expandido=False, **_):
         app = self.app
         self.siglas = [m["sigla"] for m in app.marcadores]
         self.categorias = {m["sigla"]: m["categoria"] for m in app.marcadores}
         self.nomes = {m["sigla"]: m["nome"] for m in app.marcadores}
-        self.resumo = app.progresso.resumo(self.siglas, self.categorias)
+        self.resumo = app.progresso.resumo(self.siglas, self.categorias,
+                                           limite=app.prefs["itens_por_sessao"])
 
         scroll, coluna = C.coluna_rolavel(padding=(dp(16), dp(6), dp(16), dp(22)),
                                           spacing=dp(14))
-        secoes = [self._topo(), self._heroi(), self._atalhos(), self._memoria(),
-                  self._focar(), self._sistemas(), self._calibracao(),
-                  self._constancia(), self._marcos()]
+        secoes = [self._topo(), self._heroi(), self._atalhos()]
+        if app.prefs["modo_foco"] and not expandido:
+            secoes.append(self._ver_progresso())
+        else:
+            secoes += [self._memoria(), self._focar(), self._sistemas(),
+                       self._calibracao(), self._constancia(), self._marcos()]
         secoes = [s for s in secoes if s is not None]
         for secao in secoes:
             coluna.add_widget(secao)
@@ -57,30 +58,20 @@ class TelaInicio(TelaBase):
     # ── topo ────────────────────────────────────────────────────────
     def _topo(self):
         agora = datetime.now()
-        linha = BoxLayout(size_hint_y=None, height=dp(68), padding=(dp(2), dp(10), 0, 0))
+        linha = BoxLayout(size_hint_y=None, height=dpt(66), padding=(dp(2), dp(8), 0, 0))
         textos = BoxLayout(orientation="vertical")
-        textos.add_widget(C.rotulo(saudacao(agora), "25sp", COR["tinta"],
-                                   negrito=True, vertical="bottom"))
+        textos.add_widget(C.rotulo("Hoje", "26sp", COR["tinta"], negrito=True,
+                                   vertical="bottom"))
         textos.add_widget(C.rotulo(
-            f"{DIAS[agora.weekday()]}, {agora.day} de {MESES[agora.month - 1]}",
-            "13sp", COR["tinta3"], vertical="top"))
+            f"{DIAS[agora.weekday()].capitalize()}, {agora.day} de {MESES[agora.month - 1]}",
+            "13.5sp", COR["tinta3"], vertical="top"))
         linha.add_widget(textos)
-        linha.add_widget(self._selo_sequencia())
+        ajustes = C.BotaoIcone("acessibilidade", cor=COR["superficie"], elevacao=1,
+                               cor_icone=COR["tinta"], descricao="Acessibilidade",
+                               pos_hint={"center_y": 0.45})
+        ajustes.bind(on_release=lambda *_: self.app.ir_para("acessibilidade"))
+        linha.add_widget(ajustes)
         return linha
-
-    def _selo_sequencia(self):
-        dias = self.resumo["sequencia"]
-        ativo = dias > 0
-        texto = "1 dia" if dias == 1 else f"{dias} dias"
-        selo = C.Superficie(size_hint=(None, None), size=(dp(90), dp(36)),
-                            raio=dp(18), padding=(dp(12), 0), spacing=dp(4),
-                            pos_hint={"center_y": 0.4},
-                            cor_fundo=COR["ambar_suave"] if ativo else COR["superficie_alt"])
-        cor = COR["ambar"] if ativo else COR["tinta3"]
-        selo.add_widget(C.Icone("raio", tamanho=dp(15), color=cor,
-                                pos_hint={"center_y": 0.5}))
-        selo.add_widget(C.rotulo(texto, "13.5sp", cor, negrito=True))
-        return selo
 
     # ── 1. hoje ─────────────────────────────────────────────────────
     def _heroi(self):
@@ -111,28 +102,33 @@ class TelaInicio(TelaBase):
                        "quando a memória precisar.")
 
         heroi = C.Cartao(cor_fundo=COR["acento"], elevacao=1, padding=dp(18),
-                         spacing=dp(16), raio=dp(24))
-        C.decorar_com_moleculas(heroi)
+                         spacing=dp(16), raio=dp(22))
 
-        linha = BoxLayout(spacing=dp(16), size_hint_y=None, height=dp(122))
-        anel = C.AnelDia(cor_arco=COR["branco"], cor_trilho=(1, 1, 1, 0.22),
-                         cor_texto=COR["branco"], size=(dp(106), dp(106)),
-                         pos_hint={"center_y": 0.5})
-        linha.add_widget(anel)
-
-        textos = BoxLayout(orientation="vertical", spacing=dp(5))
-        textos.add_widget(Widget())
+        textos = BoxLayout(orientation="vertical", spacing=dp(6), size_hint_y=None)
+        textos.bind(minimum_height=textos.setter("height"))
         textos.add_widget(C.Texto(text=titulo, estilo="subtitulo", color=COR["branco"],
-                                  font_size="18sp"))
-        textos.add_widget(C.Texto(text=detalhe, estilo="apoio", color=(1, 1, 1, 0.88)))
+                                  font_size="19sp"))
+        textos.add_widget(C.Texto(text=detalhe, estilo="apoio", color=COR["branco"]))
         if fila:
             textos.add_widget(C.Texto(
                 text=f"{contar(len(fila), 'item', 'itens')} · cerca de "
                      f"{r['minutos_estimados']} min",
-                estilo="micro", color=(1, 1, 1, 0.68)))
-        textos.add_widget(Widget())
-        linha.add_widget(textos)
-        heroi.add_widget(linha)
+                estilo="micro", color=COR["branco"], bold=True))
+
+        if texto_grande():
+            # com letra grande o anel tomaria metade da largura do texto
+            heroi.add_widget(textos)
+        else:
+            linha = BoxLayout(spacing=dp(16), size_hint_y=None)
+            anel = C.AnelDia(cor_arco=COR["branco"], cor_trilho=(1, 1, 1, 0.25),
+                             cor_texto=COR["branco"], size=(dp(100), dp(100)),
+                             pos_hint={"center_y": 0.5})
+            linha.add_widget(anel)
+            linha.add_widget(textos)
+            textos.bind(height=lambda *_: setattr(linha, "height",
+                                                  max(dp(108), textos.height)))
+            heroi.add_widget(linha)
+            Clock.schedule_once(lambda _dt: anel.definir(feitos, feitos + len(fila)), 0.3)
 
         destino = "revisao" if fila else "diagnostico"
         botao = C.Botao(acao, variante="claro", cor_texto=COR["acento_escuro"],
@@ -140,54 +136,72 @@ class TelaInicio(TelaBase):
         botao.bind(on_release=lambda *_: app.ir_para(destino))
         heroi.add_widget(botao)
         self.botao_heroi = botao
-
-        Clock.schedule_once(lambda _dt: anel.definir(feitos, feitos + len(fila)), 0.3)
         return heroi
 
     # ── 2. atalhos de prática ───────────────────────────────────────
     def _atalhos(self):
         app = self.app
-        grade = GridLayout(cols=3, spacing=dp(10), size_hint_y=None, height=dp(116))
         resolvidos = len(app.casos_resolvidos)
         itens = [
-            ("cartas", "Cards", f"{len(app.flashcards)} cards", "cartas",
-             COR["ambar"], COR["ambar_suave"]),
-            ("pratica", "Quiz", f"{len(app.quiz)} questões", "quiz",
-             COR["indigo"], COR["indigo_suave"]),
-            ("frasco", "Casos", f"{resolvidos} de {len(app.casos)}", "diagnostico",
-             COR["rubro"], COR["rubro_suave"]),
+            ("cartas", "Cards", f"{len(app.flashcards)} cards", "cartas"),
+            ("pratica", "Quiz", f"{len(app.quiz)} questões", "quiz"),
+            ("frasco", "Casos", f"{resolvidos} de {len(app.casos)}", "diagnostico"),
         ]
-        for icone, titulo, detalhe, destino, cor, suave in itens:
-            atalho = C.LinhaToque(orientation="vertical", padding=dp(14),
-                                  spacing=dp(4), elevacao=1)
-            atalho.add_widget(C.SeloIcone(icone, cor_fundo=suave, cor_icone=cor,
-                                          tamanho=dp(38)))
-            atalho.add_widget(Widget())
-            atalho.add_widget(C.rotulo(titulo, "15sp", COR["tinta"], negrito=True,
-                                       size_hint_y=None, height=dp(20)))
-            atalho.add_widget(C.rotulo(detalhe, "12sp", COR["tinta3"],
-                                       size_hint_y=None, height=dp(16)))
+        colunas = 1 if texto_grande() else 3
+        altura_item = dpt(54) if colunas == 1 else dpt(112)
+        grade = GridLayout(cols=colunas, spacing=dp(10), size_hint_y=None,
+                           height=altura_item * (3 // colunas) + dp(10) * (3 // colunas - 1))
+        for icone, titulo, detalhe, destino in itens:
+            atalho = C.LinhaToque(orientation="vertical" if colunas == 3 else "horizontal",
+                                  padding=dp(14), spacing=dp(6 if colunas == 3 else 14),
+                                  elevacao=1)
+            atalho.descricao = titulo
+            atalho.add_widget(C.SeloIcone(icone, cor_fundo=COR["acento_suave"],
+                                          cor_icone=COR["acento_escuro"], tamanho=dp(38),
+                                          quadrado=True, pos_hint={"center_y": 0.5}))
+            if colunas == 3:
+                atalho.add_widget(Widget())
+            textos = BoxLayout(orientation="vertical")
+            textos.add_widget(C.rotulo(titulo, "15sp", COR["tinta"], negrito=True,
+                                       vertical="bottom"))
+            textos.add_widget(C.rotulo(detalhe, "12.5sp", COR["tinta3"], vertical="top"))
+            if colunas == 3:
+                textos.size_hint_y = None
+                textos.height = dpt(40)
+            atalho.add_widget(textos)
             atalho.bind(on_release=lambda *_, d=destino: app.ir_para(d))
             grade.add_widget(atalho)
         return grade
+
+    def _ver_progresso(self):
+        caixa = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(8))
+        caixa.bind(minimum_height=caixa.setter("height"))
+        r = self.resumo
+        caixa.add_widget(C.Texto(
+            text=f"Modo foco ligado. Domínio geral: {r['dominio_geral'] * 100:.0f}%.",
+            estilo="apoio", halign="center"))
+        ver = C.Botao("Ver meu progresso", variante="neutro", icone="avancar")
+        ver.bind(on_release=lambda *_: self.preparar(expandido=True))
+        caixa.add_widget(ver)
+        return caixa
 
     # ── 3. memória ──────────────────────────────────────────────────
     def _memoria(self):
         r = self.resumo
         cartao = C.Cartao(spacing=dp(14))
 
-        cab = BoxLayout(size_hint_y=None, height=dp(48))
+        cab = BoxLayout(size_hint_y=None, height=dpt(50))
         textos = BoxLayout(orientation="vertical")
         textos.add_widget(C.rotulo("Estado da memória", "17sp", COR["tinta"],
                                    negrito=True, vertical="bottom"))
         textos.add_widget(C.rotulo("Cresce com revisões em intervalos maiores",
-                                   "12sp", COR["tinta3"], vertical="top"))
+                                   "12.5sp", COR["tinta3"], vertical="top", encurtar=True))
         cab.add_widget(textos)
-        valor = BoxLayout(orientation="vertical", size_hint_x=None, width=dp(74))
+        valor = BoxLayout(orientation="vertical", size_hint_x=None, width=dpt(74))
         valor.add_widget(C.rotulo(f"{r['dominio_geral'] * 100:.0f}%", "26sp",
                                   COR["acento"], negrito=True, alinhar="right",
                                   vertical="bottom"))
-        valor.add_widget(C.rotulo("domínio", "11.5sp", COR["tinta3"],
+        valor.add_widget(C.rotulo("domínio", "12sp", COR["tinta3"],
                                   alinhar="right", vertical="top"))
         cab.add_widget(valor)
         cartao.add_widget(cab)
@@ -196,13 +210,15 @@ class TelaInicio(TelaBase):
         cartao.add_widget(barra)
         Clock.schedule_once(lambda _dt: barra.animar(r["estagios"]), 0.35)
 
-        legenda = GridLayout(cols=2, size_hint_y=None, height=dp(52),
+        colunas = 1 if texto_grande() else 2
+        legenda = GridLayout(cols=colunas, size_hint_y=None,
+                             height=dpt(23) * (4 // colunas) + dp(6) * (4 // colunas - 1),
                              spacing=(dp(12), dp(6)))
         for chave in ("consolidado", "firmando", "aprendendo", "novo"):
             item = BoxLayout(spacing=dp(7))
             item.add_widget(C.Ponto(COR_ESTAGIO[chave]))
-            item.add_widget(C.rotulo(ROTULO_ESTAGIO[chave], "12.5sp", COR["tinta2"]))
-            item.add_widget(C.rotulo(str(r["estagios"].get(chave, 0)), "13sp",
+            item.add_widget(C.rotulo(ROTULO_ESTAGIO[chave], "13sp", COR["tinta2"]))
+            item.add_widget(C.rotulo(str(r["estagios"].get(chave, 0)), "13.5sp",
                                      COR["tinta"], negrito=True, alinhar="right",
                                      size_hint_x=None, width=dp(26)))
             legenda.add_widget(item)
@@ -217,19 +233,20 @@ class TelaInicio(TelaBase):
         cartao = C.Cartao(spacing=dp(6))
         cartao.add_widget(C.rotulo("Onde focar", "17sp", COR["tinta"], negrito=True,
                                    size_hint_y=None, height=dp(24)))
-        cartao.add_widget(C.rotulo("Seus marcadores mais frágeis agora", "12.5sp",
+        cartao.add_widget(C.rotulo("Seus marcadores mais frágeis agora", "13sp",
                                    COR["tinta3"], size_hint_y=None, height=dp(20)))
         for sigla, dominio in fracos:
             categoria = self.categorias.get(sigla, "")
-            linha = C.LinhaToque(size_hint_y=None, height=dp(58),
+            linha = C.LinhaToque(size_hint_y=None, height=max(dp(58), dpt(50)),
                                  padding=(dp(4), dp(6), dp(2), dp(6)),
                                  spacing=dp(12), cor_fundo=COR["transparente"],
                                  raio=dp(14))
+            linha.descricao = f"{sigla}, {self.nomes.get(sigla, '')}"
             linha.add_widget(C.Ponto(cor_categoria(categoria), tamanho=dp(10)))
             textos = BoxLayout(orientation="vertical")
             textos.add_widget(C.rotulo(sigla, "15sp", COR["tinta"], negrito=True,
                                        vertical="bottom"))
-            textos.add_widget(C.rotulo(self.nomes.get(sigla, ""), "12.5sp",
+            textos.add_widget(C.rotulo(self.nomes.get(sigla, ""), "13sp",
                                        COR["tinta2"], vertical="top", encurtar=True))
             linha.add_widget(textos)
             barra = C.BarraDominio(size_hint_x=None, width=dp(52),
@@ -237,10 +254,10 @@ class TelaInicio(TelaBase):
                                    cor=COR["rubro"] if dominio < 0.3 else COR["ambar"])
             linha.add_widget(barra)
             Clock.schedule_once(lambda _dt, b=barra, v=dominio: b.animar(max(v, 0.04)), 0.4)
-            linha.add_widget(C.rotulo(f"{dominio * 100:.0f}%", "12.5sp", COR["tinta2"],
+            linha.add_widget(C.rotulo(f"{dominio * 100:.0f}%", "13sp", COR["tinta2"],
                                       negrito=True, alinhar="right",
-                                      size_hint_x=None, width=dp(34)))
-            linha.add_widget(C.Icone("avancar", tamanho=dp(20), color=COR["tinta3"],
+                                      size_hint_x=None, width=dp(36)))
+            linha.add_widget(C.Icone("avancar", tamanho=dp(18), color=COR["tinta3"],
                                      pos_hint={"center_y": 0.5}))
             linha.bind(on_release=lambda *_, s=sigla: self.app.ir_para("detalhe", sigla=s))
             cartao.add_widget(linha)
@@ -254,13 +271,13 @@ class TelaInicio(TelaBase):
                                    size_hint_y=None, height=dp(26)))
         for i, (categoria, valor) in enumerate(itens):
             cor = cor_categoria(categoria)
-            linha = BoxLayout(size_hint_y=None, height=dp(24), spacing=dp(10))
+            linha = BoxLayout(size_hint_y=None, height=dpt(24), spacing=dp(10))
             linha.add_widget(C.Ponto(cor))
             linha.add_widget(C.rotulo(categoria, "13.5sp", COR["tinta"],
                                       size_hint_x=None, width=dp(84)))
             barra = C.BarraDominio(cor=cor, pos_hint={"center_y": 0.5})
             linha.add_widget(barra)
-            linha.add_widget(C.rotulo(f"{valor * 100:.0f}%", "12.5sp", COR["tinta2"],
+            linha.add_widget(C.rotulo(f"{valor * 100:.0f}%", "13sp", COR["tinta2"],
                                       negrito=True, alinhar="right",
                                       size_hint_x=None, width=dp(38)))
             cartao.add_widget(linha)
@@ -271,7 +288,7 @@ class TelaInicio(TelaBase):
     def _calibracao(self):
         cal = self.resumo["calibracao"]
         cartao = C.Cartao(spacing=dp(10))
-        cab = BoxLayout(size_hint_y=None, height=dp(26))
+        cab = BoxLayout(size_hint_y=None, height=dpt(26))
         cab.add_widget(C.rotulo("Autoavaliação", "17sp", COR["tinta"], negrito=True))
         cartao.add_widget(cab)
 
@@ -288,7 +305,7 @@ class TelaInicio(TelaBase):
             Clock.schedule_once(lambda _dt: barra.animar(amostra / 10), 0.5)
             return cartao
 
-        cab.add_widget(C.rotulo(f"{cal['amostra']} respostas", "12sp", COR["tinta3"],
+        cab.add_widget(C.rotulo(f"{cal['amostra']} respostas", "12.5sp", COR["tinta3"],
                                 alinhar="right"))
         regua = C.ReguaCalibracao()
         cartao.add_widget(regua)
@@ -300,10 +317,16 @@ class TelaInicio(TelaBase):
     def _constancia(self):
         atividade = self.resumo["atividade"]
         ativos = sum(1 for _, v in atividade if v)
+        seguidos = self.resumo["sequencia"]
         cartao = C.Cartao(spacing=dp(12))
-        cab = BoxLayout(size_hint_y=None, height=dp(26))
+        cab = BoxLayout(size_hint_y=None, height=dpt(26), spacing=dp(8))
         cab.add_widget(C.rotulo("Constância", "17sp", COR["tinta"], negrito=True))
-        cab.add_widget(C.rotulo("28 dias", "12sp", COR["tinta3"], alinhar="right"))
+        if seguidos > 1:
+            cab.add_widget(C.Icone("calendario", tamanho=dp(16), color=COR["acento"],
+                                   pos_hint={"center_y": 0.5}))
+            cab.add_widget(C.rotulo(f"{seguidos} dias seguidos", "13sp", COR["acento_escuro"],
+                                    negrito=True, alinhar="right", size_hint_x=None,
+                                    width=dp(120)))
         cartao.add_widget(cab)
         grafico = C.Constancia()
         cartao.add_widget(grafico)
@@ -318,30 +341,31 @@ class TelaInicio(TelaBase):
         conquistas = self.resumo["conquistas"]
         obtidas = sum(1 for c in conquistas if c["alcancada"])
         cartao = C.Cartao(spacing=dp(12), padding=(dp(18), dp(18), 0, dp(18)))
-        cab = BoxLayout(size_hint_y=None, height=dp(26), padding=(0, 0, dp(18), 0))
+        cab = BoxLayout(size_hint_y=None, height=dpt(26), padding=(0, 0, dp(18), 0))
         cab.add_widget(C.rotulo("Marcos", "17sp", COR["tinta"], negrito=True))
-        cab.add_widget(C.rotulo(f"{obtidas} de {len(conquistas)}", "12sp",
+        cab.add_widget(C.rotulo(f"{obtidas} de {len(conquistas)}", "12.5sp",
                                 COR["tinta3"], alinhar="right"))
         cartao.add_widget(cab)
 
         # altura para a descrição mais longa ("Consolidou um marcador na
         # memória de longo prazo") caber sem empurrar a estrela para fora
-        faixa, linha = C.faixa_rolavel(dp(140), spacing=dp(10), padding=(0, 0, dp(18), 0))
+        largura = dpt(152)
+        faixa, linha = C.faixa_rolavel(dpt(140), spacing=dp(10), padding=(0, 0, dp(18), 0))
         # os alcançados primeiro: é o que o estudante já conquistou
         for marco in sorted(conquistas, key=lambda c: not c["alcancada"]):
             feito = marco["alcancada"]
             selo = C.Superficie(orientation="vertical", size_hint=(None, None),
-                                size=(dp(152), dp(136)), raio=dp(18),
+                                size=(largura, dpt(136)), raio=dp(16),
                                 padding=dp(12), spacing=dp(4),
                                 cor_fundo=COR["acento_suave"] if feito else COR["superficie_alt"])
             selo.add_widget(C.Icone("estrela" if feito else "estrela_v", tamanho=dp(20),
                                     color=COR["acento"] if feito else COR["tinta3"]))
-            selo.add_widget(C.rotulo(marco["titulo"], "13sp",
+            selo.add_widget(C.rotulo(marco["titulo"], "13.5sp",
                                      COR["acento_escuro"] if feito else COR["tinta2"],
                                      negrito=True, size_hint_y=None, height=dp(20),
                                      encurtar=True))
             descricao = C.Texto(text=marco["descricao"], estilo="micro",
-                                color=COR["tinta2"] if feito else COR["tinta3"])
+                                color=COR["tinta2"])
             selo.add_widget(descricao)
             selo.add_widget(Widget())
             linha.add_widget(selo)

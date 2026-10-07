@@ -8,17 +8,22 @@ etiquetas se mexem do mesmo jeito, e a interface parece uma coisa só.
 
 As animações são curtas e comunicam algo: o botão afunda ao toque (foi
 registrado), as seções sobem ao entrar (a tela carregou), as barras
-crescem até o valor real (quanto você domina). Nada anima por enfeite.
+crescem até o valor real (quanto você domina). Nada anima por enfeite —
+e, com "reduzir animações" ligado, tudo vira mudança instantânea.
+
+Regras de acessibilidade que valem para todas as peças:
+- alvos de toque com pelo menos 44 dp (48 nos botões de ícone);
+- caixas que contêm texto crescem com a escala de texto (`dpt`);
+- no alto contraste, bordas visíveis substituem as sombras.
 """
 
-import math
 from datetime import date
 
 from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.graphics import (Color, Line, PopMatrix, PushMatrix, Rectangle,
                            RoundedRectangle, Scale, Translate)
-from kivy.metrics import dp
+from kivy.metrics import Metrics, dp
 from kivy.properties import BooleanProperty, ListProperty, NumericProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
@@ -28,8 +33,32 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
 from kivy.uix.widget import Widget
 
-from mobile.tema import (COR, COR_ESTAGIO, ESTILO_TEXTO, ICONE, RAIO_BOTAO,
-                         RAIO_CARTAO)
+from mobile.icones import Icone  # noqa: F401  (reexportado para as telas)
+from mobile.tema import (COR, COR_ESTAGIO, ESTILO_TEXTO, RAIO_BOTAO, RAIO_CARTAO,
+                         alto_contraste, dpt, movimento, texto_grande)
+
+
+def _animar(alvo, duracao, t="out_cubic", **valores):
+    """Anima, ou aplica na hora quando o estudante pediu menos movimento."""
+    if not movimento():
+        Animation.cancel_all(alvo, *valores)
+        for chave, valor in valores.items():
+            setattr(alvo, chave, valor)
+        return None
+    anim = Animation(duration=duracao, t=t, **valores)
+    anim.start(alvo)
+    return anim
+
+
+def _afundar(widget, estado, escala_baixo, volta=0.2):
+    """Resposta ao toque: o elemento afunda e volta."""
+    if not movimento():
+        return
+    Animation.cancel_all(widget, "escala")
+    if estado == "down":
+        Animation(escala=escala_baixo, duration=0.07, t="out_quad").start(widget)
+    else:
+        Animation(escala=1.0, duration=volta, t="out_back").start(widget)
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -75,11 +104,13 @@ class Superficie(BoxLayout):
         r = min(self.raio, h / 2, w / 2) if w and h else self.raio
 
         self._translacao.y = self.desloc_y
-        self._escala.origin = self.center
+        # de pos e size: self.center ainda estaria desatualizado aqui
+        self._escala.origin = (x + w / 2, y + h / 2)
         self._escala.x = max(0.001, self.escala * self.escala_x)
         self._escala.y = self.escala
 
-        if self.elevacao and self.cor_fundo[3] > 0:
+        contraste = alto_contraste()
+        if self.elevacao and self.cor_fundo[3] > 0 and not contraste:
             # duas camadas deslocadas para baixo imitam luz vinda de cima
             sombra = COR["sombra"]
             self._cor_sombra_1.rgba = (*sombra[:3], 0.045 * self.elevacao)
@@ -99,7 +130,12 @@ class Superficie(BoxLayout):
         self._fundo.size = (w, h)
         self._fundo.radius = [r]
 
-        self._cor_borda.rgba = self.cor_borda
+        borda = self.cor_borda
+        if borda[3] == 0 and contraste and self.elevacao and self.cor_fundo[3] > 0:
+            # sem sombra, o cartão precisa de contorno para se separar do fundo
+            borda = COR["borda"]
+        self._cor_borda.rgba = borda
+        self._borda.width = dp(1.4) if contraste else dp(1)
         if w > 2 and h > 2:
             self._borda.rounded_rectangle = (x, y, w, h, r)
 
@@ -110,6 +146,12 @@ def aparecer(widgets, atraso=0.05, passo=0.055):
     Guia o olho de cima para baixo, na ordem de importância, sem prender o
     estudante esperando (menos de meio segundo no total).
     """
+    if not movimento():
+        for w in widgets:
+            w.opacity = 1
+            if hasattr(w, "desloc_y"):
+                w.desloc_y = 0
+        return
     for i, w in enumerate(widgets):
         w.opacity = 0
         if hasattr(w, "desloc_y"):
@@ -126,9 +168,9 @@ def aparecer(widgets, atraso=0.05, passo=0.055):
 
 def coluna_rolavel(padding=(dp(16), dp(8), dp(16), dp(24)), spacing=dp(14)):
     """ScrollView vertical com uma coluna que cresce conforme o conteúdo."""
-    scroll = ScrollView(do_scroll_x=False, bar_width=dp(3),
-                        bar_color=(*COR["tinta3"][:3], 0.5),
-                        bar_inactive_color=(*COR["tinta3"][:3], 0.15),
+    scroll = ScrollView(do_scroll_x=False, bar_width=dp(4),
+                        bar_color=(*COR["tinta3"][:3], 0.6),
+                        bar_inactive_color=(*COR["tinta3"][:3], 0.2),
                         scroll_type=["bars", "content"])
     coluna = BoxLayout(orientation="vertical", size_hint_y=None,
                        padding=padding, spacing=spacing)
@@ -156,7 +198,7 @@ def espacador(altura=None, largura=None):
 
 
 # ════════════════════════════════════════════════════════════════════
-# TEXTO E ÍCONES
+# TEXTO
 # ════════════════════════════════════════════════════════════════════
 class Texto(Label):
     """Label que quebra linha e cresce conforme o conteúdo."""
@@ -167,7 +209,7 @@ class Texto(Label):
         kwargs.setdefault("size_hint_y", None)
         kwargs.setdefault("halign", "left")
         kwargs.setdefault("valign", "top")
-        kwargs.setdefault("line_height", 1.12)
+        kwargs.setdefault("line_height", 1.15)
         super().__init__(**kwargs)
         self.bind(width=self._largura, texture_size=self._altura)
 
@@ -180,49 +222,21 @@ class Texto(Label):
 
 def rotulo(texto, tamanho="14sp", cor=None, negrito=False, alinhar="left",
            vertical="middle", encurtar=False, **kwargs):
-    """Label de uma linha que respeita o alinhamento dentro da sua caixa."""
+    """Label de uma linha que respeita o alinhamento dentro da sua caixa.
+
+    Altura e largura fixas pedidas aqui são sempre de texto, então crescem
+    com a escala de texto — senão a letra grande sairia cortada.
+    """
+    fator = max(1.0, Metrics.fontscale)
+    if kwargs.get("size_hint_y", 1) is None and "height" in kwargs:
+        kwargs["height"] *= fator
+    if kwargs.get("size_hint_x", 1) is None and "width" in kwargs:
+        kwargs["width"] *= fator
     r = Label(text=texto, font_size=tamanho, color=cor or COR["tinta"],
               bold=negrito, halign=alinhar, valign=vertical,
               shorten=encurtar, shorten_from="right", **kwargs)
     r.bind(size=lambda l, *_: setattr(l, "text_size", l.size))
     return r
-
-
-class Icone(Label):
-    """Símbolo da fonte de ícones."""
-
-    def __init__(self, nome, tamanho=dp(22), **kwargs):
-        kwargs.setdefault("font_name", "Icones")
-        kwargs.setdefault("font_size", tamanho)
-        kwargs.setdefault("color", COR["tinta2"])
-        kwargs.setdefault("size_hint", (None, None))
-        kwargs.setdefault("size", (tamanho * 1.25, tamanho * 1.25))
-        kwargs.setdefault("halign", "center")
-        kwargs.setdefault("valign", "middle")
-        super().__init__(text=ICONE.get(nome, nome), **kwargs)
-        self.bind(size=lambda *_: setattr(self, "text_size", self.size))
-
-
-class Lupa(Widget):
-    """Ícone de busca desenhado — a fonte de ícones não tem lupa."""
-
-    def __init__(self, cor=None, **kwargs):
-        kwargs.setdefault("size_hint", (None, None))
-        kwargs.setdefault("size", (dp(22), dp(22)))
-        super().__init__(**kwargs)
-        self.cor = cor or COR["tinta3"]
-        self.bind(pos=self._desenhar, size=self._desenhar)
-
-    def _desenhar(self, *_):
-        self.canvas.clear()
-        r = self.width * 0.30
-        cx, cy = self.x + self.width * 0.42, self.y + self.height * 0.58
-        with self.canvas:
-            Color(*self.cor)
-            Line(circle=(cx, cy, r), width=dp(1.6))
-            Line(points=[cx + r * 0.72, cy - r * 0.72,
-                         self.x + self.width * 0.86, self.y + self.height * 0.14],
-                 width=dp(1.8), cap="round")
 
 
 class Ponto(Widget):
@@ -283,7 +297,7 @@ class LinhaToque(ButtonBehavior, Superficie):
 
     def __init__(self, auto_altura=False, **kwargs):
         kwargs.setdefault("cor_fundo", COR["superficie"])
-        kwargs.setdefault("raio", dp(18))
+        kwargs.setdefault("raio", dp(16))
         if auto_altura:
             kwargs["size_hint_y"] = None
         super().__init__(**kwargs)
@@ -291,23 +305,19 @@ class LinhaToque(ButtonBehavior, Superficie):
             self.bind(minimum_height=self.setter("height"))
 
     def on_state(self, _instancia, estado):
-        Animation.cancel_all(self, "escala")
-        if estado == "down":
-            Animation(escala=0.975, duration=0.07, t="out_quad").start(self)
-        else:
-            Animation(escala=1.0, duration=0.2, t="out_back").start(self)
+        _afundar(self, estado, 0.975)
 
 
 class SeloIcone(Superficie):
     """Ícone dentro de um círculo colorido."""
 
     def __init__(self, icone, cor_fundo=None, cor_icone=None, tamanho=dp(40),
-                 tamanho_icone=None, **kwargs):
+                 tamanho_icone=None, quadrado=False, **kwargs):
         kwargs.setdefault("size_hint", (None, None))
         kwargs.setdefault("size", (tamanho, tamanho))
-        super().__init__(cor_fundo=cor_fundo or COR["acento_suave"],
-                         raio=tamanho / 2, **kwargs)
-        self.icone = Icone(icone, tamanho=tamanho_icone or tamanho * 0.46,
+        raio = tamanho * 0.3 if quadrado else tamanho / 2
+        super().__init__(cor_fundo=cor_fundo or COR["acento_suave"], raio=raio, **kwargs)
+        self.icone = Icone(icone, tamanho=tamanho_icone or tamanho * 0.5,
                            color=cor_icone or COR["acento"], size_hint=(1, 1))
         self.add_widget(self.icone)
 
@@ -317,11 +327,11 @@ class Etiqueta(Superficie):
 
     def __init__(self, text, fundo, tinta, **kwargs):
         kwargs.setdefault("size_hint", (None, None))
-        kwargs.setdefault("height", dp(24))
+        kwargs.setdefault("height", dpt(24))
         kwargs.setdefault("padding", (dp(10), 0))
         kwargs.setdefault("pos_hint", {"center_y": 0.5})
-        super().__init__(cor_fundo=fundo, raio=dp(12), **kwargs)
-        self.rotulo = Label(text=text, font_size="11.5sp", bold=True, color=tinta)
+        super().__init__(cor_fundo=fundo, raio=kwargs["height"] / 2, **kwargs)
+        self.rotulo = Label(text=text, font_size="12sp", bold=True, color=tinta)
         self.rotulo.bind(texture_size=lambda *_: setattr(
             self, "width", self.rotulo.texture_size[0] + dp(20)))
         self.add_widget(self.rotulo)
@@ -357,16 +367,22 @@ class Botao(ButtonBehavior, Superficie):
         tinta = cor_texto or tinta
 
         kwargs.setdefault("size_hint_y", None)
-        kwargs.setdefault("height", dp(52))
+        if "height" in kwargs:
+            # a altura pedida é o mínimo; com texto grande, o botão cresce
+            kwargs["height"] = max(kwargs["height"], dpt(kwargs["height"] / dp(1) * 0.86))
+        else:
+            kwargs["height"] = max(dp(52), dpt(46))
         kwargs.setdefault("raio", RAIO_BOTAO)
         kwargs.setdefault("padding", (dp(14), 0))
         kwargs.setdefault("spacing", dp(8))
         super().__init__(cor_fundo=fundo, **kwargs)
+        if alto_contraste() and variante in ("claro", "neutro", "fantasma") and cor is None:
+            self.cor_borda = COR["borda_forte"]
 
         if icone:
             # ícone e texto formam um grupo centralizado
             self.add_widget(Widget())
-            self.icone = Icone(icone, tamanho=dp(17), color=tinta,
+            self.icone = Icone(icone, tamanho=dp(18), color=tinta,
                                pos_hint={"center_y": 0.5})
             self.add_widget(self.icone)
             self.rotulo = Label(text=text, color=tinta, bold=negrito,
@@ -386,7 +402,7 @@ class Botao(ButtonBehavior, Superficie):
         # que some no fundo do botão. A opacidade já comunica o estado.
         self._manter_cor_desabilitado(tinta)
         self.bind(disabled=lambda *_: setattr(self, "opacity",
-                                              0.42 if self.disabled else 1))
+                                              0.45 if self.disabled else 1))
 
     def _manter_cor_desabilitado(self, tinta):
         self.rotulo.disabled_color = tinta
@@ -409,11 +425,7 @@ class Botao(ButtonBehavior, Superficie):
         self._manter_cor_desabilitado(tinta)
 
     def on_state(self, _instancia, estado):
-        Animation.cancel_all(self, "escala")
-        if estado == "down":
-            Animation(escala=0.965, duration=0.07, t="out_quad").start(self)
-        else:
-            Animation(escala=1.0, duration=0.18, t="out_back").start(self)
+        _afundar(self, estado, 0.965, volta=0.18)
 
 
 def titulo_pagina(titulo, subtitulo="", acao=None):
@@ -422,12 +434,12 @@ def titulo_pagina(titulo, subtitulo="", acao=None):
     A linha do título tem altura própria: dividir a caixa ao meio cortava
     o acento de títulos como "Prática".
     """
-    linha = BoxLayout(size_hint_y=None, height=dp(60))
+    linha = BoxLayout(size_hint_y=None, height=dpt(60))
     textos = BoxLayout(orientation="vertical")
     textos.add_widget(rotulo(titulo, "26sp", COR["tinta"], negrito=True,
                              vertical="bottom", size_hint_y=None, height=dp(38)))
     if subtitulo:
-        r = rotulo(subtitulo, "13sp", COR["tinta3"], vertical="top",
+        r = rotulo(subtitulo, "13.5sp", COR["tinta3"], vertical="top",
                    size_hint_y=None, height=dp(22))
         textos.add_widget(r)
         linha.subtitulo = r
@@ -439,22 +451,25 @@ def titulo_pagina(titulo, subtitulo="", acao=None):
 
 
 class BotaoIcone(ButtonBehavior, Superficie):
-    """Botão redondo só com ícone (voltar, fechar, embaralhar, enviar)."""
+    """Botão redondo só com ícone (voltar, fechar, embaralhar, enviar).
 
-    def __init__(self, icone, cor_icone=None, cor=None, tamanho=dp(44), **kwargs):
+    `descricao` diz o que o botão faz; é o texto que um leitor de tela
+    leria, e o que aparece no teste automatizado.
+    """
+
+    def __init__(self, icone, cor_icone=None, cor=None, tamanho=dp(48),
+                 descricao="", **kwargs):
         kwargs.setdefault("size_hint", (None, None))
         kwargs.setdefault("size", (tamanho, tamanho))
         super().__init__(cor_fundo=cor or COR["transparente"],
                          raio=tamanho / 2, **kwargs)
-        self.icone = Icone(icone, tamanho=dp(21), color=cor_icone or COR["tinta"],
+        self.descricao = descricao or icone
+        self.icone = Icone(icone, tamanho=dp(22), color=cor_icone or COR["tinta"],
                            size_hint=(1, 1))
         self.add_widget(self.icone)
 
     def on_state(self, _instancia, estado):
-        Animation.cancel_all(self, "escala")
-        Animation(escala=0.86 if estado == "down" else 1.0,
-                  duration=0.08 if estado == "down" else 0.22,
-                  t="out_quad" if estado == "down" else "out_back").start(self)
+        _afundar(self, estado, 0.86, volta=0.22)
 
 
 class Chip(ButtonBehavior, Superficie):
@@ -463,16 +478,17 @@ class Chip(ButtonBehavior, Superficie):
     selecionado = BooleanProperty(False)
 
     def __init__(self, text, cor_ponto=None, **kwargs):
+        altura = max(dp(44), dpt(38))
         kwargs.setdefault("size_hint", (None, None))
-        kwargs.setdefault("height", dp(36))
-        kwargs.setdefault("padding", (dp(14), 0))
-        kwargs.setdefault("spacing", dp(7))
+        kwargs.setdefault("height", altura)
+        kwargs.setdefault("padding", (dp(16), 0))
+        kwargs.setdefault("spacing", dp(8))
         kwargs.setdefault("pos_hint", {"center_y": 0.5})
-        super().__init__(raio=dp(18), **kwargs)
+        super().__init__(raio=altura / 2, **kwargs)
         self.tem_ponto = cor_ponto is not None
         if self.tem_ponto:
             self.add_widget(Ponto(cor_ponto, tamanho=dp(8)))
-        self.rotulo = Label(text=text, font_size="13.5sp", bold=True,
+        self.rotulo = Label(text=text, font_size="14sp", bold=True,
                             size_hint_x=None)
         self.rotulo.bind(texture_size=self._medir)
         self.add_widget(self.rotulo)
@@ -481,23 +497,137 @@ class Chip(ButtonBehavior, Superficie):
 
     def _medir(self, *_):
         self.rotulo.width = self.rotulo.texture_size[0]
-        extra = dp(15) if self.tem_ponto else 0
-        self.width = self.rotulo.width + dp(28) + extra
+        extra = dp(16) if self.tem_ponto else 0
+        self.width = self.rotulo.width + dp(32) + extra
 
     def _aplicar(self, *_):
         if self.selecionado:
             self.cor_fundo = COR["tinta"]
-            self.cor_borda = COR["transparente"]
+            self.cor_borda = COR["tinta"]
             self.rotulo.color = COR["branco"]
         else:
             self.cor_fundo = COR["superficie"]
-            self.cor_borda = COR["borda"]
+            self.cor_borda = COR["borda_forte"] if alto_contraste() else COR["borda"]
             self.rotulo.color = COR["tinta2"]
 
     def on_state(self, _instancia, estado):
-        Animation.cancel_all(self, "escala")
-        Animation(escala=0.94 if estado == "down" else 1.0,
-                  duration=0.08 if estado == "down" else 0.18).start(self)
+        _afundar(self, estado, 0.95, volta=0.18)
+
+
+class Alternador(ButtonBehavior, Superficie):
+    """Linha de ajuste com chave liga/desliga, tocável em toda a extensão.
+
+    O estado também vai em texto ("Ligado"), para não depender só da cor
+    nem da posição da bolinha.
+    """
+
+    ativo = BooleanProperty(False)
+
+    def __init__(self, titulo, descricao="", ativo=False, icone=None,
+                 ao_mudar=None, **kwargs):
+        kwargs.setdefault("size_hint_y", None)
+        kwargs.setdefault("padding", (dp(14), dp(12), dp(14), dp(12)))
+        kwargs.setdefault("spacing", dp(12))
+        kwargs.setdefault("raio", dp(14))
+        kwargs.setdefault("cor_fundo", COR["transparente"])
+        super().__init__(**kwargs)
+        self.ao_mudar = ao_mudar
+        if icone:
+            self.add_widget(Icone(icone, tamanho=dp(22), color=COR["tinta2"],
+                                  pos_hint={"center_y": 0.5}))
+        textos = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(2))
+        textos.bind(minimum_height=textos.setter("height"))
+        textos.add_widget(Texto(text=titulo, estilo="corpo", bold=True))
+        if descricao:
+            textos.add_widget(Texto(text=descricao, estilo="apoio"))
+        self.estado_texto = Texto(text="", estilo="micro")
+        textos.add_widget(self.estado_texto)
+        self.add_widget(textos)
+        self.chave = Widget(size_hint=(None, None), size=(dp(48), dp(28)),
+                            pos_hint={"center_y": 0.5})
+        self.add_widget(self.chave)
+        self.bind(minimum_height=lambda *_: setattr(
+            self, "height", max(dp(56), self.minimum_height)))
+        self.chave.bind(pos=self._desenhar, size=self._desenhar)
+        self.bind(ativo=self._desenhar)
+        self.bind(disabled=lambda *_: setattr(self, "opacity", 0.5 if self.disabled else 1))
+        self.descricao = titulo
+        self.ativo = ativo
+        self._desenhar()
+
+    def on_release(self):
+        self.ativo = not self.ativo
+        if self.ao_mudar:
+            self.ao_mudar(self.ativo)
+
+    def _desenhar(self, *_):
+        c = self.chave
+        self.estado_texto.text = "Ligado" if self.ativo else "Desligado"
+        c.canvas.clear()
+        with c.canvas:
+            Color(*(COR["acento"] if self.ativo else COR["superficie_alt"]))
+            RoundedRectangle(pos=c.pos, size=c.size, radius=[c.height / 2])
+            Color(*(COR["acento"] if self.ativo else COR["tinta3"]))
+            Line(rounded_rectangle=(c.x, c.y, c.width, c.height, c.height / 2),
+                 width=dp(1.1))
+            Color(*COR["branco"])
+            d = c.height - dp(8)
+            x = c.right - d - dp(4) if self.ativo else c.x + dp(4)
+            RoundedRectangle(pos=(x, c.y + dp(4)), size=(d, d), radius=[d / 2])
+            if not self.ativo:
+                Color(*COR["tinta3"])
+                Line(circle=(x + d / 2, c.y + dp(4) + d / 2, d / 2), width=dp(1))
+
+    def on_state(self, _instancia, estado):
+        _afundar(self, estado, 0.985)
+
+
+class Segmentado(Superficie):
+    """Escolha única entre poucas opções (tamanho do texto, da sessão...).
+
+    Com texto grande, as opções passam para duas colunas em vez de
+    espremer cada rótulo até quebrar no meio da palavra.
+    """
+
+    def __init__(self, opcoes, valor, ao_escolher, **kwargs):
+        from kivy.uix.gridlayout import GridLayout
+
+        colunas = 2 if texto_grande() and len(opcoes) > 2 else len(opcoes)
+        linhas = -(-len(opcoes) // colunas)
+        altura_botao = max(dp(44), dpt(38))
+        kwargs.setdefault("size_hint_y", None)
+        kwargs.setdefault("height", linhas * altura_botao + (linhas - 1) * dp(4) + dp(8))
+        kwargs.setdefault("padding", dp(4))
+        super().__init__(cor_fundo=COR["superficie_alt"], raio=dp(14), **kwargs)
+        if alto_contraste():
+            self.cor_borda = COR["borda_forte"]
+        self.ao_escolher = ao_escolher
+        self.botoes = {}
+        grade = GridLayout(cols=colunas, spacing=dp(4))
+        for chave, texto in opcoes:
+            botao = Botao(texto, variante="claro", height=dp(44), raio=dp(11),
+                          tamanho_fonte="13.5sp", padding=(dp(4), 0))
+            botao.size_hint_y = 1
+            botao.bind(on_release=lambda *_, k=chave: self.escolher(k))
+            grade.add_widget(botao)
+            self.botoes[chave] = botao
+        self.add_widget(grade)
+        self._marcar(valor)
+
+    def _marcar(self, valor):
+        self.valor = valor
+        for chave, botao in self.botoes.items():
+            ativo = chave == valor
+            botao.pintar(COR["superficie"] if ativo else COR["transparente"],
+                         COR["tinta"] if ativo else COR["tinta2"])
+            botao.elevacao = 1 if ativo else 0
+            botao.cor_borda = (COR["tinta"] if ativo and alto_contraste()
+                               else COR["transparente"])
+            botao.rotulo.bold = ativo
+
+    def escolher(self, valor):
+        self._marcar(valor)
+        self.ao_escolher(valor)
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -508,24 +638,140 @@ class CampoTexto(Superficie):
 
     def __init__(self, dica="", lupa=False, **kwargs):
         kwargs.setdefault("size_hint_y", None)
-        kwargs.setdefault("height", dp(50))
-        kwargs.setdefault("padding", (dp(14), dp(4), dp(8), dp(4)))
-        kwargs.setdefault("spacing", dp(8))
-        super().__init__(cor_fundo=COR["superficie"], cor_borda=COR["borda"],
+        kwargs.setdefault("height", max(dp(52), dpt(46)))
+        kwargs.setdefault("padding", (dp(14), dp(2), dp(8), dp(2)))
+        kwargs.setdefault("spacing", dp(10))
+        super().__init__(cor_fundo=COR["superficie"],
+                         cor_borda=COR["borda_forte"] if alto_contraste() else COR["borda"],
                          raio=dp(16), **kwargs)
         if lupa:
-            self.add_widget(Lupa(pos_hint={"center_y": 0.5}))
+            self.add_widget(Icone("busca", tamanho=dp(20), color=COR["tinta3"],
+                                  pos_hint={"center_y": 0.5}))
         self.campo = TextInput(
-            hint_text=dica, multiline=False, font_size="15sp",
+            hint_text=dica, multiline=False, font_size="15.5sp",
             background_normal="", background_active="",
             background_color=(0, 0, 0, 0), foreground_color=COR["tinta"],
             hint_text_color=COR["tinta3"], cursor_color=COR["acento"],
-            padding=(0, dp(13), 0, dp(10)), write_tab=False)
+            cursor_width=dp(2), write_tab=False)
+        # texto centrado na vertical em qualquer escala de fonte
+        self.campo.bind(size=self._centrar, line_height=self._centrar)
         self.campo.bind(focus=self._foco)
         self.add_widget(self.campo)
 
+    def _centrar(self, *_):
+        folga = max(0, (self.campo.height - self.campo.line_height) / 2)
+        self.campo.padding = (0, folga, 0, folga)
+
     def _foco(self, _campo, focado):
-        self.cor_borda = COR["acento"] if focado else COR["borda"]
+        # foco visível: borda mais grossa e na cor de ação
+        self.cor_borda = COR["acento"] if focado else (
+            COR["borda_forte"] if alto_contraste() else COR["borda"])
+        self._borda.width = dp(2) if focado else dp(1)
+
+
+# ════════════════════════════════════════════════════════════════════
+# MENSAGENS E ESTADOS
+# ════════════════════════════════════════════════════════════════════
+AVISOS = {
+    #            ícone     texto            fundo
+    "info":     ("info",   "indigo",        "indigo_suave"),
+    "sucesso":  ("check",  "acento_escuro", "acento_suave"),
+    "atencao":  ("alerta", "ambar",         "ambar_suave"),
+    "erro":     ("alerta", "rubro",         "rubro_suave"),
+}
+
+
+class Aviso(Superficie):
+    """Mensagem curta no fluxo da tela: informação, sucesso, atenção, erro.
+
+    Sempre com ícone e texto, nunca só cor, para quem não distingue cores.
+    """
+
+    def __init__(self, texto, tipo="info", titulo=None, **kwargs):
+        icone, tinta, fundo = AVISOS.get(tipo, AVISOS["info"])
+        kwargs.setdefault("size_hint_y", None)
+        kwargs.setdefault("padding", (dp(14), dp(12)))
+        kwargs.setdefault("spacing", dp(12))
+        super().__init__(cor_fundo=COR[fundo], raio=dp(14), **kwargs)
+        if alto_contraste():
+            self.cor_borda = COR[tinta]
+        caixa = BoxLayout(orientation="vertical", size_hint=(None, None),
+                          size=(dp(22), dp(22)), pos_hint={"top": 1})
+        caixa.add_widget(Icone(icone, tamanho=dp(20), color=COR[tinta], size_hint=(1, 1)))
+        self.add_widget(caixa)
+        textos = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(2))
+        textos.bind(minimum_height=textos.setter("height"))
+        if titulo:
+            textos.add_widget(Texto(text=titulo, estilo="corpo", bold=True, color=COR[tinta]))
+        self.texto = Texto(text=texto, estilo="apoio", color=COR["tinta"])
+        textos.add_widget(self.texto)
+        self.add_widget(textos)
+        self.bind(minimum_height=self.setter("height"))
+
+
+class Digitando(Superficie):
+    """Indicador de que o tutor está respondendo: três pontos que pulsam.
+
+    Com movimento reduzido, vira um texto parado.
+    """
+
+    def __init__(self, texto="Pensando", **kwargs):
+        kwargs.setdefault("size_hint", (None, None))
+        kwargs.setdefault("size", (dp(76), dp(44)))
+        super().__init__(cor_fundo=COR["superficie"], raio=dp(20), elevacao=1,
+                         padding=(dp(18), 0), spacing=dp(7), **kwargs)
+        self.descricao = texto
+        if not movimento():
+            self.width = dp(130)
+            self.add_widget(rotulo(f"{texto}…", "14sp", COR["tinta2"]))
+            return
+        self.pontos = []
+        for i in range(3):
+            ponto = Ponto(COR["tinta3"], tamanho=dp(8))
+            self.add_widget(ponto)
+            self.pontos.append(ponto)
+            Clock.schedule_once(lambda _dt, p=ponto: self._pulsar(p), i * 0.16)
+
+    def _pulsar(self, ponto):
+        anim = (Animation(opacity=0.25, duration=0.4, t="in_out_sine")
+                + Animation(opacity=1, duration=0.4, t="in_out_sine"))
+        anim.repeat = True
+        anim.start(ponto)
+
+    def parar(self):
+        for ponto in getattr(self, "pontos", []):
+            Animation.cancel_all(ponto)
+
+
+def botao_ouvir(app, obter_texto, rotulo_botao="Ouvir"):
+    """Botão de leitura em voz alta, ou None se a voz estiver desligada.
+
+    Recebe uma função, e não o texto, para ler o que estiver na tela no
+    momento do toque.
+    """
+    if not app.voz_ligada():
+        return None
+    botao = Botao(rotulo_botao, variante="neutro", icone="voz", height=dp(44),
+                  tamanho_fonte="14sp", size_hint_x=None, padding=(dp(14), 0))
+    # rótulo + ícone (caixa de 1,25 × 18 dp) + três vãos de 8 dp + margens
+    botao.rotulo.bind(texture_size=lambda r, *_: setattr(
+        botao, "width", r.texture_size[0] + dp(22.5) + dp(24) + dp(28) + dp(4)))
+    botao.descricao = "Ler em voz alta"
+    botao.bind(on_release=lambda *_: app.falar(obter_texto()))
+    return botao
+
+
+def linha_acoes(*widgets):
+    """Fileira de botões pequenos alinhados à esquerda (ouvir, Libras)."""
+    widgets = [w for w in widgets if w is not None]
+    if not widgets:
+        return None
+    linha = BoxLayout(size_hint_y=None, height=max(w.height for w in widgets),
+                      spacing=dp(8))
+    for w in widgets:
+        linha.add_widget(w)
+    linha.add_widget(Widget())
+    return linha
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -545,9 +791,7 @@ class BarraProgresso(Widget):
         self.bind(pos=self._desenhar, size=self._desenhar, valor=self._desenhar)
 
     def animar(self, alvo, duracao=0.6):
-        Animation.cancel_all(self, "valor")
-        Animation(valor=max(0.0, min(1.0, alvo)), duration=duracao,
-                  t="out_cubic").start(self)
+        _animar(self, duracao, valor=max(0.0, min(1.0, alvo)))
 
     def _desenhar(self, *_):
         self.canvas.clear()
@@ -557,6 +801,10 @@ class BarraProgresso(Widget):
         with self.canvas:
             Color(*self.cor_trilho)
             RoundedRectangle(pos=self.pos, size=self.size, radius=[r])
+            if alto_contraste():
+                Color(*COR["tinta3"])
+                Line(rounded_rectangle=(self.x, self.y, self.width, self.height, r),
+                     width=dp(0.8))
             w = self.width * self.valor
             if w > 0.5:
                 Color(*self.cor)
@@ -588,10 +836,9 @@ class AnelDia(FloatLayout):
         self.numero = Label(text="", font_size=tamanho_numero, bold=True,
                             color=cor_texto, size_hint=(1, None), height=dp(38),
                             pos_hint={"center_x": 0.5, "center_y": 0.56})
-        self.legenda = Label(text="", font_size="11sp", color=cor_texto,
+        self.legenda = Label(text="", font_size="11.5sp", color=cor_texto,
                              size_hint=(1, None), height=dp(16),
-                             pos_hint={"center_x": 0.5, "center_y": 0.32})
-        self.legenda.opacity = 0.8
+                             pos_hint={"center_x": 0.5, "center_y": 0.31})
         self.add_widget(self.numero)
         self.add_widget(self.legenda)
         self.bind(pos=self._desenhar, size=self._desenhar, fracao=self._desenhar)
@@ -606,15 +853,15 @@ class AnelDia(FloatLayout):
         self.numero.text = numero
         self.legenda.text = legenda
         self.fracao = 0.0
-        Animation(fracao=max(0.0, min(1.0, fracao)), duration=0.9,
-                  t="out_cubic").start(self)
+        _animar(self, 0.9, fracao=max(0.0, min(1.0, fracao)))
 
     def _desenhar(self, *_):
         self.canvas.before.clear()
         lado = min(self.width, self.height)
         if lado <= 1:
             return
-        cx, cy = self.center
+        # do pos e do size, não de self.center (ver Icone._desenhar)
+        cx, cy = self.x + self.width / 2, self.y + self.height / 2
         r = lado / 2 - self.espessura / 2 - dp(1)
         with self.canvas.before:
             Color(*self.cor_trilho)
@@ -640,7 +887,7 @@ class BarraEstagios(Widget):
     def animar(self, contagem):
         self.contagem = contagem
         self.avanco = 0.0
-        Animation(avanco=1.0, duration=0.8, t="out_cubic").start(self)
+        _animar(self, 0.8, avanco=1.0)
 
     def _desenhar(self, *_):
         self.canvas.clear()
@@ -681,7 +928,7 @@ class ReguaCalibracao(Widget):
 
     def __init__(self, **kwargs):
         kwargs.setdefault("size_hint_y", None)
-        kwargs.setdefault("height", dp(64))
+        kwargs.setdefault("height", dpt(64))
         super().__init__(**kwargs)
         self.confianca = 0.0
         self.acerto = 0.0
@@ -691,7 +938,7 @@ class ReguaCalibracao(Widget):
     def animar(self, confianca, acerto):
         self.confianca, self.acerto = confianca, acerto
         self.avanco = 0.0
-        Animation(avanco=1.0, duration=0.9, t="out_cubic").start(self)
+        _animar(self, 0.9, avanco=1.0)
 
     def _desenhar(self, *_):
         self.canvas.clear()
@@ -720,10 +967,11 @@ class ReguaCalibracao(Widget):
                 Color(*cor)
                 RoundedRectangle(pos=(px - dp(6.5), y - dp(6.5)),
                                  size=(dp(13), dp(13)), radius=[dp(6.5)])
-        for px, texto, cor, dy in ((ax, "acerto", COR["acento"], -dp(20)),
-                                   (cx, "confiança", COR["indigo"], dp(20))):
-            r = Label(text=texto, font_size="11sp", bold=True, color=cor,
-                      size_hint=(None, None), size=(dp(80), dp(16)),
+        deslocamento = dpt(20)
+        for px, texto, cor, dy in ((ax, "acerto", COR["acento"], -deslocamento),
+                                   (cx, "confiança", COR["indigo"], deslocamento)):
+            r = Label(text=texto, font_size="12sp", bold=True, color=cor,
+                      size_hint=(None, None), size=(dpt(80), dpt(16)),
                       center=(px, y + dy))
             self.add_widget(r)
             self._rotulos.append(r)
@@ -748,7 +996,7 @@ class Constancia(Widget):
     def animar(self, dados):
         self.dados = dados
         self.avanco = 0.0
-        Animation(avanco=1.0, duration=0.8, t="out_cubic").start(self)
+        _animar(self, 0.8, avanco=1.0)
 
     def _desenhar(self, *_):
         self.canvas.clear()
@@ -781,12 +1029,13 @@ class Cabecalho(BoxLayout):
     def __init__(self, titulo, ao_voltar=None, acao=None, subtitulo="",
                  icone_voltar="voltar", **kwargs):
         kwargs.setdefault("size_hint_y", None)
-        kwargs.setdefault("height", dp(64))
-        kwargs.setdefault("padding", (dp(6), dp(8), dp(12), dp(8)))
+        kwargs.setdefault("height", max(dp(64), dpt(58)))
+        kwargs.setdefault("padding", (dp(4), dp(6), dp(12), dp(6)))
         kwargs.setdefault("spacing", dp(4))
         super().__init__(**kwargs)
         if ao_voltar is not None:
-            self.botao_voltar = BotaoIcone(icone_voltar, pos_hint={"center_y": 0.5})
+            self.botao_voltar = BotaoIcone(icone_voltar, pos_hint={"center_y": 0.5},
+                                           descricao="Voltar")
             self.botao_voltar.bind(on_release=lambda *_: ao_voltar())
             self.add_widget(self.botao_voltar)
         else:
@@ -796,7 +1045,7 @@ class Cabecalho(BoxLayout):
         textos.add_widget(rotulo(titulo, "19sp", COR["tinta"], negrito=True,
                                  vertical="bottom" if subtitulo else "middle"))
         if subtitulo:
-            textos.add_widget(rotulo(subtitulo, "12.5sp", COR["tinta3"], vertical="top"))
+            textos.add_widget(rotulo(subtitulo, "13sp", COR["tinta3"], vertical="top"))
         self.add_widget(textos)
         if acao is not None:
             acao.pos_hint = {"center_y": 0.5}
@@ -808,13 +1057,14 @@ class ItemNavegacao(ButtonBehavior, BoxLayout):
         super().__init__(orientation="vertical", padding=(0, dp(8), 0, dp(6)),
                          spacing=dp(2), **kwargs)
         self.chave = chave
+        self.descricao = texto
         caixa = FloatLayout(size_hint_y=None, height=dp(32))
-        self.icone = Icone(icone, tamanho=dp(20), color=COR["tinta3"],
+        self.icone = Icone(icone, tamanho=dp(22), color=COR["tinta3"],
                            pos_hint={"center_x": 0.5, "center_y": 0.5})
         caixa.add_widget(self.icone)
         self.add_widget(caixa)
-        self.rotulo = Label(text=texto, font_size="11.5sp", color=COR["tinta3"],
-                            size_hint_y=None, height=dp(16))
+        self.rotulo = Label(text=texto, font_size="12sp", color=COR["tinta3"],
+                            size_hint_y=None, height=dpt(16))
         self.add_widget(self.rotulo)
 
     def ativar(self, ativo):
@@ -832,7 +1082,6 @@ class BarraNavegacao(FloatLayout):
     """
 
     pilula_x = NumericProperty(-1000.0)
-    ALTURA = dp(70)
 
     ITENS = [
         ("inicio",  "inicio",  "Início"),
@@ -842,16 +1091,20 @@ class BarraNavegacao(FloatLayout):
         ("tutor",   "tutor",   "Tutor"),
     ]
 
+    @staticmethod
+    def altura():
+        return dp(54) + dpt(16)
+
     def __init__(self, ao_escolher, **kwargs):
         kwargs.setdefault("size_hint_y", None)
-        kwargs.setdefault("height", self.ALTURA)
+        kwargs.setdefault("height", self.altura())
         super().__init__(**kwargs)
         self.ao_escolher = ao_escolher
         self.ativa = None
         with self.canvas.before:
             Color(*COR["superficie"])
             self._fundo = Rectangle()
-            Color(*COR["borda"])
+            Color(*(COR["borda_forte"] if alto_contraste() else COR["borda"]))
             self._linha = Rectangle()
             Color(*COR["acento_suave"])
             self._pilula = RoundedRectangle(radius=[dp(16)])
@@ -872,7 +1125,8 @@ class BarraNavegacao(FloatLayout):
 
     def _reposicionar(self, *_):
         if self.ativa in self.itens and not self._animando:
-            self.pilula_x = self.itens[self.ativa].center_x
+            item = self.itens[self.ativa]
+            self.pilula_x = item.x + item.width / 2
 
     def _desenhar(self, *_):
         self._fundo.pos = self.pos
@@ -891,9 +1145,9 @@ class BarraNavegacao(FloatLayout):
             return
 
         def mover(_dt):
-            destino = item.center_x
+            destino = item.x + item.width / 2
             Animation.cancel_all(self, "pilula_x")
-            if animar and self.pilula_x > 0:
+            if animar and self.pilula_x > 0 and movimento():
                 self._animando = True
                 anim = Animation(pilula_x=destino, duration=0.32, t="out_cubic")
                 anim.bind(on_complete=self._fim_animacao)
@@ -906,39 +1160,3 @@ class BarraNavegacao(FloatLayout):
     def _fim_animacao(self, *_):
         self._animando = False
         self._reposicionar()
-
-
-def _hexagono(cx, cy, r):
-    pontos = []
-    for i in range(7):
-        ang = math.radians(60 * i + 30)
-        pontos += [cx + r * math.cos(ang), cy + r * math.sin(ang)]
-    return pontos
-
-
-def decorar_com_moleculas(superficie, cor=(1, 1, 1, 0.10)):
-    """Anéis hexagonais discretos no canto da superfície — a marca do app.
-
-    São desenhados no próprio canvas da superfície, logo depois do fundo:
-    ficam atrás do conteúdo, acompanham as animações dela e, calculados a
-    partir das bordas dela, nunca vazam para fora do cartão.
-    """
-    with superficie.canvas.before:
-        Color(*cor)
-        aneis = [Line(width=dp(1.4)) for _ in range(3)]
-        circulo = Line(width=dp(1.1))
-
-    def atualizar(*_):
-        r = dp(26)
-        dx = r * math.sqrt(3)
-        # metade da largura do hexágono é r·cos30; a margem mantém o anel
-        # longe do canto arredondado
-        cx = superficie.right - dp(18) - r * 0.866
-        cy = superficie.top - dp(16) - r
-        centros = ((cx, cy), (cx - dx, cy), (cx - dx / 2, cy - r * 1.5))
-        for anel, (x, y) in zip(aneis, centros):
-            anel.points = _hexagono(x, y, r)
-        circulo.circle = (cx, cy, r * 0.55)
-
-    superficie.bind(pos=atualizar, size=atualizar)
-    atualizar()

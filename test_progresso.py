@@ -156,15 +156,32 @@ class TestPersistencia(BaseProgresso):
             p.resumo(SIGLAS, {})  # tudo que a tela inicial lê
             p.registrar_resposta("ALT", 4)
 
-    def test_item_com_campos_faltando_ou_data_invalida(self):
-        self.caminho.write_text(json.dumps({
-            "itens": {"ALT": {"tentativas": 2},
-                      "AST": {"tentativas": 1, "proxima_revisao": "ontem"}},
-        }), encoding="utf-8")
+    def test_item_incompleto_e_descartado(self):
+        self.caminho.write_text(json.dumps({"itens": {"ALT": {"tentativas": 2}}}),
+                                encoding="utf-8")
         p = self.novo()
+        self.assertEqual(p.estado("ALT")["tentativas"], 0)
         self.assertEqual(p.estado("ALT")["facilidade"], progresso.FACILIDADE_INICIAL)
-        self.assertEqual(p.vencidos(SIGLAS), [])
+
+    def test_data_de_revisao_ilegivel_nao_derruba(self):
+        completo = {"repeticoes": 1, "facilidade": 2.5, "intervalo": 1, "acertos": 1,
+                    "tentativas": 1, "ultima_revisao": "2026-03-09"}
+        self.caminho.write_text(json.dumps({"itens": {
+            "ALT": {**completo, "proxima_revisao": "ontem"},
+            "AST": {**completo, "proxima_revisao": 20260309},
+            "GLI": {**completo, "proxima_revisao": "2026-03-09"},
+        }}), encoding="utf-8")
+        p = self.novo()
+        self.assertEqual(p.vencidos(SIGLAS), ["GLI"])
         p.resumo(SIGLAS, {})
+
+    def test_casos_resolvidos_fora_do_formato(self):
+        self.caminho.write_text(json.dumps({"casos_resolvidos": [3, {"x": 1}, [2], True, "7"]}),
+                                encoding="utf-8")
+        p = self.novo()
+        self.assertEqual(p.casos_resolvidos(), {3, "7"})
+        p.marcar_caso_resolvido(4)
+        self.assertEqual(self.novo().casos_resolvidos(), {3, "7", 4})
 
 
 class TestVinculoComMarcadores(unittest.TestCase):

@@ -16,11 +16,13 @@ diferentes. Cada botão mostra quando o marcador volta.
 from kivy.clock import Clock
 from kivy.metrics import dp, sp
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.widget import Widget
+from kivy.utils import escape_markup
 
 from mobile import componentes as C
 from mobile.dados import formatar_numero
-from mobile.tema import COR, cor_categoria
+from mobile.tema import COR, cor_categoria, cor_categoria_texto, dpt, texto_grande
 from mobile.telas.base import TelaBase
 
 AVALIACOES = [
@@ -31,6 +33,21 @@ AVALIACOES = [
 ]
 
 CONFIANCA = [(1, "Nada"), (2, "Pouco"), (3, "Médio"), (4, "Bem"), (5, "Total")]
+
+
+def grade_botoes(botoes, colunas, altura, espaco=dp(8)):
+    """Botões em grade; com texto grande, mais linhas e menos colunas."""
+    linhas = -(-len(botoes) // colunas)
+    grade = GridLayout(cols=colunas, size_hint_y=None, spacing=espaco,
+                       height=linhas * altura + (linhas - 1) * espaco)
+    for botao in botoes:
+        grade.add_widget(botao)
+    return grade
+
+
+def falar_numero(texto):
+    """'3,5 – 5' é lido como "três vírgula cinco traço cinco"; "a" soa natural."""
+    return texto.replace(" – ", " a ")
 
 
 def texto_intervalo(dias):
@@ -48,16 +65,18 @@ class TelaRevisao(TelaBase):
         app = self.app
         self.progresso = app.progresso
         self.por_sigla = {m["sigla"]: m for m in app.marcadores}
-        self.fila = self.progresso.fila_do_dia(list(self.por_sigla))
+        self.limite = app.prefs["itens_por_sessao"]
+        self.fila = self.progresso.fila_do_dia(list(self.por_sigla), self.limite)
         self.posicao = 0
         self.acertos = 0
         self.confianca = None
         self.revelado = False
 
         raiz = BoxLayout(orientation="vertical")
-        topo = BoxLayout(size_hint_y=None, height=dp(64),
-                         padding=(dp(6), dp(10), dp(18), dp(10)), spacing=dp(10))
-        fechar = C.BotaoIcone("fechar", pos_hint={"center_y": 0.5})
+        topo = BoxLayout(size_hint_y=None, height=max(dp(64), dpt(56)),
+                         padding=(dp(6), dp(8), dp(18), dp(8)), spacing=dp(10))
+        fechar = C.BotaoIcone("fechar", pos_hint={"center_y": 0.5},
+                              descricao="Encerrar a revisão")
         fechar.bind(on_release=lambda *_: app.voltar())
         topo.add_widget(fechar)
         self.barra = C.BarraProgresso(pos_hint={"center_y": 0.5})
@@ -97,9 +116,10 @@ class TelaRevisao(TelaBase):
                                        spacing=dp(14))
         self.scroll, self.col = scroll, col
 
-        cartao = C.Cartao(padding=dp(22), spacing=dp(10), raio=dp(24))
-        etiquetas = BoxLayout(size_hint_y=None, height=dp(24))
-        etiquetas.add_widget(C.Etiqueta(m["categoria"], (*cor[:3], 0.14), cor))
+        cartao = C.Cartao(padding=dp(22), spacing=dp(10), raio=dp(22))
+        etiquetas = BoxLayout(size_hint_y=None, height=dpt(24))
+        etiquetas.add_widget(C.Etiqueta(m["categoria"], (*cor[:3], 0.14),
+                                        cor_categoria_texto(m["categoria"])))
         etiquetas.add_widget(Widget())
         cartao.add_widget(etiquetas)
         cartao.add_widget(C.Texto(text=m["nome"], estilo="titulo"))
@@ -107,9 +127,11 @@ class TelaRevisao(TelaBase):
         cartao.add_widget(C.espacador(dp(2)))
         cartao.add_widget(C.Divisor())
         cartao.add_widget(C.espacador(dp(2)))
-        cartao.add_widget(C.Texto(
-            text="Qual é a faixa de referência e o que significa estar alterado?",
-            estilo="corpo", font_size="16.5sp"))
+        pergunta = "Qual é a faixa de referência e o que significa estar alterado?"
+        cartao.add_widget(C.Texto(text=pergunta, estilo="corpo", font_size="16.5sp"))
+        acoes = C.linha_acoes(C.botao_ouvir(self.app, lambda: f"{m['nome']}. {pergunta}"))
+        if acoes is not None:
+            cartao.add_widget(acoes)
         col.add_widget(cartao)
 
         self.bloco_confianca = BoxLayout(orientation="vertical", size_hint_y=None,
@@ -117,16 +139,17 @@ class TelaRevisao(TelaBase):
         self.bloco_confianca.bind(minimum_height=self.bloco_confianca.setter("height"))
         self.bloco_confianca.add_widget(C.Texto(
             text="Antes de ver: quanto você acha que sabe?", estilo="apoio"))
-        grade = BoxLayout(size_hint_y=None, height=dp(46), spacing=dp(6))
         self.botoes_confianca = []
         for valor, texto in CONFIANCA:
             botao = C.Botao(texto, variante="claro", cor_texto=COR["tinta2"],
-                            cor_borda=COR["borda"], tamanho_fonte="13.5sp",
-                            height=dp(46), raio=dp(12), padding=(dp(4), 0))
+                            cor_borda=COR["borda_forte"], tamanho_fonte="14sp",
+                            height=dp(48), raio=dp(12), padding=(dp(4), 0))
+            botao.descricao = f"Confiança: {texto}"
             botao.bind(on_release=lambda *_, v=valor: self._definir_confianca(v))
-            grade.add_widget(botao)
             self.botoes_confianca.append((valor, botao))
-        self.bloco_confianca.add_widget(grade)
+        botoes = [b for _, b in self.botoes_confianca]
+        self.bloco_confianca.add_widget(grade_botoes(
+            botoes, 3 if texto_grande() else 5, botoes[0].height, espaco=dp(6)))
         col.add_widget(self.bloco_confianca)
 
         self.botao_revelar = C.Botao("Mostrar resposta", variante="primario")
@@ -150,10 +173,10 @@ class TelaRevisao(TelaBase):
         for v, botao in self.botoes_confianca:
             if v == valor:
                 botao.pintar(COR["tinta"], COR["branco"])
-                botao.cor_borda = COR["transparente"]
+                botao.cor_borda = COR["tinta"]
             else:
                 botao.pintar(COR["superficie"], COR["tinta2"])
-                botao.cor_borda = COR["borda"]
+                botao.cor_borda = COR["borda_forte"]
         self.botao_revelar.disabled = False
 
     def _revelar(self):
@@ -169,15 +192,16 @@ class TelaRevisao(TelaBase):
         if self.botao_revelar.parent is not None:
             self.col.remove_widget(self.botao_revelar)
 
-        resposta = C.Superficie(orientation="vertical", size_hint_y=None, height=dp(96),
-                                cor_fundo=COR["acento_suave"], raio=dp(20),
+        resposta = C.Superficie(orientation="vertical", size_hint_y=None, height=dpt(96),
+                                cor_fundo=COR["acento_suave"], raio=dp(18),
                                 padding=(dp(18), dp(14)))
-        resposta.add_widget(C.rotulo("FAIXA DE REFERÊNCIA", "11sp", COR["acento_escuro"],
+        resposta.add_widget(C.rotulo("FAIXA DE REFERÊNCIA", "12sp", COR["acento_escuro"],
                                      negrito=True, vertical="bottom"))
         faixa = (f"{formatar_numero(m['valor_ref_min'])} – "
                  f"{formatar_numero(m['valor_ref_max'])}")
         resposta.add_widget(C.rotulo(
-            f"[b]{faixa}[/b]  [size={int(sp(15))}]{m['unidade']}[/size]",
+            f"[b]{escape_markup(faixa)}[/b]  "
+            f"[size={int(sp(15))}]{escape_markup(m['unidade'])}[/size]",
             "30sp", COR["acento_escuro"], vertical="top", markup=True))
 
         alto = self._interpretacao("sobe", "Quando está elevado",
@@ -187,23 +211,36 @@ class TelaRevisao(TelaBase):
                                     m.get("interpretacao_baixa"),
                                     COR["indigo"], COR["indigo_suave"])
 
+        texto_lido = (f"{m['nome']}. Faixa de referência: {falar_numero(faixa)} "
+                      f"{m['unidade']}. Quando está elevado: {m.get('interpretacao_alta', '')}. "
+                      f"Quando está baixo: {m.get('interpretacao_baixa', '')}.")
+        libras = None
+        if self.app.prefs["atalho_libras"]:
+            libras = C.Botao("Libras", variante="neutro", icone="libras", height=dp(44),
+                             tamanho_fonte="14sp", size_hint_x=None, width=dpt(112))
+            libras.bind(on_release=lambda *_: self.app.abrir_libras(texto_lido))
+        acoes = C.linha_acoes(C.botao_ouvir(self.app, lambda: texto_lido), libras)
+
         avaliacao = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(10))
         avaliacao.bind(minimum_height=avaliacao.setter("height"))
         avaliacao.add_widget(C.Texto(text="Como foi lembrar?", estilo="apoio"))
-        grade = BoxLayout(size_hint_y=None, height=dp(66), spacing=dp(8))
+        botoes = []
         for texto, qualidade, chave in AVALIACOES:
             dias = self._previsao(sigla, qualidade)
-            botao = C.Botao(f"{texto}\n[size={int(sp(12))}]{texto_intervalo(dias)}[/size]",
+            quando = texto_intervalo(dias)
+            botao = C.Botao(f"{texto}\n[size={int(sp(12.5))}]{quando}[/size]",
                             cor=COR[chave], cor_texto=COR["branco"], height=dp(66),
-                            tamanho_fonte="14.5sp", raio=dp(16), padding=(dp(4), 0))
+                            tamanho_fonte="15sp", raio=dp(14), padding=(dp(4), 0))
             botao.rotulo.markup = True
+            botao.descricao = f"{texto}: volta {quando if dias > 1 else 'amanhã'}"
             botao.bind(on_release=lambda *_, q=qualidade: self._responder(q))
-            grade.add_widget(botao)
-        avaliacao.add_widget(grade)
+            botoes.append(botao)
+        avaliacao.add_widget(grade_botoes(botoes, 2 if texto_grande() else 4,
+                                          botoes[0].height))
         avaliacao.add_widget(C.Texto(text="A escolha define quando este marcador volta.",
                                      estilo="micro", halign="center"))
 
-        blocos = [resposta, alto, baixo, avaliacao]
+        blocos = [resposta, *([acoes] if acoes is not None else []), alto, baixo, avaliacao]
         for bloco in blocos:
             self.area_resposta.add_widget(bloco)
         C.aparecer(blocos, atraso=0.0, passo=0.06)
@@ -212,10 +249,10 @@ class TelaRevisao(TelaBase):
 
     def _interpretacao(self, icone, titulo, texto, cor, fundo):
         cartao = C.Cartao(padding=dp(16), spacing=dp(8))
-        cab = BoxLayout(size_hint_y=None, height=dp(30), spacing=dp(10))
+        cab = BoxLayout(size_hint_y=None, height=dpt(30), spacing=dp(10))
         cab.add_widget(C.SeloIcone(icone, cor_fundo=fundo, cor_icone=cor, tamanho=dp(30),
                                    pos_hint={"center_y": 0.5}))
-        cab.add_widget(C.rotulo(titulo, "15.5sp", COR["tinta"], negrito=True))
+        cab.add_widget(C.rotulo(titulo, "16sp", COR["tinta"], negrito=True))
         cartao.add_widget(cab)
         cartao.add_widget(C.Texto(text=texto or "—", estilo="corpo"))
         return cartao
@@ -289,7 +326,7 @@ class TelaRevisao(TelaBase):
         cartao.add_widget(C.Texto(text=f"{self.acertos} de {total} marcadores lembrados",
                                   estilo="apoio", halign="center"))
 
-        restante = self.progresso.fila_do_dia(list(self.por_sigla))
+        restante = self.progresso.fila_do_dia(list(self.por_sigla), self.limite)
         if restante:
             cartao.add_widget(C.Texto(
                 text=f"Ainda há {len(restante)} para hoje, incluindo os que você "

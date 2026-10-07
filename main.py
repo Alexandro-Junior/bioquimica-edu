@@ -413,16 +413,15 @@ from tela_revisao import TelaRevisao
 
 
 def abrir_link(url):
-    """Abre no navegador só endereços web.
+    """Abre no navegador só endereços https, como a versão mobile.
 
-    As URLs vêm dos arquivos em data/. Restringir a http(s) impede que um
+    As URLs vêm dos arquivos em data/. Restringir o esquema impede que um
     dado editado abra um arquivo local ou um esquema de outro programa.
     """
     import webbrowser
-    from urllib.parse import urlparse
 
-    if urlparse(str(url)).scheme not in ("http", "https"):
-        print(f"[link] endereço ignorado (esquema não permitido): {url!r}")
+    if not str(url).lower().startswith("https://"):
+        print(f"[link] endereço recusado (não é https): {url!r}")
         return
     try:
         webbrowser.open(url)
