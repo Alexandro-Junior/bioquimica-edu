@@ -138,8 +138,9 @@ class TelaAcessibilidade(TelaBase):
         libras = C.Cartao(spacing=dp(12))
         libras.add_widget(C.Alternador(
             "Atalho para o VLibras",
-            "Mostra o botão Libras no estudo e no tutor: o texto é copiado e o app "
-            "VLibras, do Governo Federal, o traduz para Libras com um avatar.",
+            "Mostra o botão Libras no estudo e no tutor: ele abre o VLibras, do Governo "
+            "Federal, no navegador, que traduz o texto para Libras com um avatar. Precisa "
+            "de internet.",
             ativo=app.prefs["atalho_libras"], icone="libras",
             ao_mudar=lambda v: app.mudar_preferencia("atalho_libras", v)))
         col.add_widget(libras)

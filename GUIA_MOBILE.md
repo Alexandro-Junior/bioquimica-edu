@@ -143,7 +143,7 @@ mobile/
   dados.py               leitura dos arquivos em data/
   telas/                 abertura, apresentação, início, estudo, cards,
                          prática, revisão, tutor, acessibilidade
-android/extra_manifest.xml   consulta ao serviço de voz e ao VLibras
+android/extra_manifest.xml   consulta ao serviço de voz e ao navegador
 assets/                  logo, ícones e abertura (criar_logo.py)
 assets/fontes/           Atkinson Hyperlegible (licença OFL, em OFL.txt)
 data/                    conteúdo: marcadores, cards, quiz, casos, imagens

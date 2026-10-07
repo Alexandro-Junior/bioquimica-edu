@@ -125,8 +125,20 @@ APELIDOS = {
     "diagnostico": ("pratica", {"modo": "casos"}),
 }
 
-VLIBRAS_ANDROID = "com.lavid.vlibrasdroid"
-VLIBRAS_PAGINA = "https://www.gov.br/governodigital/pt-br/acessibilidade-e-usuario/vlibras"
+LIBRAS_PAGINA = "https://bioquimicaedu.web.app/libras"
+LIMITE_LIBRAS = 700   # caracteres: o endereço completo fica abaixo de ~2 mil, limite seguro
+
+
+def endereco_libras(texto):
+    """Endereço da página de Libras com o texto depois do #, cortado numa frase
+    inteira se for longo (o VLibras traduz devagar textos grandes)."""
+    import urllib.parse
+    texto = " ".join(str(texto).split())
+    if len(texto) > LIMITE_LIBRAS:
+        corte = texto[:LIMITE_LIBRAS]
+        fim = max(corte.rfind(". "), corte.rfind("? "), corte.rfind("! "))
+        texto = (corte[:fim + 1] if fim > LIMITE_LIBRAS // 3 else corte.rstrip()) + " …"
+    return f"{LIBRAS_PAGINA}#t={urllib.parse.quote(texto, safe='')}"
 
 TEMPO_MINIMO_ABERTURA = 1.0   # segundos: a logo e o nome são vistos, sem atrasar ninguém
 ESPERA_MAXIMA_NUVEM = 3.0     # segundos que a abertura espera a conta responder
@@ -429,33 +441,36 @@ class BioquimicaApp(App):
             self.voz.parar()
 
     def abrir_libras(self, texto):
-        """Copia o texto e abre o VLibras, que o traduz para Libras.
+        """Abre a tradução do texto para Libras, pelo VLibras, no navegador.
 
-        O VLibras (Governo Federal) não oferece integração direta para
-        apps nativos; no celular, o caminho confiável é levar o texto pela
-        área de transferência até o app dele.
+        O VLibras (Governo Federal) não tem integração para apps nativos: o
+        tradutor oficial é o VLibras Widget, feito para páginas da web. A
+        página LIBRAS_PAGINA, no site do app, recebe o texto depois do #
+        (essa parte do endereço não vai ao servidor do site), abre o widget
+        e manda o texto traduzir sozinha. Vale no computador e no celular.
+        O texto também vai para a área de transferência, como reserva.
         """
         from kivy.core.clipboard import Clipboard
         Clipboard.copy(texto)
+        self.abrir_endereco(endereco_libras(texto))
+        self.mostrar_mensagem("Abrindo a tradução para Libras no navegador. Na primeira vez, "
+                              "o VLibras leva alguns segundos para carregar.", "info", duracao=6)
+
+    @staticmethod
+    def abrir_endereco(url):
+        """Abre um endereço no navegador. No Android, pelo próprio sistema
+        (Intent ACTION_VIEW), que é o caminho garantido para sair do app."""
         if platform == "android":
             try:
                 from jnius import autoclass
+                Intent = autoclass("android.content.Intent")
+                Uri = autoclass("android.net.Uri")
                 atividade = autoclass("org.kivy.android.PythonActivity").mActivity
-                intencao = atividade.getPackageManager().getLaunchIntentForPackage(VLIBRAS_ANDROID)
-                if intencao is not None:
-                    atividade.startActivity(intencao)
-                    self.mostrar_mensagem("Texto copiado. No VLibras, cole o texto para "
-                                          "ver a tradução em Libras.", "sucesso")
-                    return
-                webbrowser.open(f"market://details?id={VLIBRAS_ANDROID}")
-                self.mostrar_mensagem("Texto copiado. Instale o VLibras e cole o texto "
-                                      "nele para ver a tradução.", "info")
+                atividade.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                 return
-            except Exception as e:
-                print(f"[libras] não foi possível abrir o VLibras: {e}")
-        webbrowser.open(VLIBRAS_PAGINA)
-        self.mostrar_mensagem("Texto copiado. Abra o VLibras e cole o texto para ver a "
-                              "tradução em Libras.", "info")
+            except Exception as e:   # noqa: BLE001
+                print(f"[navegador] Intent falhou ({e}); tentando o módulo webbrowser")
+        webbrowser.open(url)
 
     # ── mensagens rápidas ───────────────────────────────────────────
     def mostrar_mensagem(self, texto, tipo="info", duracao=4.5):

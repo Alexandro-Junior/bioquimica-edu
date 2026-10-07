@@ -9,6 +9,9 @@
     <intent>
         <action android:name="android.intent.action.TTS_SERVICE" />
     </intent>
-    <!-- atalho para Libras: saber se o VLibras está instalado, para abri-lo -->
-    <package android:name="com.lavid.vlibrasdroid" />
+    <!-- abrir endereços https (tradução para Libras, fontes, vídeos) no navegador -->
+    <intent>
+        <action android:name="android.intent.action.VIEW" />
+        <data android:scheme="https" />
+    </intent>
 </queries>
