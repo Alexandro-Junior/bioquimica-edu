@@ -46,13 +46,27 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
 BASE_DIR = Path(__file__).parent
+
+
+def _pasta_padrao():
+    """data/ do projeto; no executável do Windows, a pasta do usuário.
+
+    O executável roda a partir de uma pasta temporária, apagada ao fechar:
+    o progresso precisa ficar fora dela para não se perder.
+    """
+    if getattr(sys, "frozen", False):
+        return Path(os.environ.get("APPDATA") or Path.home()) / "BioquimicaEDU"
+    return BASE_DIR / "data"
+
+
 # BIOQ_PASTA_ALUNO aponta para outra pasta (os testes usam uma temporária,
 # para nunca tocar no progresso real de quem roda o teste)
-PASTA_ALUNO = Path(os.environ.get("BIOQ_PASTA_ALUNO") or BASE_DIR / "data")
+PASTA_ALUNO = Path(os.environ.get("BIOQ_PASTA_ALUNO") or _pasta_padrao())
 ARQUIVO = PASTA_ALUNO / "progresso.json"
 
 # ── SM-2 ────────────────────────────────────────────────────────────
