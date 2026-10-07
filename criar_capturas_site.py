@@ -1,10 +1,16 @@
-"""Capturas de tela para o site (site/imagens/), com progresso de exemplo.
+"""Capturas de tela para o site, com progresso de exemplo.
+
+O site fica no próprio repositório
+(https://github.com/Alexandro-Junior/Site-Bioqu-micaEDU). As imagens saem
+em dist/capturas_site/ (fora do Git), ou na pasta indicada; depois, copie-as
+para a pasta imagens/ do repositório do site.
 
 Usa o mesmo roteiro de captura do relatório (relatorio/gerar_figuras.py),
 numa pasta de aluno temporária: o progresso real em data/ não é tocado.
 A conversa com o tutor só é capturada se o Gemini estiver configurado.
 
     python criar_capturas_site.py
+    python criar_capturas_site.py C:\\caminho\\Site-BioquimicaEDU\\imagens
 """
 
 import os
@@ -16,7 +22,7 @@ from pathlib import Path
 from PIL import Image
 
 RAIZ = Path(__file__).resolve().parent
-SAIDA = RAIZ / "site" / "imagens"
+SAIDA = Path(sys.argv[1]) if len(sys.argv) > 1 else RAIZ / "dist" / "capturas_site"
 sys.path.insert(0, str(RAIZ / "relatorio"))
 
 pasta_aluno = Path(tempfile.mkdtemp(prefix="bioq_site_"))
