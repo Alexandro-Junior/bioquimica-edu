@@ -38,9 +38,9 @@ app (atenção, fragilidade, metacognição) e **não** fazem parte da marca.
   vem com o Kivy — garante que logo e app falem a mesma língua visual.
 - No SVG o texto está **convertido em contornos**: não depende de fonte
   instalada na gráfica.
-- Evolução sugerida: **Atkinson Hyperlegible Next** (Braille Institute, licença
-  OFL), desenhada para leitores com baixa visão — reforçaria a proposta de
-  acessibilidade. Depende de autorização para baixar o arquivo.
+- Opção de leitura: **Atkinson Hyperlegible** (Braille Institute, licença
+  OFL, em `assets/fontes/`), desenhada para leitores com baixa visão. O
+  estudante a liga em Acessibilidade › Leitura; a marca continua em Roboto.
 
 ## Versões
 

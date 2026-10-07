@@ -33,6 +33,15 @@ MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho",
 
 class TelaInicio(TelaBase):
 
+    LARGURA_MAXIMA = 1120   # dp, em tablet e computador
+
+    def _foco(self, expandido):
+        return self.app.prefs["modo_foco"] and not expandido
+
+    def largura_maxima(self, expandido=False, **_):
+        # o modo foco é uma coluna só, estreita, mesmo em tela larga
+        return 720 if self._foco(expandido) else self.LARGURA_MAXIMA
+
     def montar(self, expandido=False, **_):
         app = self.app
         self.siglas = [m["sigla"] for m in app.marcadores]
@@ -43,17 +52,40 @@ class TelaInicio(TelaBase):
 
         scroll, coluna = C.coluna_rolavel(padding=(dp(16), dp(6), dp(16), dp(22)),
                                           spacing=dp(14))
-        secoes = [self._topo(), self._heroi(), self._atalhos()]
-        if app.prefs["modo_foco"] and not expandido:
-            secoes.append(self._ver_progresso())
+        hoje = [self._heroi(), self._atalhos()]
+        if self._foco(expandido):
+            hoje.append(self._ver_progresso())
+            acompanhamento = []
         else:
-            secoes += [self._memoria(), self._focar(), self._sistemas(),
-                       self._calibracao(), self._constancia(), self._marcos()]
-        secoes = [s for s in secoes if s is not None]
-        for secao in secoes:
-            coluna.add_widget(secao)
+            hoje += [self._memoria(), self._focar()]
+            acompanhamento = [self._sistemas(), self._calibracao(), self._constancia(),
+                              self._marcos()]
+        hoje = [s for s in hoje if s is not None]
+        acompanhamento = [s for s in acompanhamento if s is not None]
+        topo = self._topo()
+        coluna.add_widget(topo)
+
+        if acompanhamento and self.largura_util() >= dp(840):
+            # tela larga: à esquerda o que fazer hoje, à direita o acompanhamento
+            linha = BoxLayout(size_hint_y=None, spacing=dp(16))
+            for secoes in (hoje, acompanhamento):
+                lado = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(14),
+                                 pos_hint={"top": 1})
+                lado.bind(minimum_height=lado.setter("height"))
+                for secao in secoes:
+                    lado.add_widget(secao)
+                linha.add_widget(lado)
+
+            def ajustar(*_):
+                linha.height = max(lado.height for lado in linha.children)
+            for lado in linha.children:
+                lado.bind(height=ajustar)
+            coluna.add_widget(linha)
+        else:
+            for secao in hoje + acompanhamento:
+                coluna.add_widget(secao)
         self.add_widget(scroll)
-        C.aparecer(secoes)
+        C.aparecer([topo, *hoje, *acompanhamento])
 
     # ── topo ────────────────────────────────────────────────────────
     def _topo(self):

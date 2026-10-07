@@ -1,8 +1,18 @@
-# BioquímicaEDU — Versão Mobile (Android e iOS)
+# BioquímicaEDU — App para celular, tablet e computador
 
-Aplicativo em Python com [Kivy](https://kivy.org), com o mesmo motor de
-estudo da versão desktop (repetição espaçada SM-2) e interface própria
-para celular.
+Aplicativo em Python com [Kivy](https://kivy.org), com o motor de estudo
+por repetição espaçada (SM-2). É **um app só**, que se adapta à largura da
+tela:
+
+| Largura | Exemplo | Navegação | Conteúdo |
+|---------|---------|-----------|----------|
+| até 600 dp | celular | barra embaixo | uma coluna |
+| 600 a 840 dp | tablet em pé | menu lateral | uma coluna; Estudo em 2 colunas |
+| a partir de 840 dp | tablet deitado, computador | menu lateral | Início em 2 colunas; Estudo em 2 ou 3 |
+
+As faixas seguem as classes de tamanho de janela do Material Design 3.
+Textos longos (revisão, tutor, cards) ficam numa coluna central com
+largura de leitura confortável, em vez de esticar até a borda.
 
 ## O que o app tem
 
@@ -12,28 +22,51 @@ para celular.
 | **Estudo** | 20 marcadores com busca e filtro por sistema; cada um tem visão geral, casos clínicos, imagens, fontes acadêmicas e vídeos |
 | **Cards** | 52 cards que viram com animação; depois de virar, "Lembrei / Não lembrei" alimenta a revisão |
 | **Prática** | Quiz (10 questões sorteadas de 12) e 15 casos clínicos com exames classificados em ALTO / BAIXO / NORMAL |
-| **Tutor** | Conversa sobre os marcadores, respondida pela base do app (offline) |
-| **Revisão** | Sessão guiada: pergunta → confiança → resposta → autoavaliação em 4 níveis, que reagenda o marcador |
-| **Acessibilidade** | (ícone no topo do Início) tamanho do texto até 150%, alto contraste, leitura em voz alta com velocidade, modo foco, sessões curtas, reduzir animações e atalho para o VLibras |
+| **Tutor** | Conversa sobre os marcadores. Offline, responde pela base do app; com o Gemini ligado ([docs/TUTOR_GEMINI.md](docs/TUTOR_GEMINI.md)), explica, compara e lembra a conversa |
+| **Revisão** | Sessão guiada: pergunta → confiança → resposta → autoavaliação em 4 níveis; cada botão mostra quando o marcador volta (Difícil, Bom e Fácil levam a intervalos diferentes) |
+| **Acessibilidade** | (ícone no topo do Início) tamanho do texto até 150%, alto contraste, fonte para leitura facilitada (Atkinson Hyperlegible), leitura em voz alta com velocidade, modo foco, sessões curtas, reduzir animações e atalho para o VLibras |
 
 Ao abrir, o app mostra a logo enquanto carrega; no primeiro acesso, uma
 apresentação de três passos termina nos ajustes de acessibilidade.
 
-Tudo funciona offline. O progresso e as preferências ficam só no aparelho.
+Tudo funciona offline; só o tutor com IA, opcional, usa a internet. O
+progresso e as preferências ficam só no aparelho.
 Análise completa das decisões: [docs/ANALISE_EVOLUCAO.md](docs/ANALISE_EVOLUCAO.md).
 
-## Testar no computador
+## Usar no computador
 
 ```bash
 pip install kivy pillow
-python main_kivy_completo.py
+python main.py
 ```
 
-Abre uma janela com formato de celular (400 × 840).
-Teste automático, que abre o app e usa cada tela:
+Abre o app numa janela de computador, com menu lateral. Ao estreitar a
+janela, ele passa para o formato de celular sem perder a tela em que você
+está. Outras formas de abrir:
+
+```bash
+python main.py --celular
+```
+
+```bash
+python main.py --classico
+```
+
+A primeira abre direto no formato de celular (400 × 840); a segunda abre
+a versão clássica em Tkinter, mantida para quem já a usava.
+
+A leitura em voz alta no Windows usa a voz do sistema (SAPI); se o
+`pywin32` não estiver instalado, o app usa o PowerShell, sem instalar nada.
+
+Testes automáticos (abrem o app e usam cada tela, em formato de computador
+e de celular, numa pasta temporária, sem tocar no seu progresso):
 
 ```bash
 python test_kivy_completo.py
+```
+
+```bash
+python test_tutor.py
 ```
 
 ## Gerar o APK (Android)
@@ -59,12 +92,19 @@ O Buildozer só roda em **Linux** — no Windows, use o
    voz alta (Acessibilidade › Leitura em voz alta › Testar a voz), o atalho
    para o VLibras e o ícone na tela inicial.
 
-### Como o APK sabe abrir a versão mobile
+### Tablet
 
-O Android sempre executa `main.py`. As primeiras linhas do `main.py`
-detectam o celular e abrem a versão mobile (pasta `mobile/`) **antes** de
-importar o Tkinter, que não existe no Android. No computador, o mesmo
-`main.py` continua abrindo a versão desktop.
+O mesmo APK serve para tablet: com 600 dp ou mais de largura, o app troca
+a barra de baixo pelo menu lateral e usa mais colunas. O `buildozer.spec`
+pede orientação retrato, mas a partir do Android 16 o sistema ignora essa
+restrição em telas grandes, então o app também foi preparado para o
+tablet deitado.
+
+### Como o APK sabe abrir o app
+
+O Android sempre executa `main.py`. As primeiras linhas do `main.py` abrem
+o app (pasta `mobile/`) **antes** de importar o Tkinter, que não existe no
+Android. O Tkinter só é carregado com `--classico`, no computador.
 
 ### Publicação no Google Play
 
@@ -75,10 +115,11 @@ de release (`buildozer android release`) e assine com sua chave.
 ## Estrutura
 
 ```
-main.py                  ponto de entrada (celular → mobile; PC → desktop)
-main_kivy_completo.py    abre a versão mobile no computador
+main.py                  ponto de entrada (app; --celular; --classico)
+main_kivy_completo.py    abre o app (atalho antigo, ainda funciona)
 progresso.py             motor de repetição espaçada (compartilhado)
-assistente.py            tutor com provedores trocáveis (base do app, Ollama)
+assistente.py            tutor com provedores trocáveis (Gemini, Ollama, base do app)
+servidor/tutor_worker.js servidor intermediário do Gemini para o celular
 mobile/
   app.py                 abertura, navegação, ajustes, voz e Libras
   tema.py                paletas acessíveis, escala de texto, movimento
@@ -91,6 +132,7 @@ mobile/
                          prática, revisão, tutor, acessibilidade
 android/extra_manifest.xml   consulta ao serviço de voz e ao VLibras
 assets/                  logo, ícones e abertura (criar_logo.py)
+assets/fontes/           Atkinson Hyperlegible (licença OFL, em OFL.txt)
 data/                    conteúdo: marcadores, cards, quiz, casos, imagens
 docs/                    análise das decisões e identidade visual
 ```

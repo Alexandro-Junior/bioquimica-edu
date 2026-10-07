@@ -34,6 +34,8 @@ def faixa_referencia(m):
 # ════════════════════════════════════════════════════════════════════
 class TelaEstudo(TelaBase):
 
+    LARGURA_MAXIMA = 1200   # dp: três colunas de ~390 dp em monitor largo
+
     def montar(self, **_):
         app = self.app
         self.marcadores = app.marcadores
@@ -67,8 +69,15 @@ class TelaEstudo(TelaBase):
         topo.add_widget(faixa)
         raiz.add_widget(topo)
 
-        scroll, self.lista = C.coluna_rolavel(padding=(dp(16), dp(8), dp(16), dp(20)),
-                                              spacing=dp(10))
+        # cada marcador precisa de ~370 dp para nome ("Alanina
+        # Aminotransferase"), estágio e domínio sem cortes: uma coluna no
+        # celular, duas no tablet e no notebook, três só em monitor largo
+        largura = self.largura_util()
+        colunas = 1 if largura < dp(560) else (2 if largura < dp(1120) else 3)
+        if texto_grande():
+            colunas = max(1, colunas - 1)
+        scroll, self.lista = C.grade_rolavel(colunas, padding=(dp(16), dp(8), dp(16), dp(20)),
+                                             spacing=dp(10))
         self.scroll = scroll
         raiz.add_widget(scroll)
         self.add_widget(raiz)

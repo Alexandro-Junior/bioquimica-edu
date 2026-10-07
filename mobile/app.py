@@ -36,7 +36,7 @@ from kivy.uix.screenmanager import (FadeTransition, NoTransition, ScreenManager,
 from kivy.utils import platform
 
 from mobile import dados, tema
-from mobile.componentes import Aviso, BarraNavegacao
+from mobile.componentes import Aviso, BarraNavegacao, TrilhoNavegacao
 from mobile.preferencias import Preferencias
 from mobile.tema import COR
 from mobile.telas.abertura import TelaAbertura
@@ -52,8 +52,14 @@ from mobile.telas.tutor import TelaTutor
 NO_CELULAR = platform in ("android", "ios")
 
 if not NO_CELULAR:
-    # no computador, janela no formato de um celular atual
-    Window.size = (400, 840)
+    import os
+    import sys
+    if "--celular" in sys.argv or os.environ.get("BIOQ_JANELA") == "celular":
+        # para testar o formato de celular no computador
+        Window.size = (400, 840)
+    else:
+        Window.size = (1180, 760)
+    Window.minimum_width, Window.minimum_height = 360, 560
 # o teclado empurra a tela em vez de cobrir o campo de digitação
 Window.softinput_mode = "below_target"
 
@@ -108,6 +114,8 @@ class BioquimicaApp(App):
         self.raiz = FloatLayout()
         self.camada = BoxLayout(orientation="vertical")
         self.raiz.add_widget(self.camada)
+        self.navegacao = None      # criada depois de carregar (_montar_navegacao)
+        self.trilho = False
 
         # 1. só a abertura; o resto é montado depois de carregar
         self.gerenciador = ScreenManager(transition=NoTransition())
@@ -117,6 +125,7 @@ class BioquimicaApp(App):
         abertura.preparar()
 
         Window.bind(on_keyboard=self._tecla)
+        Window.bind(on_resize=self._ao_redimensionar)
         self._inicio_abertura = time.monotonic()
         # um quadro de folga para a logo ser desenhada antes do trabalho pesado
         Clock.schedule_once(lambda _dt: self._carregar(), 0.05)
@@ -163,13 +172,51 @@ class BioquimicaApp(App):
             Animation(opacity=1, duration=0.22, t="out_quad").start(self.camada)
 
     def _montar_interface(self):
-        self.camada.clear_widgets()
         self.gerenciador = ScreenManager(transition=NoTransition())
         for nome, Classe in self.TELAS.items():
             self.gerenciador.add_widget(Classe(self, name=nome))
-        self.navegacao = BarraNavegacao(ao_escolher=self.ir_para)
-        self.camada.add_widget(self.gerenciador)
-        self.camada.add_widget(self.navegacao)
+        self._montar_navegacao()
+
+    def _montar_navegacao(self):
+        """Barra de abas embaixo (celular) ou trilho lateral (tablet, computador)."""
+        self.formato = tema.formato()
+        self.trilho = self.formato != "compacto"
+        self.camada.clear_widgets()
+        if self.trilho:
+            self.camada.orientation = "horizontal"
+            self.navegacao = TrilhoNavegacao(ao_escolher=self.ir_para)
+            self.camada.add_widget(self.navegacao)
+            self.camada.add_widget(self.gerenciador)
+        else:
+            self.camada.orientation = "vertical"
+            self.navegacao = BarraNavegacao(ao_escolher=self.ir_para)
+            self.camada.add_widget(self.gerenciador)
+            self.camada.add_widget(self.navegacao)
+
+    def _ao_redimensionar(self, *_):
+        # arrastar a borda da janela gera dezenas de eventos: espera assentar
+        if getattr(self, "_redimensionar", None) is not None:
+            self._redimensionar.cancel()
+        self._redimensionar = Clock.schedule_once(self._reavaliar_formato, 0.25)
+
+    def _reavaliar_formato(self, _dt):
+        """Girou o tablet ou redimensionou a janela: troca só a navegação.
+
+        As telas continuam as mesmas, com o que o estudante estava fazendo
+        (uma revisão no meio, um quiz respondido pela metade); a moldura de
+        cada uma já se reacomoda à nova largura. Só o Início, que muda de uma
+        para duas colunas e não guarda estado, é remontado.
+        """
+        # a janela muda de tamanho ao abrir, antes de a interface existir
+        if getattr(self, "navegacao", None) is None or tema.formato() == self.formato:
+            return
+        atual = self.gerenciador.current
+        self._montar_navegacao()
+        self._ajustar_navegacao(atual)
+        if atual == "inicio":
+            tela = self.gerenciador.get_screen("inicio")
+            tela.size = self.gerenciador.size
+            tela.preparar(**tela.parametros)
 
     # ── armazenamento ───────────────────────────────────────────────
     def _arquivo(self, nome_celular, nome_computador):
@@ -203,13 +250,14 @@ class BioquimicaApp(App):
     # ── preferências ────────────────────────────────────────────────
     def _aplicar_tema(self):
         p = self.prefs
-        tema.aplicar_ajustes(p["tema"], p["escala_texto"], p["movimento_reduzido"])
+        tema.aplicar_ajustes(p["tema"], p["escala_texto"], p["movimento_reduzido"],
+                             p["fonte_leitura"])
         Window.clearcolor = COR["fundo"]
 
     def mudar_preferencia(self, chave, valor):
         """Salva o ajuste e, se ele muda a aparência, reconstrói a interface."""
         self.prefs.definir(chave, valor)
-        if chave in ("tema", "escala_texto", "movimento_reduzido"):
+        if chave in ("tema", "escala_texto", "movimento_reduzido", "fonte_leitura"):
             atual = self.gerenciador.current
             parametros = self.gerenciador.get_screen(atual).parametros
             self._aplicar_tema()
@@ -263,11 +311,13 @@ class BioquimicaApp(App):
     # ── mensagens rápidas ───────────────────────────────────────────
     def mostrar_mensagem(self, texto, tipo="info", duracao=4.5):
         """Aviso temporário no rodapé, acima da barra de navegação."""
-        base = (self.navegacao.height if getattr(self, "navegacao", None)
-                and self.navegacao.opacity else 0)
-        aviso = Aviso(texto, tipo=tipo, size_hint=(None, None),
-                      width=Window.width - dp(32), elevacao=2)
-        aviso.pos = (dp(16), base + dp(12))
+        navegacao = getattr(self, "navegacao", None)
+        visivel = navegacao is not None and navegacao.opacity
+        base = navegacao.height if visivel and not self.trilho else 0
+        lateral = navegacao.width if visivel and self.trilho else 0
+        largura = min(Window.width - lateral - dp(32), dp(560))
+        aviso = Aviso(texto, tipo=tipo, size_hint=(None, None), width=largura, elevacao=2)
+        aviso.pos = (lateral + (Window.width - lateral - largura) / 2, base + dp(12))
         self.raiz.add_widget(aviso)
 
         def remover(_dt):
@@ -358,7 +408,10 @@ class BioquimicaApp(App):
 
     def _ajustar_navegacao(self, destino):
         esconder = destino in SEM_BARRA
-        self.navegacao.height = 0 if esconder else BarraNavegacao.altura()
+        if self.trilho:
+            self.navegacao.width = 0 if esconder else TrilhoNavegacao.largura()
+        else:
+            self.navegacao.height = 0 if esconder else BarraNavegacao.altura()
         self.navegacao.opacity = 0 if esconder else 1
         self.navegacao.disabled = esconder
         if not esconder:

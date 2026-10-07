@@ -69,8 +69,10 @@ funcionar como — um produto.
 
 **Fica para depois (com motivo)**
 - *Tipografia*: o Kivy traz só a Roboto em regular e negrito. Uma fonte de
-  produto (sugestão: **Atkinson Hyperlegible Next**, criada para baixa visão,
+  produto (sugestão: **Atkinson Hyperlegible**, criada para baixa visão,
   licença OFL) exige baixar o arquivo — pedido de autorização na seção 8.
+  **Feito em 07/10/2026** como opção: Acessibilidade › Leitura › "Fonte para
+  leitura facilitada" troca a fonte do app inteiro na hora.
 - *Modo escuro*: precisa de uma camada de cores "semânticas" (ex.: "texto
   sobre ação") em vez de nomes como "branco". Viável, mas é uma revisão de
   todas as telas; não entrou agora.
@@ -150,26 +152,59 @@ conteúdo curado é. O papel da IA é **explicar** esse conteúdo. Assim:
 3. **o Ollama não deve ser substituído, e sim mantido** como opção local para
    quem prefere privacidade total no computador.
 
-Ou seja: **acrescentar** o Gemini, não trocar. A arquitetura já está pronta
-para isso: `assistente.py` tem provedores trocáveis com reserva automática
-(`BaseLocal`, `ModeloLocal`); um `ModeloNuvem` entra como mais uma classe.
-**Não implementei a chamada ao Gemini** porque ela depende de decisões e
-contas suas (seção 8): sem servidor e chave, o código não teria como ser
-testado nem usado com segurança.
+Ou seja: **acrescentar** o Gemini, não trocar.
+
+**Implementado em 07/10/2026**, na camada gratuita, para demonstração
+(decisão do aluno). `assistente.py` ganhou o `ModeloNuvem`, primeiro da fila
+`Gemini → Ollama → base do app`:
+
+- a cada pergunta vão a instrução fixa (não contradizer os dados, não
+  diagnosticar casos reais, ignorar pedidos para mudar as regras), os 20
+  marcadores curados (~4.700 caracteres) com o da pergunta em destaque e
+  seus casos clínicos, e as últimas 6 mensagens da conversa;
+- temperatura 0,3; respostas sem Markdown, para caberem nos balões;
+- falhas viram aviso em linguagem simples (limite gratuito, chave recusada,
+  sem internet, pergunta bloqueada) e a base do app responde;
+- **chave**: no computador, num `.env` fora do Git; no celular, o app não
+  tem chave e fala com um Cloudflare Worker (`servidor/tutor_worker.js`)
+  que a guarda como segredo; só `https` é aceito;
+- o tutor avisa que, na versão gratuita, o Google pode usar as perguntas.
+
+`test_tutor.py` (12 testes) simula o Google: confere o pedido, a leitura
+das respostas, cada falha, o caminho do celular, que a regra do servidor é
+idêntica à do app e que nenhum arquivo do projeto contém uma chave. Passo a
+passo para ligar: [`TUTOR_GEMINI.md`](TUTOR_GEMINI.md).
 
 ### 2.5 Desenvolvimento
 
 - **Três interfaces** para o mesmo conteúdo (Tkinter ×2 e Kivy) multiplicam a
   manutenção. A versão Kivy roda também no computador; recomendo tratá-la
   como o produto e congelar as versões Tkinter (sem removê-las agora).
+  **Decidido em 07/10/2026**: `python main.py` abre o app Kivy no computador,
+  com layout responsivo (seção 2.7); a versão Tkinter fica em
+  `python main.py --classico`.
 - Núcleo compartilhado bem separado (`progresso.py`, `assistente.py`, `data/`).
 - Testes: `test_kivy_completo.py` passou de 8 para **15 passos** (acessibilidade,
   voz, Libras, foco, persistência, preferências corrompidas, reserva do
   tutor); `test_desktop.py` cobre as duas versões Tkinter.
 - Ponto em aberto do motor: após o 1º contato, "Difícil", "Bom" e "Fácil"
-  mostram o mesmo próximo intervalo (decisão pendente desde o relatório).
+  mostravam o mesmo próximo intervalo. **Resolvido em 07/10/2026**
+  (`progresso.proximo_intervalo`): no 1º acerto, 1, 2 ou 4 dias; no 2º, 4, 6
+  ou 8; depois, Difícil = intervalo anterior × 1,2, Bom = × facilidade do
+  SM-2, Fácil = Bom × 1,3 (os padrões do Anki), com teto de 365 dias. Os
+  botões mostram exatamente o que o motor vai agendar.
 
-### 2.6 Marca
+### 2.7 Computador e tablet
+
+Um app só, que se adapta à largura (classes de tamanho do Material 3):
+abaixo de 600 dp, barra de navegação embaixo; a partir de 600 dp, menu
+lateral; a partir de 840 dp, o Início em duas colunas, e o Estudo em duas
+ou três. Telas de leitura (revisão, tutor, cards) ficam numa coluna central
+de largura confortável. Ao redimensionar a janela, o app troca de formato
+sem perder a tela nem a sessão em andamento. O Android 16 ignora a trava de
+orientação em telas grandes, então o tablet deitado também foi verificado.
+
+### 2.8 Marca
 
 A identidade já tinha um conceito (hexágono = química; gota = amostra de
 sangue). Faltavam as versões que um produto usa. Ver
@@ -265,8 +300,13 @@ reaproveitável.
 
 ## 7. Verificação
 
-- `python test_kivy_completo.py` — 15 passos, todos passando.
+- `python test_kivy_completo.py` — 16 passos, todos passando, em formato de
+  computador e de celular (`BIOQ_JANELA=celular`), incluindo a troca de
+  formato ao redimensionar a janela.
+- `python test_tutor.py` — 12 testes do tutor com Gemini, sem rede.
 - `python test_desktop.py` — todas as telas das duas versões desktop abrem.
+- Telas renderizadas em computador (1184 × 760), tablet em pé (768 × 1024)
+  e deitado (1024 × 768) e celular, inclusive o tutor com um Gemini simulado.
 - Telas renderizadas e inspecionadas em três configurações: padrão; alto
   contraste com texto a 130%, voz e Libras; modo foco com texto a 150% e
   animações desligadas.
@@ -275,18 +315,23 @@ reaproveitável.
   Android e o APK com o ícone adaptativo — exigem compilar e instalar num
   aparelho.
 
-## 8. Decisões que dependem de você
+## 8. Decisões
 
-1. **Login com Google**: qual objetivo (a, b ou c da seção 5)? Sem objetivo,
-   recomendo não fazer agora. Se sim, é preciso criar o projeto no Firebase
-   com a sua conta Google.
-2. **Gemini**: você cria a chave no Google AI Studio e aceita a camada paga
-   (~US$ 1,20 por mil perguntas)? Onde hospedar o servidor intermediário?
-3. **Fonte**: autoriza baixar a Atkinson Hyperlegible Next (Google Fonts, OFL)?
-4. **Revisão**: "Difícil/Bom/Fácil" devem mostrar intervalos diferentes já no
-   próximo agendamento?
-5. **Relatório**: as novidades de acessibilidade entram no relatório final?
-   A avaliação com usuários foi feita com a versão anterior; se entrarem,
-   precisam aparecer como evolução posterior à avaliação.
+Respondidas pelo aluno em 07/10/2026:
+
+1. **Login com Google**: objetivo (a), sincronizar o progresso entre
+   computador e celular. Depende de criar o projeto no Firebase com a conta
+   do aluno; a implementação vem depois disso.
+2. **Gemini**: camada gratuita, para apresentação; camada paga só se o app
+   virar produto. Implementado (seção 2.4).
+3. **Computador**: o mesmo app do celular, responsivo (seção 2.7).
+4. **Tablet**: adaptar o layout, o mais próximo possível do celular. Feito.
+5. **Libras**: manter o atalho para o VLibras.
+6. **Fonte**: Atkinson Hyperlegible (Google Fonts, licença OFL), como opção
+   em Acessibilidade › Leitura.
+7. **Revisão**: intervalos diferentes para Difícil, Bom e Fácil. Feito.
+8. **Relatório**: entra o que for escolhido da lista de novidades. A
+   avaliação com usuários foi feita com a versão anterior; o que entrar
+   aparece como evolução posterior à avaliação.
 
 ![Antes e depois](antes_depois.png)

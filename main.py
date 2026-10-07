@@ -4,9 +4,14 @@ Universidade Cidade de São Paulo — PIBIC
 Aluno: Alexandro de Araujo Junior
 Orientador: Francisco de Assis Cavallaro
 
-Ponto de entrada do projeto:
-- no Android e no iOS, abre a versão mobile (pasta mobile/, em Kivy);
-- no computador, abre a versão desktop (Tkinter), definida neste arquivo.
+Ponto de entrada do projeto. O mesmo app (pasta mobile/, em Kivy) roda em
+celular, tablet e computador, adaptando-se à largura da tela:
+
+    python main.py               app no computador (janela larga)
+    python main.py --celular     o mesmo app em formato de celular
+    python main.py --classico    versão clássica (Tkinter), definida aqui
+
+No Android e no iOS, o empacotador sempre executa este arquivo.
 
 Paleta baseada em reagentes e marcadores da bioquímica clínica:
 verde-enzima (Fehling/clorofila), vermelho-heme, âmbar-bile,
@@ -14,6 +19,7 @@ violeta-fenolftaleína, azul-biureto/cobalto.
 """
 
 import os
+import sys
 
 # O Android sempre executa main.py, e o Tkinter não existe no celular:
 # a decisão precisa vir antes de qualquer import dele. As variáveis são as
@@ -22,7 +28,10 @@ import os
 NO_CELULAR = ("ANDROID_ARGUMENT" in os.environ
               or os.environ.get("KIVY_BUILD", "") == "ios")
 
-if NO_CELULAR:
+# o Kivy encerra ao ver opções que não conhece (--classico, --celular)
+os.environ.setdefault("KIVY_NO_ARGS", "1")
+
+if NO_CELULAR or (__name__ == "__main__" and "--classico" not in sys.argv):
     from mobile.app import BioquimicaApp
     BioquimicaApp().run()
     raise SystemExit
@@ -2214,4 +2223,5 @@ class App(tk.Tk):
 
 # ─────────────────────────────────────────────
 if __name__ == "__main__":
+    # só chega aqui com --classico; sem ele, o topo do arquivo abre o app novo
     App().mainloop()

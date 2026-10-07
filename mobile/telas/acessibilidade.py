@@ -45,6 +45,14 @@ def ajustes_leitura(app, cartao):
         ativo=prefs["tema"] == "alto_contraste", icone="contraste",
         ao_mudar=lambda v: app.mudar_preferencia(
             "tema", "alto_contraste" if v else "padrao")))
+    cartao.add_widget(C.Divisor())
+    cartao.add_widget(C.Alternador(
+        "Fonte para leitura facilitada",
+        "Atkinson Hyperlegible, feita para baixa visão: letras que não se "
+        "confundem, como I, l e 1 ou O e 0.",
+        ativo=prefs["fonte_leitura"] == "hiperlegivel", icone="texto",
+        ao_mudar=lambda v: app.mudar_preferencia(
+            "fonte_leitura", "hiperlegivel" if v else "padrao")))
 
 
 def ajustes_voz(app, cartao):
@@ -99,6 +107,8 @@ def ajustes_foco(app, cartao):
 
 
 class TelaAcessibilidade(TelaBase):
+
+    LARGURA_MAXIMA = 720   # dp, em tablet e computador
 
     def montar(self, **_):
         app = self.app
