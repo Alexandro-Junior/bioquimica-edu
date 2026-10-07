@@ -43,8 +43,9 @@ const INSTITUICAO = "UNIVERSIDADE CIDADE DE SÃO PAULO";
 const CURSO = "CURSO DE CIÊNCIA DA COMPUTAÇÃO";
 const AUTOR = "ALEXANDRO DE ARAUJO JUNIOR";
 const ORIENTADOR = "Prof. Francisco de Assis Cavallaro";
-const TITULO = "BIOQUÍMICAEDU";
-const SUBTITULO = "software educacional com repetição espaçada para o estudo de marcadores bioquímicos";
+// título registrado do projeto PIBIC; o software se chama BioquímicaEDU
+const TITULO = "DESENVOLVIMENTO DE SOFTWARE EDUCACIONAL PARA O ENSINO INTERATIVO DE BIOQUÍMICA CLÍNICA";
+const SUBTITULO = "marcadores bioquímicos e sua correlação com doenças";
 const LOCAL = "SÃO PAULO";
 const ANO = "2026";
 const ACESSO = "Acesso em: 6 out. 2026.";

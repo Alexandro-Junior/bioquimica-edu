@@ -9,8 +9,12 @@ Gera as figuras e as métricas do relatório final.
 - metricas.json        linhas de código por módulo e volume de conteúdo
 
 As capturas usam um progresso de exemplo (estudante fictício com algumas
-semanas de uso), para que o painel mostre todos os seus elementos; o
-progresso real em data/progresso.json é salvo antes e restaurado depois.
+semanas de uso), para que o painel mostre todos os seus elementos. Ele
+fica numa pasta temporária: o progresso real em data/ não é tocado.
+
+Observação: as capturas refletem a interface atual. As figuras do relatório
+mostram a versão avaliada com usuários; rode de novo só se a versão nova
+também entrar no relatório.
 
 Uso:  python relatorio/gerar_figuras.py
 """
@@ -388,28 +392,27 @@ print("desktop_painel.png", w, h)
 
 
 def main():
-    real = RAIZ / "data" / "progresso.json"
-    copia = Path(tempfile.gettempdir()) / "bioq_progresso_relatorio.json"
-    existia = real.exists()
-    if existia:
-        shutil.copy(real, copia)
+    # O progresso de exemplo vai para uma pasta temporária (BIOQ_PASTA_ALUNO,
+    # herdada pelos processos de captura): o progresso real do estudante em
+    # data/ nunca é tocado, nem se a geração for interrompida no meio.
+    pasta = Path(tempfile.mkdtemp(prefix="bioq_figuras_"))
+    os.environ["BIOQ_PASTA_ALUNO"] = str(pasta)
+    exemplo = pasta / "progresso.json"
+    with io.open(pasta / "preferencias_mobile.json", "w", encoding="utf-8") as f:
+        json.dump({"boas_vindas_vista": True}, f)   # capturas sem a apresentação
     try:
-        json.dump(progresso_exemplo(), io.open(real, "w", encoding="utf-8"),
+        json.dump(progresso_exemplo(), io.open(exemplo, "w", encoding="utf-8"),
                   ensure_ascii=False, indent=2)
         metricas()
         arquitetura()
         sm2()
         capturas_mobile()
         # o quiz da captura mobile registra uma resposta; recomeça do exemplo
-        json.dump(progresso_exemplo(), io.open(real, "w", encoding="utf-8"),
+        json.dump(progresso_exemplo(), io.open(exemplo, "w", encoding="utf-8"),
                   ensure_ascii=False, indent=2)
         captura_desktop()
     finally:
-        if existia:
-            shutil.copy(copia, real)
-        elif real.exists():
-            real.unlink()
-        print(f"(progresso real restaurado: {existia})")
+        shutil.rmtree(pasta, ignore_errors=True)
 
 
 if __name__ == "__main__":
