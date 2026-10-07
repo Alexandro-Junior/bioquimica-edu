@@ -32,6 +32,7 @@ os.chdir(BASE)
 PASTA_TESTE = Path(tempfile.mkdtemp(prefix="bioquimicaedu_teste_"))
 os.environ["BIOQ_PASTA_ALUNO"] = str(PASTA_TESTE)   # antes de importar progresso
 os.environ["BIOQ_SEM_VOZ"] = "1"   # nada de falar alto durante o teste
+os.environ["BIOQ_SEM_NUVEM"] = "1"   # o tutor não chama o Gemini (test_tutor.py cobre)
 
 
 class VozFalsa:
@@ -169,6 +170,10 @@ def main():
         antes = len(tela().conversa.children)
         tela()._perguntar("Troponina")
         assert len(tela().conversa.children) > antes, "a pergunta não entrou na conversa"
+        assert not tela().assistente.provedores[0].disponivel(), \
+            "com BIOQ_SEM_NUVEM o tutor não deveria chamar o Gemini"
+        if not tela().com_ia:   # sem Ollama a resposta é imediata
+            assert tela().historico[-2] == ("usuario", "Troponina"), tela().historico
 
     @passo("tutor: modelo que falha cai para a base, com aviso")
     def _():
@@ -180,7 +185,7 @@ def main():
             def disponivel(self):
                 return True
 
-            def responder(self, pergunta, marcador):
+            def responder(self, pergunta, marcador, historico=None):
                 raise ConnectionError("sem rede")
 
         k = next(m for m in app.marcadores if m["sigla"] == "K")
@@ -241,6 +246,40 @@ def main():
         app.abrir_libras("Potássio. Faixa de referência: 3,5 a 5 mEq/L.")
         assert Clipboard.paste().startswith("Potássio"), Clipboard.paste()
         assert abertos and "vlibras" in abertos[-1].lower(), abertos
+
+    @passo("tamanho da tela: barra no celular, menu lateral no tablet/PC, sessão preservada")
+    def _():
+        from kivy.base import EventLoop
+        from kivy.core.window import Window
+        from mobile.componentes import BarraNavegacao, TrilhoNavegacao
+
+        def redimensionar(tamanho):
+            # o novo tamanho só vale depois que a janela processa o evento
+            alvo_px = None
+            Window.size = tamanho
+            for _ in range(30):
+                EventLoop.idle()
+                if alvo_px == tuple(Window.size):
+                    break
+                alvo_px = tuple(Window.size)
+            app._reavaliar_formato(0)
+
+        original = tuple(Window.size)
+        app.ir_para("inicio", animar=False)
+        app.ir_para("revisao", animar=False)
+        t = tela()
+        t._definir_confianca(3)
+        t._revelar()
+        # celular, tablet em pé, computador — como girar o tablet no meio da revisão
+        for largura, altura, trilho in ((400, 840, False), (720, 1000, True), (1180, 760, True)):
+            redimensionar((largura, altura))
+            assert app.trilho is trilho, (largura, Window.size, app.trilho)
+            assert isinstance(app.navegacao, TrilhoNavegacao if trilho else BarraNavegacao)
+            assert tela() is t and t.revelado, "a revisão em andamento se perdeu"
+        redimensionar(original)
+        app.voltar()
+        esperar_tela("inicio")
+        assert app.navegacao.opacity == 1, "a navegação deveria voltar visível"
 
     @passo("preferências corrompidas voltam ao padrão")
     def _():

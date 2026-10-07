@@ -20,7 +20,15 @@ Três decisões de projeto, cada uma com um porquê:
    b. o reforço no mesmo dia (passo 7 do original) vale só para o item
       errado (nota < 3) e termina no primeiro acerto; no original ele
       inclui também a nota 3 e se repete até cada item tirar 4;
-   c. "Fácil" no primeiro contato agenda 4 dias em vez de 1.
+   c. "Difícil", "Bom" e "Fácil" levam a prazos diferentes já na próxima
+      revisão. No SM-2 as três dão o mesmo intervalo (1 dia, depois 6
+      dias, depois intervalo × facilidade) e só se diferenciam mais tarde,
+      pela facilidade; o estudante tinha a impressão de que a escolha não
+      valia nada. Aqui: 1, 2 ou 4 dias no primeiro acerto; 4, 6 ou 8 no
+      segundo; depois, "Difícil" cresce pouco (1,2 × o intervalo anterior),
+      "Bom" segue o SM-2 e "Fácil" dá 1,3 × o prazo de "Bom" — os valores
+      padrão de "Hard interval" e "Easy bonus" do Anki
+      (https://docs.ankiweb.net/deck-options.html). Teto de 365 dias.
 
 2. Nada de pontos soltos. A literatura de gamificação mostra o efeito de
    super-justificação: recompensa extrínseca pode reduzir a motivação de
@@ -50,9 +58,17 @@ ARQUIVO = PASTA_ALUNO / "progresso.json"
 # ── SM-2 ────────────────────────────────────────────────────────────
 FACILIDADE_INICIAL = 2.5
 FACILIDADE_MINIMA = 1.3   # abaixo disso o item volta cedo demais para ser útil
-INTERVALO_1 = 1           # dias, após o primeiro acerto
-INTERVALO_2 = 6           # dias, após o segundo acerto
-INTERVALO_FACIL_INICIAL = 4   # atalho quando o item já sai fácil de primeira
+INTERVALO_1 = 1           # dias: depois de um erro, e o I(1) do SM-2
+INTERVALO_2 = 6           # dias: o I(2) do SM-2, base do segundo acerto
+
+# Adaptação "c": prazos diferentes para Difícil (3), Bom (4) e Fácil (5)
+PRIMEIRO_ACERTO = {3: 1, 4: 2, 5: 4}          # dias
+FATOR_SEGUNDO_ACERTO = {3: 0.6, 4: 1.0, 5: 1.3}   # sobre os 6 dias: 4, 6, 8
+FATOR_DIFICIL = 1.2       # "Difícil": 1,2 × o intervalo anterior
+BONUS_FACIL = 1.3         # "Fácil": 1,3 × o prazo de "Bom"
+# Teto: o conteúdo de prova volta ao menos uma vez por ano. Sem ele,
+# "Fácil" seis vezes seguidas chegava a 4,7 anos.
+INTERVALO_MAXIMO = 365
 
 # Estágios de memória, por intervalo de revisão já alcançado
 ESTAGIOS = [
@@ -148,6 +164,38 @@ def marcadores_no_texto(texto: str, siglas: list[str],
                 achados.append(sigla)
 
     return achados
+
+
+def nova_facilidade(facilidade: float, qualidade: int) -> float:
+    """Fórmula de ajuste da facilidade do SM-2, com o piso de 1,3."""
+    q = qualidade
+    f = facilidade + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
+    return max(FACILIDADE_MINIMA, round(f, 3))
+
+
+def proximo_intervalo(estado: dict, qualidade: int) -> int:
+    """Dias até a próxima revisão se o estudante responder com esta nota.
+
+    Função pura: o motor agenda com ela, e a tela de revisão usa a mesma
+    conta para mostrar em cada botão quando o marcador volta.
+    `estado` é o estado ANTES da resposta.
+    """
+    if qualidade < 3:
+        return INTERVALO_1
+    acertos_seguidos = estado["repeticoes"]
+    if acertos_seguidos == 0:
+        return PRIMEIRO_ACERTO[min(qualidade, 5)]
+    if acertos_seguidos == 1:
+        return max(1, round(INTERVALO_2 * FATOR_SEGUNDO_ACERTO[min(qualidade, 5)]))
+
+    anterior = max(1, estado["intervalo"])
+    dificil = max(anterior + 1, round(anterior * FATOR_DIFICIL))
+    # cada nota maior nunca dá prazo igual ou menor que a anterior
+    bom = max(dificil + 1, round(anterior * nova_facilidade(estado["facilidade"], 4)))
+    facil = max(bom + 1, round(bom * BONUS_FACIL))
+    dias = {3: dificil, 4: bom, 5: facil}[min(qualidade, 5)]
+    # no teto, como no Anki, as três notas passam a dar o mesmo prazo
+    return min(dias, INTERVALO_MAXIMO)
 
 
 def _hoje() -> date:
@@ -256,28 +304,12 @@ class Progresso:
         if acertou:
             e["acertos"] += 1
 
-        if not acertou:
-            # Falhou: recomeça o ciclo. A facilidade é recalculada logo
-            # abaixo e cai — adaptação deste projeto: no SM-2 original ela
-            # ficaria intacta (ver docstring do módulo, item 1a).
-            e["repeticoes"] = 0
-            e["intervalo"] = INTERVALO_1
-        else:
-            e["repeticoes"] += 1
-            if e["repeticoes"] == 1:
-                # "Fácil" logo de cara pula o passo de 1 dia. Sem isso, as
-                # quatro notas dariam o mesmo agendamento no primeiro
-                # contato, e a escolha do estudante pareceria não valer
-                # nada. Adaptação deste projeto (item 1c).
-                e["intervalo"] = INTERVALO_FACIL_INICIAL if qualidade == 5 else INTERVALO_1
-            elif e["repeticoes"] == 2:
-                e["intervalo"] = INTERVALO_2
-            else:
-                e["intervalo"] = max(1, round(e["intervalo"] * e["facilidade"]))
-
-        # Ajuste da facilidade (fórmula do SM-2)
-        f = e["facilidade"] + (0.1 - (5 - qualidade) * (0.08 + (5 - qualidade) * 0.02))
-        e["facilidade"] = max(FACILIDADE_MINIMA, round(f, 3))
+        # o intervalo sai do estado de antes da resposta (ver proximo_intervalo)
+        e["intervalo"] = proximo_intervalo(e, qualidade)
+        # Falhou: recomeça o ciclo, e a facilidade cai — adaptação deste
+        # projeto: no SM-2 original ela ficaria intacta (docstring, item 1a)
+        e["repeticoes"] = e["repeticoes"] + 1 if acertou else 0
+        e["facilidade"] = nova_facilidade(e["facilidade"], qualidade)
 
         hoje = _hoje()
         e["ultima_revisao"] = _iso(hoje)

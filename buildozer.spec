@@ -16,16 +16,17 @@ package.domain = br.unicid
 source.dir = .
 
 # (list) Extensões incluídas no APK
-source.include_exts = py,png,json,csv
+source.include_exts = py,png,json,csv,ttf
 
 # (list) Pastas incluídas
 source.include_patterns = data/*,data/images/*,mobile/*,assets/*
 
 # (list) Pastas que não vão para o APK (relatório, documentação, testes)
-source.exclude_dirs = .git,.claude,.buildozer,bin,__pycache__,.venv,venv,tests,relatorio,docs,android
+source.exclude_dirs = .git,.claude,.buildozer,bin,__pycache__,.venv,venv,tests,relatorio,docs,android,servidor
 
-# (list) Arquivos só da versão desktop, geradores e dados locais do computador
-source.exclude_patterns = main_enhanced.py,tela_painel.py,tela_revisao.py,painel_inicio.py,criar_imagens.py,criar_assets_mobile.py,criar_logo.py,ollama_ia.py,test_*.py,data/progresso.json,data/preferencias_mobile.json
+# (list) Arquivos só da versão desktop, geradores e dados locais do computador.
+# .env guarda a chave do Gemini do computador: nunca vai para o APK.
+source.exclude_patterns = main_enhanced.py,tela_painel.py,tela_revisao.py,painel_inicio.py,criar_imagens.py,criar_assets_mobile.py,criar_logo.py,ollama_ia.py,test_*.py,data/progresso.json,data/preferencias_mobile.json,.env
 
 # (str) Versão da aplicação
 version = 0.4
@@ -33,7 +34,9 @@ version = 0.4
 # (list) Requerimentos Python.
 # matplotlib saiu: só serve para gerar as imagens no computador
 # (criar_imagens.py) e deixava o APK muito maior.
-requirements = python3,kivy==2.3.1
+# certifi: certificados para a conexão HTTPS do tutor com IA (o Python do
+# Android não enxerga os do sistema).
+requirements = python3,kivy==2.3.1,certifi
 
 # (str) Tela de abertura e ícone — gere com: python criar_logo.py
 presplash.filename = %(source.dir)s/assets/presplash.png
@@ -56,6 +59,8 @@ fullscreen = 0
 # (list) Permissões Android.
 # Nenhuma: o app funciona offline e guarda o progresso na pasta privada do
 # próprio app, então não precisa de internet nem de acesso ao armazenamento.
+# Para o tutor com Gemini no celular (docs/TUTOR_GEMINI.md, parte 3), troque por:
+# android.permissions = INTERNET
 android.permissions =
 
 # (str) Trecho extra do manifesto: declara a consulta ao serviço de voz

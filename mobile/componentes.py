@@ -179,6 +179,19 @@ def coluna_rolavel(padding=(dp(16), dp(8), dp(16), dp(24)), spacing=dp(14)):
     return scroll, coluna
 
 
+def grade_rolavel(colunas, padding=(dp(16), dp(8), dp(16), dp(24)), spacing=dp(12)):
+    """Como coluna_rolavel, mas em grade: listas em tablet e computador."""
+    from kivy.uix.gridlayout import GridLayout
+    scroll = ScrollView(do_scroll_x=False, bar_width=dp(4),
+                        bar_color=(*COR["tinta3"][:3], 0.6),
+                        bar_inactive_color=(*COR["tinta3"][:3], 0.2),
+                        scroll_type=["bars", "content"])
+    grade = GridLayout(cols=colunas, size_hint_y=None, padding=padding, spacing=spacing)
+    grade.bind(minimum_height=grade.setter("height"))
+    scroll.add_widget(grade)
+    return scroll, grade
+
+
 def faixa_rolavel(altura, spacing=dp(8), padding=(0, 0)):
     """ScrollView horizontal, para chips e selos."""
     scroll = ScrollView(do_scroll_y=False, size_hint_y=None, height=altura,
@@ -1155,6 +1168,94 @@ class BarraNavegacao(FloatLayout):
             else:
                 self._animando = False
                 self.pilula_x = destino
+        Clock.schedule_once(mover, 0)
+
+    def _fim_animacao(self, *_):
+        self._animando = False
+        self._reposicionar()
+
+
+class TrilhoNavegacao(FloatLayout):
+    """Navegação lateral para tablet e computador (o "navigation rail").
+
+    Em tela larga, a barra inferior fica longe do conteúdo e espalha cinco
+    ícones por 1.200 px. O trilho junta as mesmas abas na lateral esquerda,
+    onde o olho começa a leitura. Mesma interface da BarraNavegacao, para o
+    app tratar as duas do mesmo jeito.
+    """
+
+    pilula_y = NumericProperty(-1000.0)
+    ITENS = BarraNavegacao.ITENS
+
+    @staticmethod
+    def largura():
+        return dp(88)
+
+    def __init__(self, ao_escolher, **kwargs):
+        kwargs.setdefault("size_hint_x", None)
+        kwargs.setdefault("width", self.largura())
+        super().__init__(**kwargs)
+        self.ao_escolher = ao_escolher
+        self.ativa = None
+        with self.canvas.before:
+            Color(*COR["superficie"])
+            self._fundo = Rectangle()
+            Color(*(COR["borda_forte"] if alto_contraste() else COR["borda"]))
+            self._linha = Rectangle()
+            Color(*COR["acento_suave"])
+            self._pilula = RoundedRectangle(radius=[dp(16)])
+        altura_item = dp(40) + dpt(26)
+        self.faixa = BoxLayout(orientation="vertical", size_hint=(1, None),
+                               height=altura_item * len(self.ITENS) + dp(8) * (len(self.ITENS) - 1),
+                               spacing=dp(8), pos_hint={"x": 0, "top": 1},
+                               padding=(0, dp(16), 0, 0))
+        self.faixa.height += dp(16)
+        self.itens = {}
+        self._animando = False
+        for chave, icone, texto in self.ITENS:
+            item = ItemNavegacao(chave, icone, texto, size_hint_y=None, height=altura_item)
+            item.bind(on_release=lambda it: self.ao_escolher(it.chave))
+            item.bind(pos=self._reposicionar, size=self._reposicionar)
+            self.faixa.add_widget(item)
+            self.itens[chave] = item
+        self.add_widget(self.faixa)
+        self.bind(pos=self._desenhar, size=self._desenhar, pilula_y=self._desenhar)
+
+    def _centro_icone(self, item):
+        # o ícone fica na caixa de 32 dp logo abaixo do respiro de 8 dp do item
+        return item.top - dp(8) - dp(16)
+
+    def _reposicionar(self, *_):
+        if self.ativa in self.itens and not self._animando:
+            self.pilula_y = self._centro_icone(self.itens[self.ativa])
+
+    def _desenhar(self, *_):
+        self._fundo.pos = self.pos
+        self._fundo.size = self.size
+        self._linha.pos = (self.right - dp(1), self.y)
+        self._linha.size = (dp(1), self.height)
+        self._pilula.size = (dp(58), dp(32))
+        self._pilula.pos = (self.x + (self.width - dp(58)) / 2, self.pilula_y - dp(16))
+
+    def selecionar(self, chave, animar=True):
+        self.ativa = chave
+        for k, item in self.itens.items():
+            item.ativar(k == chave)
+        item = self.itens.get(chave)
+        if item is None:
+            return
+
+        def mover(_dt):
+            destino = self._centro_icone(item)
+            Animation.cancel_all(self, "pilula_y")
+            if animar and self.pilula_y > 0 and movimento():
+                self._animando = True
+                anim = Animation(pilula_y=destino, duration=0.28, t="out_cubic")
+                anim.bind(on_complete=self._fim_animacao)
+                anim.start(self)
+            else:
+                self._animando = False
+                self.pilula_y = destino
         Clock.schedule_once(mover, 0)
 
     def _fim_animacao(self, *_):

@@ -11,7 +11,8 @@ internet e nenhuma dependência nova entra no pacote:
 - Android: android.speech.tts.TextToSpeech, via pyjnius (que já vem com
   o python-for-android). O manifesto declara a consulta ao serviço de
   voz, exigida a partir do Android 11.
-- Windows: SAPI, via pywin32 se estiver instalado.
+- Windows: SAPI, via pywin32 se estiver instalado; sem ele, a voz do
+  System.Speech pelo PowerShell, que vem com o próprio Windows.
 - macOS: comando `say`; Linux: `espeak-ng` ou `espeak`, se houver.
 
 Sem voz disponível, `disponivel` fica False e a interface esconde os
@@ -95,6 +96,49 @@ class _Windows:
         self._voz.Speak("", 1 | 2)
 
 
+class _PowerShell:
+    """Voz do Windows sem dependências: System.Speech, chamado pelo PowerShell.
+
+    O texto vai pela entrada padrão, nunca na linha de comando: assim não
+    há aspas para escapar nem como um texto virar comando.
+    """
+
+    ROTEIRO = ("[Console]::InputEncoding=[Text.Encoding]::UTF8;"
+               "Add-Type -AssemblyName System.Speech;"
+               "$v=New-Object System.Speech.Synthesis.SpeechSynthesizer;"
+               "$pt=$v.GetInstalledVoices()|Where-Object{$_.VoiceInfo.Culture.Name -like 'pt*'}"
+               "|Select-Object -First 1;"
+               "if($pt){$v.SelectVoice($pt.VoiceInfo.Name)};"
+               "$v.Rate={taxa};$v.Speak([Console]::In.ReadToEnd())")
+
+    def __init__(self):
+        self.programa = shutil.which("powershell") or shutil.which("pwsh")
+        if not self.programa:
+            raise RuntimeError("PowerShell não encontrado")
+        self._processo = None
+        self._trava = threading.Lock()
+        self.disponivel = True
+
+    def falar(self, texto, velocidade=1.0):
+        self.parar()
+        taxa = max(-10, min(10, round((velocidade - 1.0) * 12)))
+        with self._trava:
+            self._processo = subprocess.Popen(
+                [self.programa, "-NoProfile", "-NonInteractive", "-Command",
+                 self.ROTEIRO.replace("{taxa}", str(taxa))],
+                stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+            self._processo.stdin.write(texto.encode("utf-8"))
+            self._processo.stdin.close()
+
+    def parar(self):
+        with self._trava:
+            if self._processo and self._processo.poll() is None:
+                self._processo.terminate()
+            self._processo = None
+
+
 class _Comando:
     """`say` no macOS, `espeak-ng`/`espeak` no Linux."""
 
@@ -127,7 +171,10 @@ def criar_voz():
         if platform == "android":
             return _Android()
         if platform == "win":
-            return _Windows()
+            try:
+                return _Windows()
+            except Exception:
+                return _PowerShell()   # Windows sem pywin32
         if platform == "macosx" and shutil.which("say"):
             return _Comando("say", lambda v: ["-r", str(round(180 * v))])
         for programa in ("espeak-ng", "espeak"):

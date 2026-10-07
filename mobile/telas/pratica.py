@@ -34,6 +34,8 @@ def titulo_caso(caso):
 
 class TelaPratica(TelaBase):
 
+    LARGURA_MAXIMA = 760   # dp, em tablet e computador
+
     def montar(self, modo="quiz", iniciar=False, **_):
         raiz = BoxLayout(orientation="vertical")
         cabecalho = C.titulo_pagina("Prática", "Teste o que você lembra")

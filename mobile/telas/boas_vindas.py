@@ -29,6 +29,8 @@ TOTAL = 3
 
 class TelaBoasVindas(TelaBase):
 
+    LARGURA_MAXIMA = 640   # dp, em tablet e computador
+
     def montar(self, passo=1, **_):
         self.passo = max(1, min(TOTAL, passo))
         raiz = BoxLayout(orientation="vertical", padding=(dp(20), dp(10), dp(20), dp(18)),

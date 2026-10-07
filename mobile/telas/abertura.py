@@ -28,6 +28,8 @@ LOGO_RESERVA = Path(__file__).resolve().parents[2] / "assets" / "logo" / "vertic
 
 class TelaAbertura(TelaBase):
 
+    LARGURA_MAXIMA = 480   # dp, em tablet e computador
+
     def montar(self, **_):
         self.coluna = BoxLayout(orientation="vertical", padding=(dp(32), 0))
         self.coluna.add_widget(Widget())

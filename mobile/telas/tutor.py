@@ -1,35 +1,45 @@
 """Tutor: conversa sobre marcadores, em balões.
 
-Quem responde é decidido em assistente.py: no celular, sempre a base do
-próprio app, offline; no computador, um modelo local (Ollama) quando há
-um instalado, com a base como reserva. A tela só mostra a conversa, o
-estado ("pensando…") e, quando a resposta veio da reserva, avisa por quê.
+Quem responde é decidido em assistente.py: o Gemini quando está
+configurado (no computador pela chave do .env; no celular pelo servidor
+intermediário), depois um modelo local (Ollama) e, sempre por último, a
+base do próprio app, offline. A tela mostra a conversa, o estado
+("pensando…") e, quando a resposta veio da reserva, avisa por quê.
 """
 
 import threading
 
 from kivy.clock import Clock
-from kivy.core.window import Window
 from kivy.metrics import dp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 
-from assistente import Assistente, BaseLocal, ModeloLocal
+from assistente import Assistente, BaseLocal, ModeloLocal, ModeloNuvem
 from mobile import componentes as C
 from mobile.tema import COR, dpt
 from mobile.telas.base import TelaBase
 
 SUGESTOES = ["O que é ALT?", "Potássio alto", "Troponina", "HbA1c", "Creatinina"]
+SUGESTOES_IA = ["ALT ou AST: qual a diferença?", "Por que a troponina sobe no infarto?",
+                "Potássio alto", "HbA1c × glicose de jejum", "Creatinina"]
+TURNOS_LEMBRADOS = 6   # mensagens anteriores que vão junto, para o fio da conversa
 
 
 class TelaTutor(TelaBase):
 
+    LARGURA_MAXIMA = 760   # dp, em tablet e computador
+
     def montar(self, **_):
         app = self.app
         self.marcadores = app.marcadores
-        self.assistente = Assistente([ModeloLocal(app.ia), BaseLocal(self.marcadores)])
+        self.assistente = Assistente([ModeloNuvem(self.marcadores, app.extras),
+                                      ModeloLocal(app.ia), BaseLocal(self.marcadores)])
         self.ocupado = False
+        self.historico = []   # [(papel, texto)], papel "usuario" ou "modelo"
+        gerador = next((p for p in self.assistente.provedores
+                        if p.generativo and p.disponivel()), None)
+        self.com_ia = gerador is not None
 
         raiz = BoxLayout(orientation="vertical")
         topo = BoxLayout(size_hint_y=None, height=max(dp(74), dpt(62)),
@@ -40,9 +50,8 @@ class TelaTutor(TelaBase):
         textos = BoxLayout(orientation="vertical")
         textos.add_widget(C.rotulo("Tutor", "20sp", COR["tinta"], negrito=True,
                                    vertical="bottom"))
-        modelo = self.assistente.provedores[0]
-        estado = (f"Com {modelo.nome}" if modelo.disponivel()
-                  else "Sem internet · responde pela base do app")
+        estado = (f"Com IA · {gerador.nome}" if gerador is not None
+                  else "Responde pela base do app, sem internet")
         textos.add_widget(C.rotulo(estado, "13sp", COR["tinta3"], vertical="top"))
         topo.add_widget(textos)
         raiz.add_widget(topo)
@@ -55,13 +64,14 @@ class TelaTutor(TelaBase):
         altura_chip = max(dp(44), dpt(38))
         faixa, linha = C.faixa_rolavel(altura_chip + dp(8), spacing=dp(8),
                                        padding=(dp(14), dp(4)))
-        for sugestao in SUGESTOES:
+        for sugestao in (SUGESTOES_IA if self.com_ia else SUGESTOES):
             chip = C.Chip(sugestao)
             chip.bind(on_release=lambda _c, s=sugestao: self._perguntar(s))
             linha.add_widget(chip)
         raiz.add_widget(faixa)
 
-        caixa = C.CampoTexto(dica="Pergunte sobre um marcador")
+        caixa = C.CampoTexto(dica="Pergunte sobre bioquímica clínica" if self.com_ia
+                             else "Pergunte sobre um marcador")
         entrada = BoxLayout(size_hint_y=None, height=caixa.height + dp(20),
                             padding=(dp(12), dp(8), dp(12), dp(12)), spacing=dp(8))
         self.campo = caixa.campo
@@ -75,17 +85,30 @@ class TelaTutor(TelaBase):
         raiz.add_widget(entrada)
 
         self.add_widget(raiz)
-        exemplos = ", ".join(m["sigla"] for m in self.marcadores[:5])
-        self._balao("Olá! Pergunte sobre qualquer marcador e eu explico a faixa de "
-                    "referência e o que significa estar alto ou baixo.\n\n"
-                    f"Experimente: {exemplos}…", do_usuario=False, acoes=False)
+        if isinstance(gerador, ModeloNuvem):
+            # versão gratuita da API: o Google pode usar o conteúdo enviado
+            self.conversa.add_widget(C.Aviso(
+                "As perguntas vão para o Gemini, do Google, na versão gratuita, que "
+                "pode usá-las para melhorar os produtos dele. Não digite dados pessoais "
+                "nem de pacientes.", tipo="info"))
+        if self.com_ia:
+            boas_vindas = ("Olá! Pergunte sobre os marcadores do app: o que significam, "
+                           "por que sobem ou descem, como se comparam. Eu me baseio no "
+                           "conteúdo conferido do app e lembro do que já conversamos.")
+        else:
+            exemplos = ", ".join(m["sigla"] for m in self.marcadores[:5])
+            boas_vindas = ("Olá! Pergunte sobre qualquer marcador e eu explico a faixa de "
+                           "referência e o que significa estar alto ou baixo.\n\n"
+                           f"Experimente: {exemplos}…")
+        self._balao(boas_vindas, do_usuario=False, acoes=False)
 
     # ── conversa ────────────────────────────────────────────────────
     def _rolar_para_o_fim(self):
         Clock.schedule_once(lambda _dt: setattr(self.scroll, "scroll_y", 0), 0.06)
 
     def _balao(self, texto, do_usuario, acoes=True):
-        largura_max = Window.width * 0.82
+        # largura da coluna da conversa (no tablet e no PC, não a da janela)
+        largura_max = (self.largura_util() - dp(28)) * 0.86
         rotulo = Label(text=texto, font_size="15sp", line_height=1.18,
                        color=COR["branco"] if do_usuario else COR["tinta"],
                        halign="left", valign="top")
@@ -140,8 +163,9 @@ class TelaTutor(TelaBase):
         self.campo.text = ""
         self._balao(pergunta, do_usuario=True)
         marcador = self._identificar_marcador(pergunta)
+        historico = list(self.historico[-TURNOS_LEMBRADOS:])
 
-        if self.assistente.provedores[0].disponivel() and marcador is not None:
+        if self.com_ia:
             # o modelo pode levar alguns segundos: indicador e thread separada
             self.ocupado = True
             self.digitando = C.Digitando()
@@ -152,22 +176,28 @@ class TelaTutor(TelaBase):
             self.linha_digitando = linha
             self._rolar_para_o_fim()
             threading.Thread(target=self._responder_em_segundo_plano,
-                             args=(pergunta, marcador), daemon=True).start()
+                             args=(pergunta, marcador, historico), daemon=True).start()
         else:
-            texto, _fonte, _aviso = self.assistente.responder(pergunta, marcador)
+            texto, _fonte, _aviso = self.assistente.responder(pergunta, marcador, historico)
+            self._lembrar(pergunta, texto)
             Clock.schedule_once(lambda _dt: self._balao(texto, do_usuario=False), 0.2)
 
-    def _responder_em_segundo_plano(self, pergunta, marcador):
-        texto, fonte, aviso = self.assistente.responder(pergunta, marcador)
-        Clock.schedule_once(lambda _dt: self._entregar(texto, fonte, aviso), 0)
+    def _responder_em_segundo_plano(self, pergunta, marcador, historico):
+        texto, fonte, aviso = self.assistente.responder(pergunta, marcador, historico)
+        Clock.schedule_once(lambda _dt: self._entregar(pergunta, texto, aviso), 0)
 
-    def _entregar(self, texto, fonte, aviso):
+    def _entregar(self, pergunta, texto, aviso):
         self.ocupado = False
         self.digitando.parar()
         self.conversa.remove_widget(self.linha_digitando)
         if aviso:
             self.conversa.add_widget(C.Aviso(aviso, tipo="atencao"))
+        self._lembrar(pergunta, texto)
         self._balao(texto, do_usuario=False)
+
+    def _lembrar(self, pergunta, resposta):
+        self.historico += [("usuario", pergunta), ("modelo", resposta)]
+        del self.historico[:-TURNOS_LEMBRADOS]
 
     def _identificar_marcador(self, pergunta):
         """Usa o mesmo vínculo do motor: evita que "na" vire sódio."""

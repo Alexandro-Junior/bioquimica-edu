@@ -14,6 +14,7 @@ from pathlib import Path
 # campo: (padrão, valores aceitos)
 ESQUEMA = {
     "tema":                 ("padrao", ("padrao", "alto_contraste")),
+    "fonte_leitura":        ("padrao", ("padrao", "hiperlegivel")),
     "escala_texto":         (1.0, (1.0, 1.15, 1.3, 1.5)),
     "movimento_reduzido":   (False, (True, False)),
     "modo_foco":            (False, (True, False)),

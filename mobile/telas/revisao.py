@@ -61,6 +61,8 @@ def texto_intervalo(dias):
 
 class TelaRevisao(TelaBase):
 
+    LARGURA_MAXIMA = 720   # dp, em tablet e computador
+
     def montar(self, **_):
         app = self.app
         self.progresso = app.progresso
@@ -258,16 +260,9 @@ class TelaRevisao(TelaBase):
         return cartao
 
     def _previsao(self, sigla, qualidade):
-        """Dias até o marcador voltar, espelhando o agendamento do motor."""
-        from progresso import INTERVALO_1, INTERVALO_2, INTERVALO_FACIL_INICIAL
-        e = self.progresso.estado(sigla)
-        if qualidade < 3:
-            return INTERVALO_1
-        if e["repeticoes"] == 0:
-            return INTERVALO_FACIL_INICIAL if qualidade == 5 else INTERVALO_1
-        if e["repeticoes"] == 1:
-            return INTERVALO_2
-        return max(1, round(e["intervalo"] * e["facilidade"]))
+        """Dias até o marcador voltar: a mesma conta que o motor usa."""
+        from progresso import proximo_intervalo
+        return proximo_intervalo(self.progresso.estado(sigla), qualidade)
 
     def _responder(self, qualidade):
         sigla = self.fila[self.posicao]

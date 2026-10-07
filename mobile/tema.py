@@ -168,12 +168,41 @@ def aplicar_tema(nome):
     AJUSTES["tema"] = nome
 
 
-def aplicar_ajustes(tema="padrao", escala_texto=1.0, movimento_reduzido=False):
+def aplicar_ajustes(tema="padrao", escala_texto=1.0, movimento_reduzido=False,
+                    fonte="padrao"):
     """Aplica as preferências de leitura antes de a interface ser montada."""
     aplicar_tema(tema)
+    aplicar_fonte(fonte)
     AJUSTES["escala_texto"] = escala_texto
     AJUSTES["movimento_reduzido"] = bool(movimento_reduzido)
     Metrics.fontscale = _ESCALA_SISTEMA * escala_texto
+
+
+# ── Fonte de leitura ────────────────────────────────────────────────
+# A interface usa o nome "Roboto" (padrão do Kivy). Para a opção de leitura
+# facilitada, o mesmo nome passa a apontar para a Atkinson Hyperlegible
+# (Braille Institute, licença OFL): letras desenhadas para se diferenciarem
+# mesmo com baixa visão (I, l e 1; O e 0; b, d, p e q). Como todo texto do
+# app usa o nome padrão, a troca vale em todas as telas sem mudar código.
+_FONTES_KIVY = os.path.join(kivy_data_dir, "fonts")
+_FONTES_APP = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                           "assets", "fontes")
+FONTES = {
+    "padrao": [os.path.join(_FONTES_KIVY, f"Roboto-{peso}.ttf")
+               for peso in ("Regular", "Italic", "Bold", "BoldItalic")],
+    "hiperlegivel": [os.path.join(_FONTES_APP, f"AtkinsonHyperlegible-{peso}.ttf")
+                     for peso in ("Regular", "Regular", "Bold", "Bold")],
+}
+
+
+def aplicar_fonte(nome):
+    arquivos = FONTES.get(nome, FONTES["padrao"])
+    if not all(os.path.exists(a) for a in arquivos):
+        arquivos, nome = FONTES["padrao"], "padrao"   # arquivo ausente: não quebra
+    regular, italico, negrito, negrito_italico = arquivos
+    LabelBase.register(name="Roboto", fn_regular=regular, fn_italic=italico,
+                       fn_bold=negrito, fn_bolditalic=negrito_italico)
+    AJUSTES["fonte"] = nome
 
 
 def alto_contraste():
@@ -198,6 +227,22 @@ def texto_grande():
 def dpt(valor):
     """dp que cresce com o texto: para caixas cuja altura é de um texto."""
     return dp(valor) * max(1.0, Metrics.fontscale)
+
+
+def formato():
+    """Classe de largura da janela (como no Material Design 3).
+
+    "compacto"  < 600 dp   celular: barra de abas embaixo, uma coluna
+    "medio"     < 840 dp   tablet em pé: menu lateral, conteúdo centralizado
+    "expandido" ≥ 840 dp   tablet deitado e computador: duas ou três colunas
+    """
+    from kivy.core.window import Window
+    largura = Window.width / dp(1)
+    if largura < 600:
+        return "compacto"
+    if largura < 840:
+        return "medio"
+    return "expandido"
 
 
 def cor_categoria(categoria):

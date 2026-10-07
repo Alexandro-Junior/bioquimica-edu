@@ -29,6 +29,8 @@ class CartaoVirar(ButtonBehavior, C.Superficie):
 
 class TelaCartas(TelaBase):
 
+    LARGURA_MAXIMA = 640   # dp, em tablet e computador
+
     def montar(self, **_):
         app = self.app
         self.cards = list(app.flashcards)
