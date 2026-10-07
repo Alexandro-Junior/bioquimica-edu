@@ -88,3 +88,5 @@ Se quiser comparar com outras direções antes de fechar a marca:
 Resultado de gerador de imagem é rascunho: a versão final deve ser
 redesenhada em vetor (como em `criar_logo.py`) para manter traço e
 proporções exatos.
+
+![Todas as versões](identidade_visual.png)

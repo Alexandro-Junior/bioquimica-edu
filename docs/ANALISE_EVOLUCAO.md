@@ -288,3 +288,5 @@ reaproveitável.
 5. **Relatório**: as novidades de acessibilidade entram no relatório final?
    A avaliação com usuários foi feita com a versão anterior; se entrarem,
    precisam aparecer como evolução posterior à avaliação.
+
+![Antes e depois](antes_depois.png)
