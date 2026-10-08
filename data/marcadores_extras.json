@@ -1,5 +1,5 @@
 {
-  "_sobre": "Material complementar por marcador. As referências apontam para StatPearls / NCBI Bookshelf (revisão por pares, acesso aberto) e foram verificadas com requisição HTTP. Os vídeos, em português, são de canais de estudo de bioquímica clínica e de profissionais ou professores identificados; cada link foi conferido no YouTube (título e canal) em 07/10/2026.",
+  "_sobre": "Material complementar por marcador. As referências apontam para StatPearls / NCBI Bookshelf (revisão por pares, acesso aberto), o Manual MSD (edição para profissionais, em português), a National Kidney Foundation e artigos e diretrizes com DOI; os endereços foram conferidos por requisição HTTP e os DOIs no Crossref. Os vídeos, em português, são de canais de estudo de bioquímica clínica e de profissionais ou professores identificados; cada link foi conferido no YouTube (título e canal) em 07/10/2026. \"aprofundamento\" traz textos curtos que aparecem na visão geral do marcador.",
   "marcadores_extras": [
     {
       "sigla": "ALT",
@@ -151,6 +151,12 @@
           "fonte": "StatPearls / NCBI Bookshelf",
           "url": "https://www.ncbi.nlm.nih.gov/books/NBK544252/",
           "nota": "Abordagem diagnóstica da icterícia pela fração predominante."
+        },
+        {
+          "titulo": "Exames laboratoriais para fígado e da vesícula biliar",
+          "fonte": "Manual MSD, edição para profissionais (em português)",
+          "url": "https://www.msdmanuals.com/pt/profissional/dist%C3%BArbios-hep%C3%A1ticos-e-biliares/exames-para-doen%C3%A7as-hep%C3%A1ticas-e-biliares/exames-laboratoriais-para-f%C3%ADgado-e-da-ves%C3%ADcula-biliar",
+          "nota": "Bilirrubina conjugada (direta) e não conjugada (indireta): o que cada uma indica."
         }
       ],
       "videos": [
@@ -177,6 +183,16 @@
           "descricao": "Paciente de 28 anos com icterícia de instalação rápida após transfusão incompatível. Predomínio de bilirrubina indireta.",
           "valores": "BT 5,2 mg/dL | BI 4,8 mg/dL | LDH 1200 U/L | Hb 6,5 g/dL | haptoglobina < 10 mg/dL",
           "conducao": "Interromper a transfusão imediatamente, hidratar, monitorar a função renal e reinvestigar a compatibilidade. LDH alta com haptoglobina baixa confirma hemólise."
+        }
+      ],
+      "aprofundamento": [
+        {
+          "titulo": "Bilirrubina direta e indireta",
+          "texto": "A bilirrubina vem da quebra do heme, sobretudo da hemoglobina das hemácias velhas. A indireta (não conjugada) não se dissolve em água: circula ligada à albumina e não passa para a urina. No fígado, ela é conjugada com ácido glicurônico e vira a direta (conjugada), que é eliminada na bile. A bilirrubina total é a soma das duas, e no sangue normal predomina a indireta."
+        },
+        {
+          "titulo": "O que a fração predominante sugere",
+          "texto": "Indireta alta: aumento da produção (hemólise) ou falha de captação e conjugação no fígado (síndrome de Gilbert). Direta alta: menor formação ou excreção da bile, como em obstrução das vias biliares e lesão hepática; só a direta aparece na urina (urina escura, colúria). Por isso, diante de bilirrubina alta, o primeiro passo é ver qual fração subiu (Manual MSD)."
         }
       ]
     },
@@ -294,6 +310,81 @@
           "descricao": "Paciente em quimioterapia para linfoma, com elevação abrupta de ácido úrico, potássio e fósforo.",
           "valores": "ácido úrico 14 mg/dL | K+ 6,5 mEq/L | fósforo 7,8 mg/dL | cálcio 7,0 mg/dL | creatinina 2,4 mg/dL",
           "conducao": "Emergência oncológica. Hidratação vigorosa, rasburicase ou alopurinol e correção dos distúrbios eletrolíticos."
+        }
+      ]
+    },
+    {
+      "sigla": "TFGe",
+      "referencias": [
+        {
+          "titulo": "KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease",
+          "fonte": "Kidney International, v. 105, n. 4S, p. S117-S314, 2024",
+          "url": "https://doi.org/10.1016/j.kint.2023.10.018",
+          "nota": "Diretriz internacional: definição de doença renal crônica e categorias G1 a G5 da TFG."
+        },
+        {
+          "titulo": "New Creatinine- and Cystatin C-Based Equations to Estimate GFR without Race",
+          "fonte": "New England Journal of Medicine, v. 385, p. 1737-1749, 2021 (Inker et al.)",
+          "url": "https://doi.org/10.1056/NEJMoa2102953",
+          "nota": "Artigo que criou a equação CKD-EPI 2021, usada na calculadora do app."
+        },
+        {
+          "titulo": "CKD-EPI Creatinine Equation (2021)",
+          "fonte": "National Kidney Foundation",
+          "url": "https://www.kidney.org/ckd-epi-creatinine-equation-2021",
+          "nota": "A fórmula com todos os coeficientes e as unidades."
+        },
+        {
+          "titulo": "Physiology, Glomerular Filtration Rate",
+          "fonte": "StatPearls / NCBI Bookshelf",
+          "url": "https://www.ncbi.nlm.nih.gov/books/NBK500032/",
+          "nota": "Fisiologia da filtração glomerular e como a TFG é medida e estimada."
+        },
+        {
+          "titulo": "Glomerular hyperfiltration: definitions, mechanisms and clinical implications",
+          "fonte": "Nature Reviews Nephrology, v. 8, p. 293-300, 2012 (Helal et al.)",
+          "url": "https://doi.org/10.1038/nrneph.2012.19",
+          "nota": "Hiperfiltração: sem definição única; ocorre na gestação, no diabetes e na obesidade."
+        }
+      ],
+      "videos": [
+        {
+          "titulo": "Taxa de filtração glomerular: como avaliar sem cometer erros",
+          "canal": "Dr. Roberto Galvão, nefrologista",
+          "url": "https://www.youtube.com/watch?v=wPKqMeoI-N8"
+        },
+        {
+          "titulo": "Como avaliar a função renal",
+          "canal": "Bioquímica Clínica Fácil (canal de estudo de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=nZ17AAnJXgk"
+        }
+      ],
+      "exemplos": [
+        {
+          "titulo": "Doença renal crônica no diabetes",
+          "descricao": "Homem de 62 anos, com diabetes tipo 2 há 15 anos e hipertensão. A creatinina está estável há 6 meses.",
+          "valores": "Creatinina 1,9 mg/dL | TFGe 39 mL/min/1,73 m² (CKD-EPI 2021) | Albumina/creatinina urinária 450 mg/g | Ureia 68 mg/dL",
+          "conducao": "TFG abaixo de 60 por mais de 3 meses: doença renal crônica, categoria G3b, com albuminúria A3 (KDIGO). Controlar pressão e glicemia, usar medicamentos que protegem o rim, ajustar doses de remédios eliminados pelo rim e acompanhar com nefrologia."
+        },
+        {
+          "titulo": "Lesão renal aguda por desidratação",
+          "descricao": "Homem de 78 anos com diarreia e vômitos há 3 dias, em uso de diurético. A creatinina era 1,0 mg/dL há 2 meses.",
+          "valores": "Creatinina 2,4 mg/dL (era 1,0) | TFGe calculada 27 mL/min/1,73 m² | Ureia 110 mg/dL | Sódio 148 mEq/L",
+          "conducao": "A creatinina subiu em poucos dias: é lesão renal aguda, não doença crônica. A equação supõe creatinina estável; com ela subindo, a TFGe superestima a função real. Hidratar, suspender diurético e remédios nefrotóxicos e repetir a creatinina."
+        }
+      ],
+      "aprofundamento": [
+        {
+          "titulo": "Categorias da TFG (KDIGO)",
+          "texto": "G1: 90 ou mais (normal ou alta) · G2: 60 a 89 (levemente diminuída) · G3a: 45 a 59 (leve a moderadamente diminuída) · G3b: 30 a 44 (moderada a gravemente diminuída) · G4: 15 a 29 (gravemente diminuída) · G5: abaixo de 15 (falência renal) · Valores em mL/min/1,73 m². Doença renal crônica exige alteração por mais de 3 meses: TFG abaixo de 60 ou sinais de lesão renal, como albuminúria."
+        },
+        {
+          "titulo": "Como a TFG é estimada",
+          "texto": "A TFG medida exige um marcador de filtração, como o iohexol; na prática, ela é estimada por equações. A CKD-EPI 2021 usa creatinina, idade e sexo, sem raça. A estimativa vale para adultos com creatinina estável e perde precisão em extremos de massa muscular, como em amputados e atletas. A TFG cai com a idade: em média, cerca de 116 aos 20 a 29 anos e 75 depois dos 70 (National Kidney Foundation)."
+        },
+        {
+          "titulo": "Por que a faixa vai até 130",
+          "texto": "Pela KDIGO, 90 ou mais é normal, sem limite superior definido. O app usa 130 só como teto da régua. Valores bem acima disso em adulto são pouco comuns e podem indicar hiperfiltração glomerular, vista na gestação e no início do diabetes; não há um corte único para defini-la (Helal et al., 2012)."
         }
       ]
     },
@@ -679,6 +770,75 @@
           "descricao": "Paciente com vômitos repetidos, pH elevado e cloro e potássio baixos.",
           "valores": "pH 7,52 | HCO3- 34 mEq/L | Cl- 88 mEq/L | K+ 3,0 mEq/L",
           "conducao": "Perda de ácido clorídrico pelo vômito. Corrigir o volume com solução salina e repor potássio e cloro."
+        }
+      ]
+    },
+    {
+      "sigla": "HCO3",
+      "referencias": [
+        {
+          "titulo": "Distúrbios ácido-base",
+          "fonte": "Manual MSD, edição para profissionais (em português)",
+          "url": "https://www.msdmanuals.com/pt-br/profissional/dist%C3%BArbios-end%C3%B3crinos-e-metab%C3%B3licos/regula%C3%A7%C3%A3o-e-dist%C3%BArbios-%C3%A1cido-base/dist%C3%BArbios-%C3%A1cido-base",
+          "nota": "Acidose e alcalose metabólicas pelo HCO3 e pelo pH, e como funciona a compensação."
+        },
+        {
+          "titulo": "Acidose metabólica",
+          "fonte": "Manual MSD, edição para profissionais (em português)",
+          "url": "https://www.msdmanuals.com/pt-br/profissional/dist%C3%BArbios-end%C3%B3crinos-e-metab%C3%B3licos/regula%C3%A7%C3%A3o-e-dist%C3%BArbios-%C3%A1cido-base/acidose-metab%C3%B3lica",
+          "nota": "Causas com ânion gap elevado (cetoacidose, acidose lática, insuficiência renal) e normal (diarreia, acidose tubular)."
+        },
+        {
+          "titulo": "Alcalose metabólica",
+          "fonte": "Manual MSD, edição para profissionais (em português)",
+          "url": "https://www.msdmanuals.com/pt-br/profissional/dist%C3%BArbios-end%C3%B3crinos-e-metab%C3%B3licos/regula%C3%A7%C3%A3o-e-dist%C3%BArbios-%C3%A1cido-base/alcalose-metab%C3%B3lica",
+          "nota": "Causas mais comuns: vômitos, diuréticos e hiperaldosteronismo."
+        },
+        {
+          "titulo": "Arterial Blood Gas Analysis: Fundamentals, Interpretation, and Clinical Utility",
+          "fonte": "StatPearls / NCBI Bookshelf",
+          "url": "https://www.ncbi.nlm.nih.gov/books/NBK536919/",
+          "nota": "Interpretação da gasometria arterial: pH, PaCO2 e HCO3."
+        }
+      ],
+      "videos": [
+        {
+          "titulo": "Alcalose e acidose metabólica (com o cálculo do ânion gap)",
+          "canal": "Profa. Tatiana Lavich",
+          "url": "https://www.youtube.com/watch?v=sfrjkmDQRqY"
+        },
+        {
+          "titulo": "Gasometria: aprendendo a interpretar",
+          "canal": "Bioquímica Clínica Fácil (canal de estudo de bioquímica clínica)",
+          "url": "https://www.youtube.com/watch?v=LTvJzI1PyyQ"
+        }
+      ],
+      "exemplos": [
+        {
+          "titulo": "Cetoacidose diabética",
+          "descricao": "Jovem de 19 anos com diabetes tipo 1, vômitos e respiração rápida e profunda depois de parar a insulina.",
+          "valores": "pH 7,12 | HCO3 9 mEq/L | PaCO2 22 mmHg | Glicose 480 mg/dL | Na 134 mEq/L | Cl 98 mEq/L | Ânion gap 27 mEq/L",
+          "conducao": "Acidose metabólica com ânion gap elevado (134 − [98 + 9] = 27) e compensação respiratória: a PaCO2 esperada é 1,5 × 9 + 8 ± 2, ou cerca de 19,5 a 23,5 mmHg. Hidratação venosa, insulina, reposição de potássio e controle seriado de glicose, eletrólitos e gasometria."
+        },
+        {
+          "titulo": "Alcalose metabólica por vômitos",
+          "descricao": "Mulher de 45 anos com vômitos persistentes há 4 dias, fraca e com câimbras.",
+          "valores": "pH 7,52 | HCO3 36 mEq/L | PaCO2 47 mmHg | Cl 88 mEq/L | K 2,9 mEq/L",
+          "conducao": "A perda de ácido gástrico eleva o bicarbonato: alcalose metabólica com cloro e potássio baixos, e a PaCO2 sobe como compensação. Soro fisiológico com reposição de potássio e tratamento da causa dos vômitos."
+        }
+      ],
+      "aprofundamento": [
+        {
+          "titulo": "Como ler o bicarbonato junto com o pH",
+          "texto": "pH baixo com HCO3 baixo: acidose metabólica. pH alto com HCO3 alto: alcalose metabólica. Quando o pH aponta para um distúrbio respiratório (PaCO2 alterada), o HCO3 muda na mesma direção da PaCO2 como compensação. A compensação aproxima o pH do normal, mas não o normaliza por completo (Manual MSD)."
+        },
+        {
+          "titulo": "Ânion gap",
+          "texto": "Ânion gap = Na − (Cl + HCO3). Ele separa as acidoses metabólicas: elevado na cetoacidose, na acidose lática, na insuficiência renal e em intoxicações (metanol, etilenoglicol, salicilatos); normal na diarreia e na acidose tubular renal (Manual MSD)."
+        },
+        {
+          "titulo": "Gasometria e bioquímica",
+          "texto": "A faixa de 22 a 26 mEq/L é a da gasometria arterial, em que o HCO3 é calculado a partir do pH e da PaCO2. No soro, dosado com os eletrólitos, muitos laboratórios usam uma faixa um pouco mais larga (o Manual MSD cita 22 a 29 mEq/L). Vale sempre a faixa do laboratório que emitiu o exame."
         }
       ]
     },

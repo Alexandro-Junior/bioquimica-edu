@@ -65,6 +65,14 @@ def baixo_so_onde_tem_sentido_clinico():
 
 
 @teste
+def tfg_alta_fica_fora_do_jogo():
+    tfg = next(m for m in MARCADORES if m["sigla"] == "TFGe")
+    assert jogos.classes_possiveis(tfg) == ("baixo", "normal"), "hiperfiltração não tem corte"
+    hco3 = next(m for m in MARCADORES if m["sigla"] == "HCO3")
+    assert jogos.classes_possiveis(hco3) == jogos.CLASSES
+
+
+@teste
 def toda_resposta_vem_com_explicacao():
     for m in MARCADORES:
         for classe in jogos.classes_possiveis(m):

@@ -38,7 +38,7 @@ python main_kivy_completo.py
 
 | Modo | Features | Desktop | Mobile |
 |------|----------|---------|--------|
-| **📚 Estudo** | 20 marcadores + vídeos + exemplos | ✅ | ✅ |
+| **📚 Estudo** | 22 marcadores + vídeos + exemplos + calculadora de TFGe | ✅ | ✅ |
 | **🎴 Flashcards** | 50 cards com flip animation | ✅ | ✅ |
 | **🧠 Quiz** | 12 perguntas + feedback | ✅ | ✅ |
 | **🩺 Diagnóstico** | 15 casos clínicos | ✅ | ✅ |
@@ -49,7 +49,7 @@ python main_kivy_completo.py
 
 ### 📊 Dados Inclusos
 
-- ✅ **20 Marcadores** — ALT, AST, Glicose, Creatinina, K+, Troponina...
+- ✅ **22 Marcadores** — ALT, AST, Glicose, Creatinina, TFGe, K+, Bicarbonato, Troponina...
 - ✅ **50 Flashcards** — Memorização rápida
 - ✅ **12 Quiz Questions** — Teste conhecimento
 - ✅ **15 Casos Clínicos** — Situações reais

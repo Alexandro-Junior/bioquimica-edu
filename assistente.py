@@ -190,7 +190,7 @@ def ler_config_nuvem(raiz=RAIZ):
 
 
 def contexto_curado(marcadores, foco=None, extras=None):
-    """Os 20 marcadores do app, com o marcador da pergunta primeiro e completo."""
+    """Os marcadores do app, com o marcador da pergunta primeiro e completo."""
     partes = []
     if foco is not None:
         partes.append("MARCADOR DA PERGUNTA:\n" + ficha(foco))

@@ -109,5 +109,21 @@
     ],
     "resposta_correta": 1,
     "explicacao": "O HDL realiza o transporte reverso do colesterol: recolhe o excesso de colesterol dos tecidos periféricos e paredes arteriais, levando-o de volta ao fígado para metabolização e excreção. Valores baixos de HDL aumentam o risco cardiovascular."
+  },
+  {
+    "id": 13,
+    "categoria": "Renal",
+    "pergunta": "Uma TFGe de 38 mL/min/1,73 m², estável há 4 meses, corresponde a qual categoria da KDIGO?",
+    "alternativas": ["G2: levemente diminuída", "G3a: leve a moderadamente diminuída", "G3b: moderada a gravemente diminuída", "G4: gravemente diminuída"],
+    "resposta_correta": 2,
+    "explicacao": "A categoria G3b vai de 30 a 44 mL/min/1,73 m². TFG abaixo de 60 por mais de 3 meses já caracteriza doença renal crônica."
+  },
+  {
+    "id": 14,
+    "categoria": "Eletrólito",
+    "pergunta": "Gasometria arterial: pH 7,18, HCO3 10 mEq/L e PaCO2 24 mmHg. Qual é o distúrbio primário?",
+    "alternativas": ["Acidose respiratória", "Acidose metabólica com compensação respiratória", "Alcalose metabólica", "Alcalose respiratória com compensação metabólica"],
+    "resposta_correta": 1,
+    "explicacao": "pH baixo com bicarbonato baixo indica acidose metabólica; a PaCO2 baixa é a compensação respiratória (hiperventilação). A PaCO2 esperada é 1,5 × 10 + 8 ± 2, ou 21 a 25 mmHg."
   }
 ]
