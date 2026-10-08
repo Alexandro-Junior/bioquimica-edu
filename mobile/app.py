@@ -118,11 +118,13 @@ ABA_DA_TELA = {
     "revisao": "inicio", "acessibilidade": "inicio", "conta": "inicio",
 }
 
-# Nomes da versão anterior, mantidos para quem ainda chama ir_para com eles
+# Atalhos para um modo de outra tela; os três primeiros são nomes da versão
+# anterior, mantidos para quem ainda chama ir_para com eles
 APELIDOS = {
     "flashcards":  ("cartas", {}),
     "quiz":        ("pratica", {"modo": "quiz", "iniciar": True}),
     "diagnostico": ("pratica", {"modo": "casos"}),
+    "jogos":       ("pratica", {"modo": "jogos"}),
 }
 
 LIBRAS_PAGINA = "https://bioquimicaedu.web.app/libras"

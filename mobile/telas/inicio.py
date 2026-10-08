@@ -184,26 +184,34 @@ class TelaInicio(TelaBase):
             ("cartas", "Cards", f"{len(app.flashcards)} cards", "cartas"),
             ("pratica", "Quiz", f"{len(app.quiz)} questões", "quiz"),
             ("frasco", "Casos", f"{resolvidos} de {len(app.casos)}", "diagnostico"),
+            ("jogo", "Jogos", "2 desafios", "jogos"),
         ]
-        colunas = 1 if texto_grande() else 3
-        altura_item = dpt(54) if colunas == 1 else dpt(112)
+        # quatro lado a lado só em tela larga; no celular, dois por linha
+        if texto_grande():
+            colunas, empilhado = 1, False
+        elif self.largura_util() >= dp(560):
+            colunas, empilhado = 4, True
+        else:
+            colunas, empilhado = 2, False
+        altura_item = dpt(112) if empilhado else dpt(54 if colunas == 1 else 64)
+        linhas = -(-len(itens) // colunas)
         grade = GridLayout(cols=colunas, spacing=dp(10), size_hint_y=None,
-                           height=altura_item * (3 // colunas) + dp(10) * (3 // colunas - 1))
+                           height=altura_item * linhas + dp(10) * (linhas - 1))
         for icone, titulo, detalhe, destino in itens:
-            atalho = C.LinhaToque(orientation="vertical" if colunas == 3 else "horizontal",
-                                  padding=dp(14), spacing=dp(6 if colunas == 3 else 14),
+            atalho = C.LinhaToque(orientation="vertical" if empilhado else "horizontal",
+                                  padding=dp(14), spacing=dp(6 if empilhado else 14),
                                   elevacao=1)
             atalho.descricao = titulo
             atalho.add_widget(C.SeloIcone(icone, cor_fundo=COR["acento_suave"],
                                           cor_icone=COR["acento_escuro"], tamanho=dp(38),
                                           quadrado=True, pos_hint={"center_y": 0.5}))
-            if colunas == 3:
+            if empilhado:
                 atalho.add_widget(Widget())
             textos = BoxLayout(orientation="vertical")
             textos.add_widget(C.rotulo(titulo, "15sp", COR["tinta"], negrito=True,
                                        vertical="bottom"))
             textos.add_widget(C.rotulo(detalhe, "12.5sp", COR["tinta3"], vertical="top"))
-            if colunas == 3:
+            if empilhado:
                 textos.size_hint_y = None
                 textos.height = dpt(40)
             atalho.add_widget(textos)

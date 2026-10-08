@@ -175,6 +175,92 @@ def main():
         # antes, os casos resolvidos sumiam ao fechar o app
         assert caso["id"] in Progresso().casos_resolvidos(), "o caso não foi salvo"
 
+    @passo("prática: jogo 'Alto, normal ou baixo?' completo, com dica e relógio")
+    def _():
+        from jogos import RODADAS, classificar
+        from progresso import Progresso
+        app.ir_para("jogos", animar=False)   # atalho do Início
+        esperar_tela("pratica")
+        t = tela()
+        assert t.modo == "jogos"
+        t.iniciar_faixas()
+        siglas = {m["sigla"]: m for m in app.marcadores}
+        tentativas_antes = {s: app.progresso.estado(s)["tentativas"] for s in siglas}
+        for i in range(RODADAS):
+            r = t.rodadas[t.rodada]
+            m = siglas[r["sigla"]]
+            certa = classificar(r["valor"], m["valor_ref_min"], m["valor_ref_max"])
+            assert certa == r["classe"], (r, certa)
+            if i == 0:
+                t._mostrar_dica(m)
+                assert t.usou_dica
+            t.responder_faixas(certa)
+            regua = procurar(t.col, lambda w: w.__class__.__name__ == "ReguaFaixas")
+            assert regua is not None, "o retorno deveria mostrar a régua da faixa"
+            t._avancar_faixas()
+        assert t.acertos_jogo == RODADAS and t.melhor_sequencia == RODADAS
+        assert t.pontos == 5 + sum(min(10 + 5 * (n - 1), 30) for n in range(2, RODADAS + 1))
+        assert procurar(tela(), lambda w: getattr(w, "text", "") == "Jogar de novo")
+        assert Progresso().recorde("faixas") == t.pontos, "o recorde não foi salvo"
+        # a rodada com dica não conta para a revisão; as outras contam
+        primeira = t.rodadas[0]["sigla"]
+        contadas = [s for s in siglas
+                    if app.progresso.estado(s)["tentativas"] > tentativas_antes[s]]
+        assert primeira not in contadas and len(contadas) == RODADAS - 1, contadas
+
+        # relógio ligado: o tempo esgotado conta como erro, sem ir para a revisão
+        app.prefs.definir("relogio_jogo", True)
+        try:
+            t.iniciar_faixas()
+            assert t.barra_tempo is not None and t._relogio is not None
+            sigla = t.rodadas[0]["sigla"]
+            antes = app.progresso.estado(sigla)["tentativas"]
+            t._tique(100)
+            assert t.respondido and t.sequencia == 0 and t.errados == [sigla]
+            assert t._relogio is None
+            assert app.progresso.estado(sigla)["tentativas"] == antes
+            t._avancar_faixas()
+            assert t._relogio is not None
+            app.ir_para("inicio", animar=False)   # sair da aba para o relógio
+            assert t._relogio is None, "o relógio continuou correndo fora da Prática"
+        finally:
+            app.prefs.definir("relogio_jogo", False)
+
+    @passo("prática: jogo da memória completo")
+    def _():
+        from jogos import forma_par
+        from progresso import Progresso
+        app.ir_para("pratica", modo="jogos", animar=False)
+        t = tela()
+        t.iniciar_memoria()
+        cartas = t.cartas
+        # um erro de propósito: duas cartas que não formam par
+        i = 0
+        j = next(k for k in range(1, len(cartas)) if not forma_par(cartas[0], cartas[k]))
+        t.virar_carta(i)
+        t.virar_carta(j)
+        assert t.travado and t.jogadas == 1
+        t.virar_carta(next(k for k in range(len(cartas)) if k not in (i, j)))
+        assert t.jogadas == 1, "com duas cartas viradas, a mesa deveria estar travada"
+        t._parar_jogos()
+        t._desvirar()
+        assert not t.viradas and not t.travado
+        feitos = set()
+        for a in range(len(cartas)):
+            if a in feitos:
+                continue
+            b = next(k for k in range(len(cartas)) if forma_par(cartas[a], cartas[k]))
+            t.virar_carta(a)
+            t.virar_carta(b)
+            feitos |= {a, b}
+            assert t.widgets_cartas[a].com_par and t.widgets_cartas[b].com_par
+        assert len(t.encontradas) == len(cartas)
+        assert t.jogadas == 1 + len(cartas) // 2
+        t._parar_jogos()            # em vez de esperar o 1,2 s até o resultado
+        t._resultado_memoria()
+        assert procurar(tela(), lambda w: getattr(w, "text", "") == "Todos os pares!")
+        assert Progresso().recorde("memoria") == t.jogadas
+
     @passo("tutor: pergunta respondida pela base")
     def _():
         app.ir_para("tutor", animar=False)
@@ -226,6 +312,14 @@ def main():
         app.voltar()
         app.ir_para("detalhe", sigla="K", animar=False)
         app.voltar()
+        # os jogos também, com relógio, régua e cartas
+        app.prefs.definir("relogio_jogo", True)
+        app.ir_para("jogos", animar=False)
+        tela().iniciar_faixas()
+        tela().responder_faixas("alto")
+        tela().iniciar_memoria()
+        tela().virar_carta(0)
+        app.prefs.definir("relogio_jogo", False)
         for chave, valor in (("escala_texto", 1.0), ("tema", "padrao"),
                              ("movimento_reduzido", False)):
             app.mudar_preferencia(chave, valor)
