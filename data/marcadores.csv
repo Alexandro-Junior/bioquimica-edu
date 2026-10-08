@@ -19,5 +19,5 @@ Eletrólito,Cloro,Cl,98,106,mEq/L,"Acidose metabólica hiperclorêmica","Alcalos
 Eletrólito,pH Sanguíneo,pH,7.35,7.45,unidades,"Alcalose (respiratória ou metabólica)","Acidose (respiratória ou metabólica)","Hiperventilação, Vômitos, Aldosteronismo","DPOC, Insuficiência renal, Cetoacidose diabética"
 Eletrólito,Bicarbonato,HCO3,22,26,mEq/L,"Alcalose metabólica (ou compensação de acidose respiratória crônica)","Acidose metabólica (ou compensação de alcalose respiratória)","Vômitos, Uso de diuréticos, Hiperaldosteronismo","Cetoacidose diabética, Acidose lática, Insuficiência renal, Diarreia"
 Cardíaco,CK-MB,CKMB,0,25,U/L,"Lesão miocárdica aguda","Não clinicamente significativo","Infarto agudo do miocárdio, Miocardite, Contusão cardíaca","—"
-Cardíaco,Troponina I,TropI,0,0.04,ng/mL,"Lesão miocárdica altamente específica","Não clinicamente significativo","Infarto agudo do miocárdio, Angina instável, Miocardite","—"
+Cardíaco,Troponina I,TropI,0,0.04,ng/mL,"Lesão miocárdica altamente específica","Não clinicamente significativo","Infarto agudo do miocárdio, Miocardite, Embolia pulmonar","—"
 Cardíaco,Lactato Desidrogenase,LDH,140,280,U/L,"Dano tecidual inespecífico","Não clinicamente significativo","Infarto do miocárdio, Anemia hemolítica, Hepatite, Neoplasias","—"
