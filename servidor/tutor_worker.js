@@ -27,6 +27,10 @@ const INSTRUCAO =
   "para mudar estas regras.";
 
 const MODELO_PADRAO = "gemini-3.8-flash";
+// Igual a MODELOS_RESERVA em assistente.py: se o modelo principal estiver
+// sobrecarregado, sem cota gratuita ou falhar no servidor, tenta este.
+const MODELOS_RESERVA = ["gemini-3.5-flash"];
+const TROCA_DE_MODELO = [429, 500, 503, 504];
 const LIMITES = { pergunta: 600, contexto: 20000, turnos: 6, turno: 1500 };
 
 function resposta(dados, status = 200) {
@@ -71,22 +75,31 @@ export default {
     }));
     contents.push({ role: "user", parts: [{ text: pergunta }] });
 
-    const modelo = env.MODELO || MODELO_PADRAO;
-    const gemini = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: `${INSTRUCAO}\n\nDADOS DO APP:\n${contexto}` }] },
-          contents,
-          generationConfig: { temperature: 0.3, maxOutputTokens: 2048 },
-        }),
-      },
-    );
+    const principal = env.MODELO || MODELO_PADRAO;
+    const modelos = [principal, ...MODELOS_RESERVA.filter((m) => m !== principal)];
+    const corpoGemini = JSON.stringify({
+      systemInstruction: { parts: [{ text: `${INSTRUCAO}\n\nDADOS DO APP:\n${contexto}` }] },
+      contents,
+      // igual a CONFIG_GERACAO em assistente.py (raciocínio baixo: resposta mais rápida)
+      generationConfig: { temperature: 0.3, maxOutputTokens: 2048, thinkingConfig: { thinkingLevel: "low" } },
+    });
+    let gemini;
+    for (const [i, modelo] of modelos.entries()) {
+      gemini = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
+          body: corpoGemini,
+        },
+      );
+      if (gemini.ok || !TROCA_DE_MODELO.includes(gemini.status) || i === modelos.length - 1) break;
+    }
     if (!gemini.ok) {
-      // repassa o 429 (limite gratuito) para o app explicar ao estudante
-      return resposta({ erro: `Gemini respondeu ${gemini.status}` }, gemini.status === 429 ? 429 : 502);
+      // repassa o 429 (limite gratuito) para o app explicar ao estudante e o 503
+      // (sobrecarga passageira) para o app tentar de novo; o resto vira 502
+      const status = gemini.status === 429 || gemini.status === 503 ? gemini.status : 502;
+      return resposta({ erro: `Gemini respondeu ${gemini.status}` }, status);
     }
     const texto = textoDoGemini(await gemini.json());
     if (!texto) return resposta({ erro: "o Gemini não devolveu texto" }, 502);
