@@ -50,6 +50,20 @@ def rede_falsa(resposta=None, erro=None):
     return enviadas
 
 
+def rede_instavel(falhas, resposta):
+    """Responde com erro HTTP nas primeiras chamadas (códigos em `falhas`) e depois com JSON."""
+    enviadas = []
+
+    def abrir(requisicao, tempo_limite):
+        enviadas.append(requisicao)
+        if len(enviadas) <= len(falhas):
+            raise urllib.error.HTTPError("https://x", falhas[len(enviadas) - 1], "erro", {}, None)
+        return RespostaFalsa(json.dumps(resposta).encode("utf-8"))
+
+    assistente._abrir = abrir
+    return enviadas
+
+
 def gemini_respondeu(texto):
     return {"candidates": [{"content": {"role": "model", "parts": [{"text": texto}]},
                             "finishReason": "STOP"}]}
@@ -156,6 +170,75 @@ def limite_gratuito_tem_aviso_claro():
     _texto, fonte, aviso = Assistente([direto(), BaseLocal(MARCADORES)]).responder(
         "potássio alto", K)
     assert fonte == "base do app" and "limite gratuito" in aviso, aviso
+
+
+@teste
+def sobrecarga_passageira_tenta_de_novo():
+    pausas = []
+    original = assistente._esperar
+    assistente._esperar = pausas.append          # sem esperar de verdade no teste
+    try:
+        # 503 duas vezes e depois responde: o estudante recebe a resposta do Gemini
+        enviadas = rede_instavel([503, 503], gemini_respondeu("Resposta depois da sobrecarga."))
+        texto, fonte, aviso = Assistente([direto(), BaseLocal(MARCADORES)]).responder(
+            "potássio alto", K)
+        assert texto == "Resposta depois da sobrecarga." and not aviso, (fonte, aviso)
+        assert len(enviadas) == 3 and pausas == list(assistente.PAUSAS_ENTRE_TENTATIVAS)
+        # três 503 seguidos no principal: o modelo reserva responde
+        reserva = assistente.MODELOS_RESERVA[0]
+        enviadas = rede_instavel([503, 503, 503], gemini_respondeu("Resposta do modelo reserva."))
+        texto, _fonte, aviso = Assistente([direto(), BaseLocal(MARCADORES)]).responder(
+            "potássio alto", K)
+        assert texto == "Resposta do modelo reserva." and not aviso, aviso
+        assert len(enviadas) == 4 and reserva in enviadas[-1].full_url, enviadas[-1].full_url
+        # cota do principal esgotada (429): não insiste nele, vai direto ao reserva
+        enviadas = rede_instavel([429], gemini_respondeu("Resposta do modelo reserva."))
+        texto, _fonte, _aviso = Assistente([direto(), BaseLocal(MARCADORES)]).responder(
+            "potássio alto", K)
+        assert texto == "Resposta do modelo reserva." and len(enviadas) == 2
+        # demora demais no principal: também tenta o reserva
+        enviadas = rede_instavel([], gemini_respondeu("Resposta do modelo reserva."))
+        chamadas = []
+
+        def lento_depois_ok(requisicao, tempo_limite):
+            chamadas.append(requisicao)
+            if len(chamadas) == 1:
+                raise urllib.error.URLError(TimeoutError("timed out"))
+            return RespostaFalsa(json.dumps(gemini_respondeu("Resposta do modelo reserva."))
+                                 .encode("utf-8"))
+        assistente._abrir = lento_depois_ok
+        texto, _fonte, _aviso = Assistente([direto(), BaseLocal(MARCADORES)]).responder(
+            "potássio alto", K)
+        assert texto == "Resposta do modelo reserva." and len(chamadas) == 2
+        # tudo sobrecarregado: cai para a base, com aviso, depois de 3 + 3 tentativas
+        pausas.clear()
+        enviadas = rede_falsa(erro=urllib.error.HTTPError("https://x", 503, "erro", {}, None))
+        _texto, fonte, aviso = Assistente([direto(), BaseLocal(MARCADORES)]).responder(
+            "potássio alto", K)
+        assert fonte == "base do app" and "503" in aviso and len(enviadas) == 6, aviso
+        # chave recusada (403) não muda com outro modelo: uma tentativa só
+        enviadas = rede_instavel([403], gemini_respondeu("nunca chega"))
+        _texto, fonte, aviso = Assistente([direto(), BaseLocal(MARCADORES)]).responder(
+            "potássio alto", K)
+        assert fonte == "base do app" and len(enviadas) == 1, aviso
+    finally:
+        assistente._esperar = original
+
+
+@teste
+def demora_do_gemini_nao_vira_falta_de_internet():
+    rede_falsa(erro=urllib.error.URLError(TimeoutError("timed out")))
+    _texto, fonte, aviso = Assistente([direto(), BaseLocal(MARCADORES)]).responder(
+        "potássio alto", K)
+    assert fonte == "base do app" and "demorou" in aviso and "internet" not in aviso, aviso
+    # o servidor do Cloudflare pede ao Gemini a mesma configuração do app
+    codigo = (Path(__file__).resolve().parent / "servidor" / "tutor_worker.js").read_text(
+        encoding="utf-8")
+    nivel = assistente.CONFIG_GERACAO["thinkingConfig"]["thinkingLevel"]
+    assert f'thinkingLevel: "{nivel}"' in codigo, "configuração diferente no servidor"
+    assert "gemini.status === 503" in codigo, "o servidor precisa repassar o 503"
+    for modelo in assistente.MODELOS_RESERVA:
+        assert f'"{modelo}"' in codigo, f"o servidor não tem o modelo reserva {modelo}"
 
 
 @teste

@@ -127,7 +127,24 @@ class ModeloLocal:
 MODELO_PADRAO = "gemini-3.8-flash"
 ENDPOINT_GEMINI = ("https://generativelanguage.googleapis.com/v1beta/models/"
                    "{modelo}:generateContent")
-TEMPO_LIMITE = 25  # segundos; depois disso, a base do app responde
+TEMPO_LIMITE = 30  # segundos por modelo; depois do modelo reserva, a base do app responde
+# Raciocínio "baixo": o tutor explica dados já conferidos, não resolve problemas
+# abertos, e assim responde bem mais rápido (com o padrão, chegava a 37 s em
+# horário de muito uso). Mantenha igual em servidor/tutor_worker.js.
+CONFIG_GERACAO = {"temperature": 0.3, "maxOutputTokens": 2048,
+                  "thinkingConfig": {"thinkingLevel": "low"}}
+# Reserva: se o modelo principal estiver sobrecarregado, sem cota gratuita ou
+# lento demais, o tutor pergunta a este antes de cair para a base do app. Cada
+# modelo tem a própria cota gratuita. Mantenha igual em servidor/tutor_worker.js.
+MODELOS_RESERVA = ("gemini-3.5-flash",)
+
+
+def vale_trocar_de_modelo(erro):
+    """Sobrecarga, cota ou demora são do modelo; outro modelo pode responder.
+    Chave recusada, pergunta inválida ou falta de internet, não."""
+    if isinstance(erro, urllib.error.HTTPError):
+        return erro.code in (429, 500, 503, 504)
+    return isinstance(erro, TimeoutError) or isinstance(getattr(erro, "reason", None), TimeoutError)
 
 # Mantenha igual à de servidor/tutor_worker.js, que usa a mesma regra no
 # caminho do celular. A última frase protege contra pedidos do tipo
@@ -214,6 +231,31 @@ def _abrir(requisicao, tempo_limite):
     return urllib.request.urlopen(requisicao, timeout=tempo_limite, context=contexto)
 
 
+# Erros passageiros do lado do Google (503 é o mais comum na camada gratuita,
+# quando o modelo está sobrecarregado por alguns segundos). O Google recomenda
+# tentar de novo depois de uma pausa. Chave errada, cota esgotada (429) ou
+# pergunta bloqueada não melhoram tentando de novo: esses vão direto ao aviso.
+FALHAS_PASSAGEIRAS = {500, 503, 504}
+PAUSAS_ENTRE_TENTATIVAS = (1.5, 3.0)   # segundos, antes da 2ª e da 3ª tentativa
+
+
+def _esperar(segundos):
+    import time
+    time.sleep(segundos)
+
+
+def _pedir_json(requisicao):
+    """Envia a requisição e devolve o JSON; repete em falha passageira do servidor."""
+    for pausa in (*PAUSAS_ENTRE_TENTATIVAS, None):
+        try:
+            with _abrir(requisicao, TEMPO_LIMITE) as resposta:
+                return json.loads(resposta.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            if e.code not in FALHAS_PASSAGEIRAS or pausa is None:
+                raise
+            _esperar(pausa)
+
+
 def texto_da_resposta(dados):
     """Extrai o texto de um GenerateContentResponse; erro se veio vazio ou bloqueado."""
     bloqueio = (dados.get("promptFeedback") or {}).get("blockReason")
@@ -259,15 +301,21 @@ class ModeloNuvem:
                         + [{"role": "user", "parts": [{"text": pergunta[:600]}]}],
             # temperatura baixa: explicar dados curados, não inventar; o teto de
             # saída é folgado porque modelos que "pensam" gastam parte dele nisso
-            "generationConfig": {"temperature": 0.3, "maxOutputTokens": 2048},
+            "generationConfig": CONFIG_GERACAO,
         }
-        requisicao = urllib.request.Request(
-            ENDPOINT_GEMINI.format(modelo=self.cfg["modelo"]),
-            data=json.dumps(corpo).encode("utf-8"), method="POST",
-            headers={"Content-Type": "application/json",
-                     "x-goog-api-key": self.cfg["chave"]})
-        with _abrir(requisicao, TEMPO_LIMITE) as resposta:
-            return texto_da_resposta(json.loads(resposta.read().decode("utf-8")))
+        dados = json.dumps(corpo).encode("utf-8")
+        modelos = [self.cfg["modelo"]] + [m for m in MODELOS_RESERVA if m != self.cfg["modelo"]]
+        for i, modelo in enumerate(modelos):
+            requisicao = urllib.request.Request(
+                ENDPOINT_GEMINI.format(modelo=modelo), data=dados, method="POST",
+                headers={"Content-Type": "application/json",
+                         "x-goog-api-key": self.cfg["chave"]})
+            try:
+                return texto_da_resposta(_pedir_json(requisicao))
+            except (urllib.error.URLError, TimeoutError) as erro:
+                if i == len(modelos) - 1 or not vale_trocar_de_modelo(erro):
+                    raise
+                print(f"[tutor] {modelo} falhou ({_motivo(erro)}); tentando {modelos[i + 1]}")
 
     def _pelo_servidor(self, pergunta, contexto, historico):
         corpo = {"pergunta": pergunta[:600], "contexto": contexto,
@@ -278,8 +326,7 @@ class ModeloNuvem:
         requisicao = urllib.request.Request(self.cfg["servidor"], method="POST",
                                             data=json.dumps(corpo).encode("utf-8"),
                                             headers=cabecalhos)
-        with _abrir(requisicao, TEMPO_LIMITE) as resposta:
-            dados = json.loads(resposta.read().decode("utf-8"))
+        dados = _pedir_json(requisicao)
         if dados.get("texto"):
             return dados["texto"]
         raise ValueError(dados.get("erro") or "o servidor não devolveu texto")
@@ -300,7 +347,9 @@ def _motivo(erro):
         if erro.code in (401, 403):
             return "a chave de acesso não foi aceita"
         return f"o serviço respondeu com erro {erro.code}"
-    if isinstance(erro, (urllib.error.URLError, TimeoutError, OSError)):
+    if isinstance(erro, TimeoutError) or isinstance(getattr(erro, "reason", None), TimeoutError):
+        return "o Gemini demorou demais para responder (muito uso agora)"
+    if isinstance(erro, (urllib.error.URLError, OSError)):
         return "não foi possível conectar (sem internet?)"
     return "a resposta veio vazia"
 
