@@ -31,9 +31,17 @@ Regras para o resultado valer:
   (no Microsoft Forms, em "Configurações", desligue "Mostrar resultados
   automaticamente"). Senão o próprio pré-teste ensina.
 - Entre o pré e o pós, ninguém recebe o gabarito.
-- Participantes: voluntários com **18 anos ou mais**, como as pessoas que
-  você já ouviu (estudantes que vão cursar, que cursam ou já cursaram a
-  disciplina e profissionais formados).
+- **Participantes:** estudantes com **18 anos ou mais** que **ainda vão
+  cursar** Bioquímica Clínica (ou disciplina equivalente).
+  - Eles são o público do app.
+  - Começam com pouco conhecimento, então há espaço para medir a melhora. Um formado acertaria quase tudo já no pré-teste (efeito teto).
+  - Não estão tendo aulas da disciplina nessa semana, então a melhora não se mistura com o efeito das aulas.
+- **Quem já cursou ou é formado não faz o pré e pós-teste.** Essas pessoas respondem só ao questionário de opinião
+  ([QUESTIONARIO_AVALIACAO.md](QUESTIONARIO_AVALIACAO.md)), como avaliação por quem conhece o conteúdo. Esse formulário pode ser aplicado já, porque elas já viram o app.
+- **Quantos participantes:** o ideal é **8 ou mais** completarem os dois testes.
+  - Com menos de 6 pares, nenhum teste estatístico chega a um resultado conclusivo, e a análise fica só descritiva.
+  - Vale convidar estudantes dos primeiros semestres dos cursos que têm a disciplina, com ajuda do orientador.
+- **Usa-se o que for respondido, sem completar nada.** Quem fez só o pré-teste entra na descrição do ponto de partida, mas não na comparação antes e depois. O relatório informa quantos começaram e quantos terminaram.
 
 ## 2. Proteção de dados (LGPD, Lei nº 13.709/2018)
 
@@ -116,11 +124,15 @@ segundo questionário. *(resposta curta, obrigatória)*
 
 ### Perfil
 
-**2.** Qual destas opções descreve você hoje?
-- Estudante que ainda não cursou Bioquímica Clínica (ou equivalente)
-- Estudante cursando a disciplina agora
-- Estudante que já cursou a disciplina
-- Formado(a) na área da saúde
+**2.** Você já cursou, ou está cursando, Bioquímica Clínica (ou disciplina
+equivalente)?
+- Não, ainda vou cursar
+- Sim *(ramificação: leva a uma mensagem de agradecimento e ao fim do
+  formulário; esta avaliação é só para quem ainda vai cursar)*
+
+**2b.** Qual é o seu curso? *(lista fechada com os cursos convidados, por
+exemplo Biomedicina, Farmácia, Enfermagem, Medicina e "Outro"; sem campo
+de texto livre)*
 
 **3.** Você já usou o BioquímicaEDU antes deste questionário?
 - Não
@@ -276,7 +288,9 @@ CSV), **sem** colunas de nome, e-mail ou horário. A análise compara:
 - não há grupo de comparação (quem não usou o app);
 - as questões são as mesmas antes e depois, e parte da melhora pode vir de
   já ter visto as questões;
-- a amostra é pequena e por conveniência.
+- a amostra é pequena e por conveniência;
+- participaram só estudantes que ainda vão cursar a disciplina, então o
+  resultado vale para esse público, que é o público do app.
 
 Nada disso impede o pré e pós-teste de valer como **avaliação
 preliminar**, desde que essas limitações estejam escritas.
