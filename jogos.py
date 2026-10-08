@@ -53,6 +53,8 @@ FAIXAS_DO_JOGO = {
     "CREA":  {"normal": (0.7, 1.1), "alto": (1.6, 6.5), "baixo": (0.3, 0.5), "casas": 1},
     "UREIA": {"normal": (18, 36), "alto": (60, 190), "baixo": (6, 11), "casas": 0},
     "AU":    {"normal": (3.8, 6.4), "alto": (8.0, 12.5), "casas": 1},
+    # TFG alta (hiperfiltração) não tem corte definido: no jogo, só normal ou baixa
+    "TFGe":  {"normal": (95, 125), "alto": None, "baixo": (12, 55), "casas": 0},
     "GLI":   {"normal": (74, 94), "alto": (115, 320), "baixo": (40, 60), "casas": 0},
     "HbA1c": {"normal": (4.3, 5.4), "alto": (6.2, 11.5), "baixo": (3.0, 3.6), "casas": 1},
     "CT":    {"normal": (130, 190), "alto": (240, 360), "casas": 0},
@@ -63,6 +65,7 @@ FAIXAS_DO_JOGO = {
     "K":     {"normal": (3.7, 4.8), "alto": (5.6, 7.2), "baixo": (2.4, 3.1), "casas": 1},
     "Cl":    {"normal": (99, 105), "alto": (110, 120), "baixo": (85, 94), "casas": 0},
     "pH":    {"normal": (7.36, 7.44), "alto": (7.50, 7.62), "baixo": (7.10, 7.30), "casas": 2},
+    "HCO3":  {"normal": (23, 25), "alto": (30, 40), "baixo": (8, 18), "casas": 0},
     "CKMB":  {"normal": (4, 20), "alto": (40, 180), "casas": 0},
     "TropI": {"normal": (0.01, 0.03), "alto": (0.12, 8.0), "casas": 2},
     "LDH":   {"normal": (160, 260), "alto": (380, 1200), "casas": 0},
@@ -128,7 +131,8 @@ def faixas(m: dict) -> dict:
 
 
 def classes_possiveis(m: dict) -> tuple[str, ...]:
-    return CLASSES if faixas(m)["baixo"] else ("normal", "alto")
+    f = faixas(m)
+    return tuple(c for c in CLASSES if f[c])
 
 
 def sortear_valor(m: dict, classe: str, rng: random.Random | None = None) -> float:

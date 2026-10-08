@@ -6,7 +6,7 @@ offline. Com o Gemini ligado, ele fica mais inteligente:
 - explica com as próprias palavras, em vez de mostrar a ficha do marcador;
 - responde perguntas gerais e comparações ("ALT ou AST: qual a diferença?");
 - lembra as últimas mensagens, então dá para perguntar "e quando está baixo?";
-- continua preso ao conteúdo conferido do app: recebe os 20 marcadores
+- continua preso ao conteúdo conferido do app: recebe os 22 marcadores
   junto de cada pergunta, com a regra de não contradizê-los, não
   diagnosticar pacientes reais e ignorar pedidos para mudar essas regras.
 

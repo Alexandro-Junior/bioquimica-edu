@@ -213,8 +213,8 @@ class TelaCartas(TelaBase):
         alvos = self._alvos(card)
         if not alvos:
             area.add_widget(C.Texto(
-                text="Este card é de um exame fora dos 20 marcadores da base, "
-                     "então não entra nas suas revisões.",
+                text=f"Este card é de um exame fora dos {len(self.app.marcadores)} "
+                     "marcadores da base, então não entra nas suas revisões.",
                 estilo="micro", halign="center"))
             area.height = dpt(34)
             return

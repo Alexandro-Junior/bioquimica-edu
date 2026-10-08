@@ -7,6 +7,7 @@ janela sobreposta, e a tela cheia ganha o gesto natural de voltar.
 
 import webbrowser
 
+from kivy.clock import Clock
 from kivy.metrics import dp, sp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
@@ -300,11 +301,13 @@ class TelaDetalhe(TelaBase):
             return "" if not texto or texto == "—" else f" Associado a: {texto}."
 
         faixa = faixa_referencia(m).replace(" – ", " a ")
+        aprofundamento = " ".join(f"{a['titulo']}. {a['texto'].replace(' · ', '. ')}"
+                                  for a in self.extras.get("aprofundamento", []))
         return (f"{m['nome']}. Faixa de referência: {faixa} {m['unidade']}. "
                 f"Quando está elevado: {m.get('interpretacao_alta', '')}."
                 f"{associadas('doencas_associadas_alta')} "
                 f"Quando está baixo: {m.get('interpretacao_baixa', '')}."
-                f"{associadas('doencas_associadas_baixa')}")
+                f"{associadas('doencas_associadas_baixa')} {aprofundamento}").strip()
 
     def _geral(self):
         m = self.m
@@ -315,7 +318,7 @@ class TelaDetalhe(TelaBase):
             libras.bind(on_release=lambda *_: self.app.abrir_libras(self.texto_para_leitura()))
         acoes = C.linha_acoes(C.botao_ouvir(self.app, self.texto_para_leitura), libras)
         blocos = [acoes] if acoes is not None else []
-        return blocos + [
+        blocos += [
             self._interpretacao("sobe", "Quando está elevado", m.get("interpretacao_alta"),
                                 m.get("doencas_associadas_alta"),
                                 COR["rubro"], COR["rubro_suave"]),
@@ -323,6 +326,87 @@ class TelaDetalhe(TelaBase):
                                 m.get("doencas_associadas_baixa"),
                                 COR["indigo"], COR["indigo_suave"]),
         ]
+        if m["sigla"] == "TFGe":
+            blocos.append(self._calculadora_tfg())
+        blocos += [self._aprofundamento(a) for a in self.extras.get("aprofundamento", [])]
+        return blocos
+
+    @staticmethod
+    def _aprofundamento(item):
+        """Texto curto que aprofunda o marcador (frações, categorias, fórmulas).
+
+        Itens separados por " · " viram uma lista, um por linha.
+        """
+        cartao = C.Cartao(spacing=dp(8))
+        cartao.add_widget(C.Texto(text=item["titulo"], estilo="subtitulo"))
+        for parte in item["texto"].split(" · "):
+            cartao.add_widget(C.Texto(text=parte, estilo="corpo"))
+        return cartao
+
+    # ── calculadora da TFG estimada ─────────────────────────────────
+    def _calculadora_tfg(self):
+        from kivy.uix.gridlayout import GridLayout
+        cartao = C.Cartao(spacing=dp(10))
+        cab = BoxLayout(size_hint_y=None, height=dpt(34), spacing=dp(10))
+        cab.add_widget(C.SeloIcone("frasco", cor_fundo=COR["acento_suave"],
+                                   cor_icone=COR["acento_escuro"], tamanho=dp(34),
+                                   pos_hint={"center_y": 0.5}))
+        cab.add_widget(C.rotulo("Calcule a TFGe", "16sp", COR["tinta"], negrito=True))
+        cartao.add_widget(cab)
+        cartao.add_widget(C.Texto(
+            text="Equação CKD-EPI 2021, para adultos com creatinina estável. Serve para "
+                 "estudar: não substitui o laudo nem a avaliação clínica.", estilo="apoio"))
+        campos = GridLayout(cols=1 if texto_grande() else 2, spacing=dp(10), size_hint_y=None)
+        campos.bind(minimum_height=campos.setter("height"))
+        self.campo_creatinina = C.CampoTexto(dica="ex.: 1,2")
+        self.campo_idade = C.CampoTexto(dica="ex.: 45")
+        # rótulo fixo acima do campo: a dica some quando se digita
+        for rotulo, campo in (("Creatinina (mg/dL)", self.campo_creatinina),
+                              ("Idade (anos)", self.campo_idade)):
+            campo.campo.input_type = "number"   # teclado numérico no celular
+            grupo = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(4))
+            grupo.bind(minimum_height=grupo.setter("height"))
+            grupo.add_widget(C.Texto(text=rotulo, estilo="apoio", bold=True))
+            grupo.add_widget(campo)
+            campos.add_widget(grupo)
+        cartao.add_widget(campos)
+        self.sexo_tfg = "F"
+        cartao.add_widget(C.Segmentado([("F", "Feminino"), ("M", "Masculino")], "F",
+                                       lambda valor: setattr(self, "sexo_tfg", valor)))
+        calcular = C.Botao("Calcular", variante="primario")
+        calcular.bind(on_release=lambda *_: self.calcular_tfg())
+        cartao.add_widget(calcular)
+        self.resultado_tfg = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(10))
+        self.resultado_tfg.bind(minimum_height=self.resultado_tfg.setter("height"))
+        cartao.add_widget(self.resultado_tfg)
+        return cartao
+
+    def calcular_tfg(self):
+        from calculos import DadoInvalido, categoria_tfg, ler_numero, tfg_ckd_epi_2021
+        self.resultado_tfg.clear_widgets()
+        try:
+            creatinina = ler_numero(self.campo_creatinina.campo.text, "creatinina")
+            idade = ler_numero(self.campo_idade.campo.text, "idade")
+            tfg = round(tfg_ckd_epi_2021(creatinina, idade, self.sexo_tfg == "F"))
+        except DadoInvalido as e:
+            self.resultado_tfg.add_widget(C.Aviso(str(e), tipo="atencao"))
+            return None
+        m = self.m
+        codigo, descricao = categoria_tfg(tfg)
+        self.resultado_tfg.add_widget(C.Texto(text=f"TFGe: {tfg} {m['unidade']}",
+                                              estilo="titulo"))
+        self.resultado_tfg.add_widget(C.Texto(
+            text=f"Categoria {codigo} da KDIGO: {descricao.lower()}.", estilo="corpo"))
+        regua = C.ReguaFaixas(m["valor_ref_min"], m["valor_ref_max"], unidade=m["unidade"],
+                              formatar=formatar_numero)
+        self.resultado_tfg.add_widget(regua)
+        Clock.schedule_once(lambda _dt: regua.mostrar(tfg), 0.05)
+        if tfg < 60:
+            self.resultado_tfg.add_widget(C.Texto(
+                text="Abaixo de 60 por mais de 3 meses caracteriza doença renal crônica.",
+                estilo="apoio"))
+        self.app.falar(f"TFG estimada: {tfg}. Categoria {codigo}: {descricao}.")
+        return tfg
 
     def _casos(self):
         blocos = []

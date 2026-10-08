@@ -19,7 +19,7 @@ largura de leitura confortável, em vez de esticar até a borda.
 | Aba | O que faz |
 |-----|-----------|
 | **Início** | O que estudar hoje (revisões vencidas, erros do dia, conteúdo novo), estado da memória, pontos fracos, domínio por sistema, autoavaliação (confiança × acerto), constância e marcos |
-| **Estudo** | 20 marcadores com busca e filtro por sistema; cada um tem visão geral, casos clínicos, imagens, fontes acadêmicas e vídeos |
+| **Estudo** | 22 marcadores com busca e filtro por sistema; cada um tem visão geral, casos clínicos, imagens, fontes acadêmicas e vídeos. A TFGe tem uma calculadora (CKD-EPI 2021), e bilirrubina, TFGe e bicarbonato têm textos de aprofundamento |
 | **Cards** | 52 cards que viram com animação; depois de virar, "Lembrei / Não lembrei" alimenta a revisão |
 | **Prática** | Quiz (10 questões sorteadas de 12), 15 casos clínicos com exames classificados em ALTO / BAIXO / NORMAL e dois jogos: "Alto, normal ou baixo?" (10 resultados de exame, com régua da faixa de referência, pontos, relógio opcional e recorde pessoal) e jogo da memória (marcador e sistema) |
 | **Tutor** | Conversa sobre os marcadores. Offline, responde pela base do app; com o Gemini ligado ([docs/TUTOR_GEMINI.md](docs/TUTOR_GEMINI.md)), explica, compara e lembra a conversa |

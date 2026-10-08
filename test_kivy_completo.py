@@ -129,6 +129,29 @@ def main():
         app.voltar()
         esperar_tela("estudo")
 
+    @passo("estudo: TFGe com calculadora, bicarbonato e bilirrubinas aprofundados")
+    def _():
+        app.ir_para("estudo", animar=False)
+        t = tela()
+        t._escolher("Renal")
+        assert len(t.lista.children) == 4, "Renal: creatinina, ureia, ácido úrico e TFGe"
+        app.ir_para("detalhe", sigla="TFGe", animar=False)
+        t = tela()
+        t.campo_creatinina.campo.text = "1,9"
+        t.campo_idade.campo.text = "62"
+        t.sexo_tfg = "M"
+        assert t.calcular_tfg() == 39
+        assert procurar(t.resultado_tfg, lambda w: "G3b" in getattr(w, "text", ""))
+        assert procurar(t.resultado_tfg, lambda w: w.__class__.__name__ == "ReguaFaixas")
+        t.campo_idade.campo.text = "15"
+        assert t.calcular_tfg() is None, "menor de 18 anos deveria ser recusado"
+        assert procurar(t.resultado_tfg, lambda w: "adultos" in getattr(w, "text", ""))
+        app.voltar()
+        for sigla, trecho in (("HCO3", "Ânion gap"), ("BT", "Bilirrubina direta e indireta")):
+            app.ir_para("detalhe", sigla=sigla, animar=False)
+            assert procurar(tela(), lambda w, x=trecho: getattr(w, "text", "") == x), sigla
+            app.voltar()
+
     @passo("revisão: confiança, resposta e autoavaliação")
     def _():
         # a revisão começa pelo botão do Início, e o voltar retorna para lá
@@ -311,6 +334,11 @@ def main():
             esperar_tela(nome)
         app.voltar()
         app.ir_para("detalhe", sigla="K", animar=False)
+        app.voltar()
+        app.ir_para("detalhe", sigla="TFGe", animar=False)   # calculadora com letra grande
+        tela().campo_creatinina.campo.text = "1"
+        tela().campo_idade.campo.text = "40"
+        assert tela().calcular_tfg() is not None
         app.voltar()
         # os jogos também, com relógio, régua e cartas
         app.prefs.definir("relogio_jogo", True)

@@ -129,6 +129,11 @@ APELIDOS = {
     "ph sanguineo": "pH",
     "lactato desidrogenase": "LDH",
     "ldh": "LDH",
+    "tfg": "TFGe",
+    "taxa de filtração glomerular": "TFGe",
+    "taxa de filtracao glomerular": "TFGe",
+    "filtração glomerular": "TFGe",
+    "bicarbonato": "HCO3",
 }
 
 

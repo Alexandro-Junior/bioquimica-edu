@@ -643,7 +643,7 @@ class TelaFlashcards(tk.Frame):
 
         if not alvos:
             tk.Label(linha,
-                     text="Este card trata de um exame fora dos 20 marcadores "
+                     text="Este card trata de um exame que não está entre os marcadores "
                           "da base, então não entra nas suas revisões.",
                      font=FONTE["pequeno"], fg=COR["texto2"],
                      bg=COR["fundo"]).pack()
@@ -765,7 +765,7 @@ class TelaInicial(tk.Frame):
         # Posições em zigue-zague (relativas)
         nos = [
             ("📚", "Modo Estudo",
-             "Explore 20 marcadores e suas\ninterpretações clínicas",
+             f"Explore {len(carregar_marcadores())} marcadores e suas\ninterpretações clínicas",
              COR["primaria"], "estudo", 0),
             ("🎴", "Flashcards",
              "Estude rápido com 50 cards\nque viram ao clicar",
