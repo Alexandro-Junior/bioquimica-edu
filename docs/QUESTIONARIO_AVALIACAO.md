@@ -1,8 +1,15 @@
 # Questionário de avaliação do BioquímicaEDU
 
-Para enviar às mesmas pessoas que já viram o app. Leva uns 5 minutos.
-Passe para o Google Forms e, nas configurações, deixe **desligado**
-"Coletar endereços de e-mail", para que as respostas sejam anônimas.
+Para quem **já cursou a disciplina ou é formado** e já viu o app: é a
+avaliação de quem conhece o conteúdo. Leva uns 5 minutos. Estudantes que
+ainda vão cursar fazem o pré e pós-teste
+([AVALIACAO_PRE_POS_TESTE.md](AVALIACAO_PRE_POS_TESTE.md)), que já inclui
+estas perguntas no final.
+
+Monte no Microsoft Forms (ou no Google Forms) da conta institucional, com
+"Registrar nome" e "Coletar endereços de e-mail" **desligados**, para que
+as respostas sejam anônimas. As regras de proteção de dados (LGPD) estão
+na seção 2 do outro documento e valem aqui também.
 
 > **Ética:** confirme com o orientador se a avaliação precisa passar pelo
 > Comitê de Ética. A Resolução CNS nº 510/2016 dispensa dessa avaliação
@@ -14,13 +21,32 @@ Passe para o Google Forms e, nas configurações, deixe **desligado**
 
 ## Abertura do formulário (texto de consentimento)
 
+> **Avaliação do aplicativo BioquímicaEDU**
+>
 > Este questionário faz parte do projeto de iniciação científica (PIBIC/CNPq)
 > "Desenvolvimento de software educacional para o ensino interativo de
-> bioquímica clínica", da Universidade Cidade de São Paulo. Ele avalia o
-> aplicativo BioquímicaEDU. A participação é voluntária e anônima: não
-> pedimos nome nem e-mail, e você pode parar a qualquer momento. As
-> respostas serão apresentadas apenas em conjunto, no relatório final.
-> Ao continuar, você concorda em participar.
+> bioquímica clínica: marcadores bioquímicos e sua correlação com doenças",
+> da Universidade Cidade de São Paulo (UNICID), realizado por Alexandro de
+> Araujo Junior, com orientação do Prof. Francisco de Assis Cavallaro. Ele
+> avalia o aplicativo BioquímicaEDU e leva cerca de 5 minutos.
+>
+> **Seus dados:** não pedimos nome, e-mail nem outro dado que identifique
+> você. As respostas serão usadas apenas neste projeto e apresentadas
+> somente em conjunto, no relatório e em trabalhos científicos dele, em
+> conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018).
+> Ficam guardadas na conta da universidade, com acesso apenas do
+> pesquisador e do orientador.
+>
+> **Participação voluntária:** você pode parar a qualquer momento, sem
+> nenhum prejuízo. Como as respostas são anônimas, depois de enviadas não
+> conseguimos localizar e excluir as suas.
+>
+> **Contato:** [[PREENCHER: e-mail institucional do aluno]] e
+> [[PREENCHER: e-mail institucional do orientador]].
+>
+> **Pergunta obrigatória:** Tenho 18 anos ou mais, li as informações acima
+> e concordo em participar. (Sim, concordo / Não concordo: o formulário
+> termina aqui)
 
 ## Parte 1 — Perfil
 
@@ -32,7 +58,8 @@ Passe para o Google Forms e, nas configurações, deixe **desligado**
 2. Você já cursou a disciplina de Bioquímica Clínica (ou equivalente)?
    - Sim
    - Não
-3. Qual é o seu curso? *(resposta curta, opcional)*
+3. Qual é a sua área? *(lista fechada, sem texto livre: Biomedicina,
+   Farmácia, Enfermagem, Medicina, Outra área da saúde)*
 4. Como você conheceu o BioquímicaEDU?
    - Usei no computador
    - Usei no celular ou tablet
@@ -54,8 +81,15 @@ No Google Forms, use o tipo "Grade de múltipla escolha" ou "Escala linear".
 12. Eu usaria o BioquímicaEDU para estudar (ou teria usado, quando cursei a
     disciplina).
 13. Eu recomendaria o BioquímicaEDU a colegas.
+13a. Os jogos ("Alto, normal ou baixo?" e jogo da memória) ajudam a fixar
+     as faixas de referência.
+13b. O tutor respondeu bem às minhas dúvidas. *(com a opção "Não usei")*
+13c. Os recursos de acessibilidade (letra, contraste, leitura em voz alta,
+     Libras) são úteis. *(com a opção "Não usei")*
 
 ## Parte 3 — Opinião
+
+*Aviso no formulário: não escreva nomes nem dados pessoais.*
 
 14. Do que você mais gostou?
 15. Do que você não gostou, ou o que mudaria?
