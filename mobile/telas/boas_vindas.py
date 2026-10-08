@@ -32,7 +32,7 @@ PARTES = [
     ("inicio", "Início", "A revisão do dia, o estado da sua memória e o que está mais frágil."),
     ("estudo", "Estudo", "Os 20 marcadores, com faixa de referência, casos, imagens e fontes."),
     ("cartas", "Cards", "Pergunta de um lado, resposta do outro, para treinar a memória."),
-    ("pratica", "Prática", "Quiz e casos clínicos em que você lê vários exames juntos."),
+    ("pratica", "Prática", "Quiz, casos clínicos com vários exames juntos e dois jogos."),
     ("tutor", "Tutor", "Tire dúvidas sobre os marcadores, como faria com um colega."),
 ]
 

@@ -1,9 +1,11 @@
-"""Prática: quiz rápido e casos clínicos, lado a lado.
+"""Prática: quiz rápido, casos clínicos e jogos, lado a lado.
 
-Os dois ficam na mesma aba porque respondem à mesma intenção — testar o
+Os três ficam na mesma aba porque respondem à mesma intenção — testar o
 que se lembra — e diferem só no formato: o quiz cobra um fato, o caso
-cobra a interpretação de vários marcadores juntos. Todo acerto e todo
-erro alimentam a revisão espaçada dos marcadores envolvidos.
+cobra a interpretação de vários marcadores juntos, e os jogos (em
+telas/jogos.py) treinam, em forma de desafio, a leitura de um resultado
+contra a faixa de referência. Todo acerto e todo erro alimentam a revisão
+espaçada dos marcadores envolvidos.
 """
 
 import random
@@ -17,6 +19,7 @@ from mobile import componentes as C
 from mobile.dados import formatar_numero
 from mobile.tema import COR, cor_categoria, cor_categoria_texto, dpt, texto_grande
 from mobile.telas.base import TelaBase
+from mobile.telas.jogos import ModoJogos
 
 LETRAS = "ABCDEF"
 
@@ -32,7 +35,7 @@ def titulo_caso(caso):
     return titulo.split("—", 1)[1].strip() if "—" in titulo else titulo
 
 
-class TelaPratica(TelaBase):
+class TelaPratica(ModoJogos, TelaBase):
 
     LARGURA_MAXIMA = 760   # dp, em tablet e computador
 
@@ -51,14 +54,19 @@ class TelaPratica(TelaBase):
 
         self.seg_quiz = C.Botao("Quiz", variante="claro", height=dp(44), raio=dp(12),
                                 tamanho_fonte="14.5sp")
-        self.seg_casos = C.Botao("Casos clínicos", variante="claro", height=dp(44),
+        # "Casos", e não "Casos clínicos": três opções lado a lado no celular
+        self.seg_casos = C.Botao("Casos", variante="claro", height=dp(44),
                                  raio=dp(12), tamanho_fonte="14.5sp")
-        for botao in (self.seg_quiz, self.seg_casos):
+        self.seg_jogos = C.Botao("Jogos", variante="claro", height=dp(44),
+                                 raio=dp(12), tamanho_fonte="14.5sp")
+        for botao in (self.seg_quiz, self.seg_casos, self.seg_jogos):
             botao.size_hint_y = 1
         self.seg_quiz.bind(on_release=lambda *_: self.trocar_modo("quiz"))
         self.seg_casos.bind(on_release=lambda *_: self.trocar_modo("casos"))
+        self.seg_jogos.bind(on_release=lambda *_: self.trocar_modo("jogos"))
         seletor.add_widget(self.seg_quiz)
         seletor.add_widget(self.seg_casos)
+        seletor.add_widget(self.seg_jogos)
         self.topo.add_widget(seletor)
         raiz.add_widget(self.topo)
 
@@ -76,10 +84,17 @@ class TelaPratica(TelaBase):
         self.topo.opacity = 1 if visivel else 0
         self.topo.disabled = not visivel
 
+    def on_pre_leave(self, *_):
+        # já no início da troca de tela (on_leave só vem no quadro seguinte):
+        # relógio e cartas pendentes não seguem para outra aba
+        self._parar_jogos()
+
     def trocar_modo(self, modo, iniciar=False):
+        self._parar_jogos()
         self.modo = modo
         for botao, ativo in ((self.seg_quiz, modo == "quiz"),
-                             (self.seg_casos, modo == "casos")):
+                             (self.seg_casos, modo == "casos"),
+                             (self.seg_jogos, modo == "jogos")):
             botao.pintar(COR["superficie"] if ativo else COR["transparente"],
                          COR["tinta"] if ativo else COR["tinta2"])
             botao.elevacao = 1 if ativo else 0
@@ -89,6 +104,8 @@ class TelaPratica(TelaBase):
                 self.iniciar_quiz()
             else:
                 self._hub_quiz()
+        elif modo == "jogos":
+            self._hub_jogos()
         else:
             self._lista_casos()
 
@@ -101,8 +118,10 @@ class TelaPratica(TelaBase):
         progresso = C.BarraProgresso(cor=COR["indigo"], pos_hint={"center_y": 0.5})
         barra.add_widget(progresso)
         Clock.schedule_once(lambda _dt: progresso.animar(fracao), 0.05)
-        barra.add_widget(C.rotulo(texto, "13.5sp", COR["tinta2"], negrito=True,
-                                  alinhar="right", size_hint_x=None, width=dp(48)))
+        rotulo = C.rotulo(texto, "13.5sp", COR["tinta2"], negrito=True,
+                          alinhar="right", size_hint_x=None, width=dp(48))
+        barra.add_widget(rotulo)
+        barra.progresso, barra.texto = progresso, rotulo   # o jogo da memória atualiza
         return barra
 
     def _opcao(self, indice, texto):
@@ -141,7 +160,7 @@ class TelaPratica(TelaBase):
         else:
             Clock.schedule_once(lambda _dt: setattr(opcao, "opacity", 0.5), 0)
 
-    def _feedback(self, acertou, titulo, texto, acoes, destaque=None):
+    def _feedback(self, acertou, titulo, texto, acoes, destaque=None, extra=None):
         cor = COR["acento"] if acertou else COR["rubro"]
         cartao = C.Cartao(elevacao=0, cor_fundo=COR["acento_suave"] if acertou
                           else COR["rubro_suave"], padding=dp(18), spacing=dp(10),
@@ -155,6 +174,8 @@ class TelaPratica(TelaBase):
         cartao.add_widget(cab)
         if destaque:
             cartao.add_widget(C.Texto(text=destaque, estilo="corpo", bold=True))
+        if extra is not None:
+            cartao.add_widget(extra)
         if texto:
             cartao.add_widget(C.Texto(text=texto, estilo="corpo"))
             ouvir = C.botao_ouvir(self.app, lambda: f"{titulo}. {destaque or ''} {texto}")

@@ -41,7 +41,8 @@ python main_kivy_completo.py
 | **📚 Estudo** | 20 marcadores + vídeos + exemplos | ✅ | ✅ |
 | **🎴 Flashcards** | 50 cards com flip animation | ✅ | ✅ |
 | **🧠 Quiz** | 12 perguntas + feedback | ✅ | ✅ |
-| **🩺 Diagnóstico** | 5 casos clínicos reais | ✅ | ✅ |
+| **🩺 Diagnóstico** | 15 casos clínicos | ✅ | ✅ |
+| **🎮 Jogos** | "Alto, normal ou baixo?" e jogo da memória | ✅ | ✅ |
 | **💬 Tutor IA** | Chat offline + recomendações | ✅* | ✅ |
 
 *Desktop: requer Ollama
@@ -51,7 +52,8 @@ python main_kivy_completo.py
 - ✅ **20 Marcadores** — ALT, AST, Glicose, Creatinina, K+, Troponina...
 - ✅ **50 Flashcards** — Memorização rápida
 - ✅ **12 Quiz Questions** — Teste conhecimento
-- ✅ **5 Casos Clínicos** — Situações reais
+- ✅ **15 Casos Clínicos** — Situações reais
+- ✅ **2 Jogos didáticos** — Interpretar resultados contra a faixa de referência; ligar marcador e sistema
 - ✅ **16 Vídeos YouTube** — Explicações
 - ✅ **20+ Exemplos** — Diagnóstico & conduta
 

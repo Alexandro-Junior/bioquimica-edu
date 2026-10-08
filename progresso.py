@@ -237,6 +237,7 @@ class Progresso:
             "calibracao": [],   # (confiança declarada, acertou)
             "conquistas": [],
             "casos_resolvidos": [],  # ids dos casos clínicos já acertados
+            "jogos": {},             # nome do jogo -> recorde pessoal e partidas
         }
 
     def _carregar(self) -> dict:
@@ -604,6 +605,36 @@ class Progresso:
         if caso_id not in self.dados["casos_resolvidos"]:
             self.dados["casos_resolvidos"].append(caso_id)
             self.salvar()
+
+    # ── jogos ───────────────────────────────────────────────────────
+    def recorde(self, jogo: str) -> int | None:
+        registro = self.dados["jogos"].get(jogo)
+        if isinstance(registro, dict) and isinstance(registro.get("recorde"), int):
+            return registro["recorde"]
+        return None
+
+    def registrar_partida(self, jogo: str, resultado: int,
+                          menor_e_melhor: bool = False) -> bool:
+        """Guarda o recorde pessoal do jogo; devolve True se ele foi batido.
+
+        A primeira partida vira o recorde, mas não conta como "batido": não
+        havia marca anterior para superar.
+        """
+        anterior = self.recorde(jogo)
+        registro = self.dados["jogos"].get(jogo)
+        partidas = registro.get("partidas", 0) if isinstance(registro, dict) else 0
+        if not isinstance(partidas, int) or partidas < 0:
+            partidas = 0
+        if anterior is None:
+            melhor, batido = resultado, False
+        elif (resultado < anterior) if menor_e_melhor else (resultado > anterior):
+            melhor, batido = resultado, True
+        else:
+            melhor, batido = anterior, False
+        self.dados["jogos"][jogo] = {"recorde": int(melhor), "partidas": partidas + 1,
+                                     "ultima": _iso(_hoje())}
+        self.salvar()
+        return batido
 
     # ── resumo para a tela inicial ──────────────────────────────────
     def resumo(self, siglas: list[str], categorias: dict[str, str],

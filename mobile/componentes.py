@@ -17,12 +17,13 @@ Regras de acessibilidade que valem para todas as peças:
 - no alto contraste, bordas visíveis substituem as sombras.
 """
 
+import math
 from datetime import date
 
 from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.graphics import (Color, Line, PopMatrix, PushMatrix, Rectangle,
-                           RoundedRectangle, Scale, Translate)
+                           RoundedRectangle, Scale, Translate, Triangle)
 from kivy.metrics import Metrics, dp
 from kivy.properties import BooleanProperty, ListProperty, NumericProperty
 from kivy.uix.behaviors import ButtonBehavior
@@ -988,6 +989,150 @@ class ReguaCalibracao(Widget):
                       center=(px, y + dy))
             self.add_widget(r)
             self._rotulos.append(r)
+
+
+class ReguaFaixas(Widget):
+    """Faixa de referência desenhada: zonas baixa, normal e alta, e o valor.
+
+    Cada zona tem o nome escrito dentro dela; a cor só reforça. A escala é
+    linear dentro da faixa normal e se comprime fora dela: um valor muito
+    alterado (ALT 600 com referência até 56) fica perto da ponta, sem
+    espremer a faixa normal até sumir. Sem zona baixa (faixas "até X",
+    como a troponina), a régua tem só normal e alto.
+    """
+
+    avanco = NumericProperty(0.0)
+    COMPRESSAO = 1.2   # quanto a escala aperta fora da faixa normal
+
+    def __init__(self, minimo, maximo, tem_baixo=True, unidade="", formatar=None,
+                 **kwargs):
+        kwargs.setdefault("size_hint_y", None)
+        kwargs.setdefault("height", dpt(28) + dpt(26) + dpt(18) + dp(14))
+        super().__init__(**kwargs)
+        self.minimo, self.maximo = float(minimo), float(maximo)
+        self.tem_baixo = tem_baixo
+        self.unidade = "" if unidade == "unidades" else unidade   # o pH não tem unidade
+        self.formatar = formatar or (lambda v: f"{v:g}".replace(".", ","))
+        self.valor = None
+        self.descricao = ""
+        self._rotulos = []
+        self.bind(pos=self._desenhar, size=self._desenhar, avanco=self._desenhar)
+
+    # ── escala ──────────────────────────────────────────────────────
+    def zonas(self):
+        """(nome, início, fim) de cada zona, em fração da largura."""
+        if self.tem_baixo:
+            return [("baixo", 0.0, 0.25), ("normal", 0.25, 0.75), ("alto", 0.75, 1.0)]
+        return [("normal", 0.0, 0.62), ("alto", 0.62, 1.0)]
+
+    def fracao(self, valor):
+        z = {nome: (a, b) for nome, a, b in self.zonas()}
+        largura = (self.maximo - self.minimo) or 1.0
+        a, b = z["normal"]
+        if valor > self.maximo:
+            fora = 1 - math.exp(-self.COMPRESSAO * (valor - self.maximo) / largura)
+            inicio, fim = z["alto"]
+            f = inicio + (fim - inicio) * fora
+        elif valor < self.minimo and "baixo" in z:
+            fora = 1 - math.exp(-self.COMPRESSAO * (self.minimo - valor) / largura)
+            inicio, fim = z["baixo"]
+            f = fim - (fim - inicio) * fora
+        else:
+            f = a + (b - a) * (max(valor, self.minimo) - self.minimo) / largura
+        return min(0.98, max(0.02, f))
+
+    def situacao(self, valor):
+        if valor > self.maximo:
+            return "alto"
+        if valor < self.minimo:
+            return "baixo"
+        return "normal"
+
+    def mostrar(self, valor):
+        self.valor = valor
+        texto_valor = f"{self.formatar(valor)} {self.unidade}".strip()
+        self.descricao = (f"Régua: {texto_valor} está na faixa {self.situacao(valor)}. "
+                          f"Referência: {self.formatar(self.minimo)} a "
+                          f"{self.formatar(self.maximo)} {self.unidade}".strip())
+        self.avanco = 0.0
+        _animar(self, 0.7, avanco=1.0)
+
+    # ── desenho ─────────────────────────────────────────────────────
+    def _desenhar(self, *_):
+        self.canvas.clear()
+        for r in self._rotulos:
+            self.remove_widget(r)
+        self._rotulos = []
+        if self.width <= 1:
+            return
+        m = dp(2)
+        util = self.width - 2 * m
+        altura_barra = dpt(28)
+        base_barra = self.y + dpt(18) + dp(6)
+        topo_barra = base_barra + altura_barra
+        cores = {"baixo": ("indigo_suave", "indigo"), "normal": ("acento_suave", "acento_escuro"),
+                 "alto": ("rubro_suave", "rubro")}
+        ativa = self.situacao(self.valor) if self.valor is not None else None
+        r = dp(8)
+        zonas = self.zonas()
+        with self.canvas:
+            for i, (nome, a, b) in enumerate(zonas):
+                fundo, tinta = cores[nome]
+                x0, x1 = self.x + m + util * a, self.x + m + util * b
+                primeira, ultima = i == 0, i == len(zonas) - 1
+                raios = [(r, r) if primeira else (0, 0), (r, r) if ultima else (0, 0),
+                         (r, r) if ultima else (0, 0), (r, r) if primeira else (0, 0)]
+                Color(*COR[fundo])
+                RoundedRectangle(pos=(x0, base_barra), size=(x1 - x0, altura_barra),
+                                 radius=raios)
+                if nome == ativa or alto_contraste():
+                    Color(*COR[tinta])
+                    Line(rounded_rectangle=(x0 + dp(1), base_barra + dp(1), x1 - x0 - dp(2),
+                                            altura_barra - dp(2), max(dp(2), r - dp(1))),
+                         width=dp(1.5) if nome == ativa else dp(0.8))
+            if self.valor is not None:
+                centro = zonas[0][1] if not self.tem_baixo else 0.5
+                f = centro + (self.fracao(self.valor) - centro) * self.avanco
+                px = self.x + m + util * f
+                Color(*COR["tinta"])
+                Rectangle(pos=(px - dp(1.5), base_barra - dp(4)),
+                          size=(dp(3), altura_barra + dp(8)))
+                Triangle(points=[px - dp(6), topo_barra + dp(8), px + dp(6),
+                                 topo_barra + dp(8), px, topo_barra + dp(2)])
+
+        for nome, a, b in zonas:
+            _, tinta = cores[nome]
+            rotulo_zona = Label(text=nome.upper(), font_size="11.5sp", bold=True,
+                                color=COR[tinta], size_hint=(None, None),
+                                size=(util * (b - a), altura_barra),
+                                pos=(self.x + m + util * a, base_barra))
+            self._adicionar(rotulo_zona)
+        # números nos limites da faixa normal, embaixo da régua
+        limites = [(zonas[0][2], self.maximo)] if not self.tem_baixo else \
+            [(0.25, self.minimo), (0.75, self.maximo)]
+        for f, numero in limites:
+            self._adicionar(Label(text=self.formatar(numero), font_size="12sp",
+                                  color=COR["tinta2"], size_hint=(None, None),
+                                  size=(dpt(70), dpt(18)),
+                                  center=(self.x + m + util * f, self.y + dpt(9))))
+        if self.valor is not None:
+            texto = f"{self.formatar(self.valor)} {self.unidade}".strip()
+            pilula = Etiqueta(texto, COR["tinta"], COR["branco"], height=dpt(26),
+                              pos_hint={})
+            pilula.rotulo.font_size = "13.5sp"
+            self._adicionar(pilula)
+            centro = zonas[0][1] if not self.tem_baixo else 0.5
+            px = self.x + m + util * (centro + (self.fracao(self.valor) - centro) * self.avanco)
+
+            def posicionar(*_a, p=pilula, x=px):
+                p.x = min(self.right - p.width, max(self.x, x - p.width / 2))
+                p.y = topo_barra + dp(8)
+            pilula.bind(width=posicionar)
+            posicionar()
+
+    def _adicionar(self, widget):
+        self.add_widget(widget)
+        self._rotulos.append(widget)
 
 
 class Constancia(Widget):
