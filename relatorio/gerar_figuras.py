@@ -17,10 +17,11 @@ Evolução após a avaliação (seção 4.7), feitas pelo padrão:
                                versões do motor (a avaliada sai do Git)
 - evolucao_formatos.png        o app no computador, no tablet e no celular
 - evolucao_acessibilidade.png  ajustes, alto contraste com fonte, modo foco
+- evolucao_jogos.png           os dois jogos e a calculadora da TFG estimada
 - tutor_arquitetura.png        provedores do tutor e onde fica a chave
 - evolucao_tutor.png           conversa real com o Gemini; só sai se a chave
                                estiver configurada (docs/TUTOR_GEMINI.md)
-- metricas_evolucao.json       linhas de código da versão atual
+- metricas_evolucao.json       linhas de código e conteúdo da versão atual
 
 As capturas usam um progresso de exemplo (estudante fictício com algumas
 semanas de uso), para que o painel mostre todos os seus elementos. Ele
@@ -115,12 +116,20 @@ def metricas():
         "Testes automatizados": ["test_kivy_completo.py", "test_desktop.py"],
     }
     codigo = {nome: sum(contar_linhas(RAIZ / a) for a in arqs) for nome, arqs in modulos.items()}
+    saida = {"codigo": codigo, "codigo_total": sum(codigo.values()),
+             "conteudo": contar_conteudo(), "commits": contar_commits()}
+    json.dump(saida, io.open(FIG / "metricas.json", "w", encoding="utf-8"),
+              ensure_ascii=False, indent=2)
+    print("metricas.json", saida["codigo_total"], "linhas,", saida["conteudo"])
+    return saida
 
+
+def contar_conteudo():
     dados = RAIZ / "data"
     marcadores = list(csv.DictReader(io.open(dados / "marcadores.csv", encoding="utf-8")))
     extras = json.load(io.open(dados / "marcadores_extras.json", encoding="utf-8"))["marcadores_extras"]
     imagens = json.load(io.open(dados / "marcadores_imagens.json", encoding="utf-8"))["marcadores_imagens"]
-    conteudo = {
+    return {
         "marcadores": len(marcadores),
         "sistemas": len({m["categoria"] for m in marcadores}),
         "flashcards": len(json.load(io.open(dados / "flashcards.json", encoding="utf-8"))["flashcards"]),
@@ -132,15 +141,14 @@ def metricas():
         "videos": sum(len(m.get("videos", [])) for m in extras),
         "diagramas": sum(len(m.get("imagens", [])) for m in imagens),
         "marcadores_com_diagrama": len(imagens),
+        "aprofundamentos": sum(len(m.get("aprofundamento", [])) for m in extras),
     }
+
+
+def contar_commits():
     commits = subprocess.run(["git", "rev-list", "--count", "HEAD"], cwd=RAIZ,
                              capture_output=True, text=True).stdout.strip()
-    saida = {"codigo": codigo, "codigo_total": sum(codigo.values()),
-             "conteudo": conteudo, "commits": int(commits or 0)}
-    json.dump(saida, io.open(FIG / "metricas.json", "w", encoding="utf-8"),
-              ensure_ascii=False, indent=2)
-    print("metricas.json", saida["codigo_total"], "linhas,", conteudo)
-    return saida
+    return int(commits or 0)
 
 
 # ════════════════════════════════════════════════════════════════════
@@ -341,6 +349,9 @@ def prancha(nome, arquivos):
 
     telas = [Image.open(a).convert("RGB") for a in arquivos]
     w, h = telas[0].size
+    # às vezes a primeira captura sai antes de a janela assumir a escala da
+    # tela; as três ficam com o tamanho da primeira
+    telas = [t if t.size == (w, h) else t.resize((w, h), Image.LANCZOS) for t in telas]
     vao, margem, rotulo_h = 60, 30, 80
     largura = margem * 2 + w * 3 + vao * 2
     altura = margem * 2 + h + rotulo_h
@@ -406,7 +417,7 @@ print("desktop_painel.png", w, h)
 # EVOLUÇÃO APÓS A AVALIAÇÃO
 # ════════════════════════════════════════════════════════════════════
 def metricas_evolucao():
-    """Linhas de código da versão atual, para comparar com metricas.json."""
+    """Linhas de código e conteúdo da versão atual, para comparar com metricas.json."""
     def contar_js(caminho):
         linhas = io.open(caminho, encoding="utf-8").read().splitlines()
         return sum(1 for l in linhas if l.strip() and not l.strip().startswith("//"))
@@ -416,17 +427,23 @@ def metricas_evolucao():
         "Versões clássicas para computador": ["main.py", "painel_inicio.py", "tela_painel.py",
                                               "tela_revisao.py", "main_enhanced.py", "ollama_ia.py"],
         "Motor de aprendizagem (progresso.py)": ["progresso.py"],
+        "Jogos e calculadora (jogos.py, calculos.py)": ["jogos.py", "calculos.py"],
         "Tutor (assistente.py)": ["assistente.py"],
+        "Login com Google (autenticacao.py)": ["autenticacao.py"],
         "Geradores (imagens, logo, ícones)": ["criar_imagens.py", "criar_logo.py",
                                               "criar_assets_mobile.py"],
-        "Testes automatizados": ["test_kivy_completo.py", "test_desktop.py", "test_tutor.py"],
+        "Empacotamento (empacotamento/)": [str(p.relative_to(RAIZ))
+                                           for p in (RAIZ / "empacotamento").glob("*.py")],
+        "Testes automatizados": ["test_kivy_completo.py", "test_desktop.py", "test_tutor.py",
+                                 "test_jogos.py", "test_conteudo.py", "test_login.py"],
     }
     codigo = {nome: sum(contar_linhas(RAIZ / a) for a in arqs) for nome, arqs in modulos.items()}
     codigo["Servidor intermediário (servidor/)"] = contar_js(RAIZ / "servidor" / "tutor_worker.js")
-    saida = {"codigo": codigo, "codigo_total": sum(codigo.values())}
+    saida = {"codigo": codigo, "codigo_total": sum(codigo.values()),
+             "conteudo": contar_conteudo(), "commits": contar_commits()}
     json.dump(saida, io.open(FIG / "metricas_evolucao.json", "w", encoding="utf-8"),
               ensure_ascii=False, indent=2)
-    print("metricas_evolucao.json", saida["codigo_total"], "linhas")
+    print("metricas_evolucao.json", saida["codigo_total"], "linhas,", saida["conteudo"])
 
 
 def motor_avaliado():
@@ -496,16 +513,17 @@ def tutor_arquitetura():
                     bbox=dict(boxstyle="round,pad=0.25", facecolor="white", edgecolor="none"))
 
     caixa(1, 33, 20, 14, "Pergunta", ["do estudante,", "em português"], TINTA2)
+    n_marcadores = len(list(csv.DictReader(io.open(RAIZ / "data" / "marcadores.csv", encoding="utf-8"))))
     caixa(27, 31, 40, 18, "Tutor — assistente.py",
           ["monta o pedido com:", "instrução fixa (não inventar valores,", "não diagnosticar, manter as regras)",
-           "+ fichas curadas dos 20 marcadores", "+ últimas 6 mensagens"], INDIGO)
+           f"+ fichas curadas dos {n_marcadores} marcadores", "+ últimas 6 mensagens"], INDIGO)
     caixa(73, 33, 26, 14, "Resposta", ["com aviso do motivo", "quando veio da reserva"], TINTA2)
     seta(21, 40, 27, 40)
     seta(67, 40, 73, 40)
 
     caixa(1, 1, 33, 22, "1º  Gemini (nuvem, opcional)",
-          ["computador: chave lida de um", "arquivo .env, fora do Git",
-           "celular: o app não tem chave;", "pergunta vai a um servidor",
+          ["código-fonte: chave lida de um", "arquivo .env, fora do Git",
+           "instalador e celular: sem chave;", "a pergunta vai a um servidor",
            "intermediário (Cloudflare Workers)", "que guarda a chave como segredo"], VERDE,
           fundo=VERDE_SUAVE)
     caixa(40, 1, 26, 22, "2º  Modelo local (Ollama)",
@@ -675,6 +693,77 @@ def capturas_evolucao(pasta_aluno):
     shutil.rmtree(tmp, ignore_errors=True)
 
 
+PASSOS_JOGOS = r'''
+import random
+from kivy.metrics import dp
+from kivy.uix.scrollview import ScrollView
+from jogos import classificar, forma_par
+
+def achar(raiz, nome):
+    return next((w for w in raiz.walk() if w.__class__.__name__ == nome), None)
+
+def rolar_ate(w):
+    pai = w.parent
+    while pai is not None and not isinstance(pai, ScrollView):
+        pai = pai.parent
+    if pai is not None:
+        pai.scroll_to(w, padding=dp(12), animate=False)
+
+def faixas_respondida():
+    random.seed(4)
+    t = tela()
+    t.iniciar_faixas()
+    r = t.rodadas[0]
+    m = next(x for x in app.marcadores if x["sigla"] == r["sigla"])
+    t.responder_faixas(classificar(r["valor"], m["valor_ref_min"], m["valor_ref_max"]))
+
+def memoria_em_andamento():
+    random.seed(4)
+    t = tela()
+    t.iniciar_memoria()
+    c = t.cartas
+    feitos = set()
+    for a in range(len(c)):
+        if len(feitos) == 4:
+            break
+        if a in feitos:
+            continue
+        b = next(k for k in range(len(c)) if k != a and forma_par(c[a], c[k]))
+        t.virar_carta(a)
+        t.virar_carta(b)
+        feitos |= {a, b}
+    t.virar_carta(next(k for k in range(len(c)) if k not in feitos))
+
+def tfg_calculada():
+    t = tela()
+    t.campo_creatinina.campo.text = "1,9"
+    t.campo_idade.campo.text = "62"
+    # pelo próprio botão, para que a figura mostre "Masculino" escolhido
+    next(w for w in t.walk() if "M" in getattr(w, "botoes", {})).escolher("M")
+    t.calcular_tfg()
+
+p(lambda: app.ir_para("pratica", modo="jogos", animar=False), None, 0.8)
+p(faixas_respondida, None, 1.0)
+p(lambda: rolar_ate(achar(tela(), "ReguaFaixas").parent), "faixas", 1.2)
+p(lambda: app.ir_para("pratica", modo="jogos", animar=False), None, 0.8)
+p(memoria_em_andamento, "memoria", 1.6)
+p(lambda: app.ir_para("estudo", animar=False), None, 0.6)
+p(lambda: app.ir_para("detalhe", sigla="TFGe", animar=False), None, 0.8)
+p(tfg_calculada, None, 0.8)
+p(lambda: rolar_ate(tela().resultado_tfg), "tfg", 1.2)
+'''
+
+
+def capturas_jogos(pasta_aluno):
+    """Os itens da proposta feitos depois: os dois jogos e a calculadora da TFGe."""
+    tmp = Path(tempfile.mkdtemp(prefix="bioq_jogos_"))
+    fotos = capturar(pasta_aluno, tmp, (400, 840), {}, PASSOS_JOGOS)
+    if not all(fotos.get(n) for n in ("faixas", "memoria", "tfg")):
+        raise RuntimeError(f"capturas dos jogos incompletas: {sorted(fotos)}")
+    prancha("evolucao_jogos", [fotos["faixas"], fotos["memoria"], fotos["tfg"]])
+    shutil.rmtree(tmp, ignore_errors=True)
+
+
 def captura_tutor(pasta_aluno):
     """Conversa real com o Gemini; só roda se a chave estiver configurada.
 
@@ -695,9 +784,17 @@ def captura_tutor(pasta_aluno):
     if len(fotos) < 3:
         raise RuntimeError(f"capturas do tutor incompletas: {sorted(fotos)}")
     prancha("evolucao_tutor", [fotos["inicio"], fotos["resposta"], fotos["seguimento"]])
-    json.dump({"modelo": cfg["modelo"], "data": date.today().isoformat()},
-              io.open(FIG / "evolucao_tutor.json", "w", encoding="utf-8"))
+    salvar_dados_tutor(cfg)
     shutil.rmtree(tmp, ignore_errors=True)
+
+
+def salvar_dados_tutor(cfg):
+    # com servidor configurado, o app pergunta por ele mesmo tendo a chave
+    # (assistente.ModeloNuvem.responder), como o instalador e o celular
+    from assistente import MODELOS_RESERVA
+    json.dump({"modelo": cfg["modelo"], "reserva": list(MODELOS_RESERVA),
+               "via_servidor": bool(cfg["servidor"]), "data": date.today().isoformat()},
+              io.open(FIG / "evolucao_tutor.json", "w", encoding="utf-8"))
 
 
 def main():
@@ -726,6 +823,7 @@ def main():
         intervalos_por_avaliacao()
         tutor_arquitetura()
         capturas_evolucao(pasta)
+        capturas_jogos(pasta)
         captura_tutor(pasta)
     finally:
         shutil.rmtree(pasta, ignore_errors=True)

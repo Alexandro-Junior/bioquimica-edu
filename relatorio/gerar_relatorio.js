@@ -32,8 +32,11 @@ const RAIZ = path.resolve(AQUI, "..");
 const FIG = path.join(AQUI, "figuras");
 const SAIDA = path.join(AQUI, "Relatorio_Final_PIBIC_BioquimicaEDU.docx");
 
+// M e C: a primeira versão completa (seções 4.1 a 4.5); ME e CE: a versão atual
 const M = JSON.parse(fs.readFileSync(path.join(FIG, "metricas.json"), "utf8"));
 const C = M.conteudo;
+const ME = JSON.parse(fs.readFileSync(path.join(FIG, "metricas_evolucao.json"), "utf8"));
+const CE = ME.conteudo;
 const fmt = (n) => n.toLocaleString("pt-BR");
 
 // ════════════════════════════════════════════════════════════════════
@@ -42,7 +45,7 @@ const fmt = (n) => n.toLocaleString("pt-BR");
 const INSTITUICAO = "UNIVERSIDADE CIDADE DE SÃO PAULO";
 const CURSO = "CURSO DE CIÊNCIA DA COMPUTAÇÃO";
 const AUTOR = "ALEXANDRO DE ARAUJO JUNIOR";
-const ORIENTADOR = "Prof. Francisco de Assis Cavallaro";
+const ORIENTADOR = "Prof. Dr. Francisco de Assis Cavallaro";
 // título registrado do projeto PIBIC; o software se chama BioquímicaEDU
 const TITULO = "DESENVOLVIMENTO DE SOFTWARE EDUCACIONAL PARA O ENSINO INTERATIVO DE BIOQUÍMICA CLÍNICA";
 const SUBTITULO = "marcadores bioquímicos e sua correlação com doenças";
@@ -50,7 +53,9 @@ const LOCAL = "SÃO PAULO";
 const ANO = "2026";
 const ACESSO = "Acesso em: 6 out. 2026.";
 const ACESSO_7 = "Acesso em: 7 out. 2026.";
+const ACESSO_17 = "Acesso em: 17 out. 2026.";
 const REPOSITORIO = "https://github.com/Alexandro-Junior/bioquimica-edu";
+const SITE = "https://bioquimicaedu.web.app";
 
 // ════════════════════════════════════════════════════════════════════
 // MEDIDAS (DXA: 1 cm = 567)
@@ -147,7 +152,7 @@ const nota = (t) => new Paragraph({ style: "FonteIlustracao", children: runs(`No
 // (docs/TUTOR_GEMINI.md); até lá, o texto traz um [PREENCHER] no lugar dela.
 const TEM_FIGURA_TUTOR = fs.existsSync(path.join(FIG, "evolucao_tutor.png"));
 const ORDEM_FIGURAS = ["arquitetura", "sm2", "telas_inicio", "telas_revisao", "telas_pratica",
-                       "desktop", "logo", "evolucao_formatos", "evolucao_acessibilidade",
+                       "desktop", "logo", "evolucao_jogos", "evolucao_formatos", "evolucao_acessibilidade",
                        "tutor_arquitetura", ...(TEM_FIGURA_TUTOR ? ["evolucao_tutor"] : [])];
 const fig = (chave) => {
   const n = ORDEM_FIGURAS.indexOf(chave) + 1;
@@ -286,7 +291,35 @@ const CITACAO_NBK = {
   NBK549816: "Eyth, Zubair e Naik (2025)", NBK557536: "Farhana e Lappin (2023)",
   NBK557591: "Kurapati e Zubair (2026)", NBK559278: "Moriles, Zubair e Azer (2024)",
   NBK560891: "Pappan, Awosika e Rehman (2024)",
+  NBK500032: "Kaufman, Basit e Knohl (2023)", NBK536919: "Castro e Zubair (2026)",
 };
+// Fontes fora do NCBI (marcadores e aprofundamentos incluídos depois), pelo endereço
+const MSD = "https://www.msdmanuals.com/";
+const MSD_ACIDO_BASE = MSD + "pt-br/profissional/dist%C3%BArbios-end%C3%B3crinos-e-metab%C3%B3licos/regula%C3%A7%C3%A3o-e-dist%C3%BArbios-%C3%A1cido-base/";
+const URL_FONTE = {
+  KDIGO: "https://doi.org/10.1016/j.kint.2023.10.018",
+  INKER: "https://doi.org/10.1056/NEJMoa2102953",
+  NKF: "https://www.kidney.org/ckd-epi-creatinine-equation-2021",
+  HELAL: "https://doi.org/10.1038/nrneph.2012.19",
+  ACIDOSE: MSD_ACIDO_BASE + "acidose-metab%C3%B3lica",
+  ALCALOSE: MSD_ACIDO_BASE + "alcalose-metab%C3%B3lica",
+  ACIDO_BASE: MSD_ACIDO_BASE + "dist%C3%BArbios-%C3%A1cido-base",
+  FIGADO: MSD + "pt/profissional/dist%C3%BArbios-hep%C3%A1ticos-e-biliares/exames-para-doen%C3%A7as-hep%C3%A1ticas-e-biliares/exames-laboratoriais-para-f%C3%ADgado-e-da-ves%C3%ADcula-biliar",
+  SCA: MSD + "pt/profissional/doen%C3%A7as-cardiovasculares/doen%C3%A7a-coronariana/vis%C3%A3o-geral-das-s%C3%ADndromes-coronarianas-agudas",
+};
+const CITACAO_URL = {
+  [URL_FONTE.KDIGO]: "Kidney Disease: Improving Global Outcomes (2024)",
+  [URL_FONTE.INKER]: "Inker ~et al.~ (2021)",
+  [URL_FONTE.NKF]: "National Kidney Foundation ([2026])",
+  [URL_FONTE.HELAL]: "Helal ~et al.~ (2012)",
+  [URL_FONTE.ACIDOSE]: "Lewis III (2025a)",
+  [URL_FONTE.ALCALOSE]: "Lewis III (2025b)",
+  [URL_FONTE.ACIDO_BASE]: "Lewis III (2025c)",
+  [URL_FONTE.FIGADO]: "Saiman (2025)",
+  [URL_FONTE.SCA]: "Sweis e Jivan (2025)",
+};
+const manualMsd = (autores, titulo, ano, url) =>
+  `${autores} ${titulo}. In: **MANUAL MSD**: versão para profissionais de saúde. Rahway, NJ: Merck & Co., ${ano}. Disponível em: ${url}. ${ACESSO_17}`;
 
 const REFERENCIAS = [
   `ANDROID DEVELOPERS. **Behavior changes**: apps targeting Android 16 or higher. [S. l.], [2026a]. Disponível em: https://developer.android.com/about/versions/16/behavior-changes-16. ${ACESSO_7}`,
@@ -299,6 +332,7 @@ const REFERENCIAS = [
   `BRASIL. Lei nº 13.709, de 14 de agosto de 2018. Dispõe sobre a proteção de dados pessoais e altera a Lei nº 12.965, de 23 de abril de 2014 (Marco Civil da Internet). Brasília, DF: Presidência da República, 2018. Disponível em: https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm. ${ACESSO}`,
   `BRASIL. Ministério da Gestão e da Inovação em Serviços Públicos. **VLibras**. Brasília, DF, [2026]. Disponível em: https://www.gov.br/governodigital/pt-br/acessibilidade-e-usuario/vlibras. ${ACESSO_7}`,
   statpearls("CASTRO, D.; SHARMA, S.", "Hypokalemia", 2025, "NBK482465"),
+  statpearls("CASTRO, D.; ZUBAIR, M.", "Arterial blood gas analysis: fundamentals, interpretation, and clinical utility", 2026, "NBK536919"),
   "CEPEDA, N. J. et al. Distributed practice in verbal recall tasks: a review and quantitative synthesis. **Psychological Bulletin**, [s. l.], v. 132, n. 3, p. 354-380, maio 2006. DOI: https://doi.org/10.1037/0033-2909.132.3.354.",
   "CLEARY, T. J. et al. First-year medical students' calibration bias and accuracy across clinical reasoning activities. **Advances in Health Sciences Education**: theory and practice, [s. l.], v. 24, n. 4, p. 767-781, out. 2019. DOI: https://doi.org/10.1007/s10459-019-09897-2.",
   `CLOUDFLARE. Limits. In: CLOUDFLARE. **Cloudflare Workers docs**. [S. l.], [2026]. Disponível em: https://developers.cloudflare.com/workers/platform/limits/. ${ACESSO_7}`,
@@ -311,29 +345,39 @@ const REFERENCIAS = [
   `GOOGLE. Target API level requirements for Google Play apps. In: GOOGLE. **Play Console Help**. [S. l.], [2026c]. Disponível em: https://support.google.com/googleplay/android-developer/answer/11926878. ${ACESSO}`,
   statpearls("GOUNDEN, V.; BHATT, H.; JIALAL, I.", "Renal function tests", 2024, "NBK507821"),
   statpearls("HANTZIDIAMANTIS, P. J.; AWOSIKA, A. O.; LAPPIN, S. L.", "Physiology, glucose", 2024, "NBK545201"),
+  `HELAL, I. et al. Glomerular hyperfiltration: definitions, mechanisms and clinical implications. **Nature Reviews Nephrology**, [s. l.], v. 8, n. 5, p. 293-300, maio 2012. DOI: ${URL_FONTE.HELAL}.`,
   statpearls("HUFF, T.; BOYD, B.; JIALAL, I.", "Physiology, cholesterol", 2023, "NBK470561"),
   statpearls("IBRAHIM, M. A.; JIALAL, I.", "Hypercholesterolemia", 2023, "NBK459188"),
+  `INKER, L. A. et al. New creatinine- and cystatin C-based equations to estimate GFR without race. **New England Journal of Medicine**, [s. l.], v. 385, n. 19, p. 1737-1749, nov. 2021. DOI: ${URL_FONTE.INKER}.`,
   statpearls("JOGU, P.; ZUBAIR, M.; MINTER, D. A.", "Liver function tests", 2026, "NBK482489"),
   statpearls("JOSEPH, A.; SAMANT, H.", "Hyperbilirubinemia", 2023, "NBK544252"),
   statpearls("KALAKONDA, A.; JENKINS, B. A.; JOHN, S.", "Physiology, bilirubin", 2022, "NBK470290"),
   "KARACA, M. et al. Low-performing students confidently overpredict their grade performance throughout the semester. **Journal of Intelligence**, [s. l.], v. 11, n. 10, art. 188, set. 2023. DOI: https://doi.org/10.3390/jintelligence11100188.",
+  statpearls("KAUFMAN, D. P.; BASIT, H.; KNOHL, S. J.", "Physiology, glomerular filtration rate", 2023, "NBK500032"),
   "KAYA, O. S.; ERCAG, E. The impact of applying challenge-based gamification program on students' learning outcomes: academic achievement, motivation and flow. **Education and Information Technologies**, [s. l.], p. 1-26, jan. 2023. DOI: https://doi.org/10.1007/s10639-023-11585-z.",
+  `KIDNEY DISEASE: IMPROVING GLOBAL OUTCOMES. CKD Work Group. KDIGO 2024 clinical practice guideline for the evaluation and management of chronic kidney disease. **Kidney International**, [s. l.], v. 105, n. 4S, p. S117-S314, abr. 2024. DOI: ${URL_FONTE.KDIGO}.`,
   `KIVY ORGANIZATION. **Kivy**. Versão 2.3.1. [S. l.], 2024. Disponível em: https://kivy.org. ${ACESSO}`,
   "KRUGER, J.; DUNNING, D. Unskilled and unaware of it: how difficulties in recognizing one's own incompetence lead to inflated self-assessments. **Journal of Personality and Social Psychology**, [s. l.], v. 77, n. 6, p. 1121-1134, dez. 1999. DOI: https://doi.org/10.1037//0022-3514.77.6.1121.",
   statpearls("KURAPATI, R.; ZUBAIR, M.", "Creatine kinase MB: diagnostic utility and limitations", 2026, "NBK557591"),
   statpearls("LESLIE, S. W.; MINTER, D. A.", "Hyperuricemia", 2023, "NBK459218"),
+  manualMsd("LEWIS III, J. L.", "Acidose metabólica", "2025a", URL_FONTE.ACIDOSE),
+  manualMsd("LEWIS III, J. L.", "Alcalose metabólica", "2025b", URL_FONTE.ALCALOSE),
+  manualMsd("LEWIS III, J. L.", "Distúrbios ácido-base", "2025c", URL_FONTE.ACIDO_BASE),
   "MAYE, J. A.; HURLEY, F. The effectiveness of spaced repetition in medical education: a systematic review and meta-analysis. **The Clinical Teacher**, [s. l.], v. 23, n. 2, art. e70353, abr. 2026. DOI: https://doi.org/10.1111/tct.70353.",
   statpearls("MELKONIAN, E. A.; ASUKA, E.; SCHURY, M. P.", "Physiology, gluconeogenesis", 2023, "NBK541119"),
   statpearls("MORILES, K. E.; ZUBAIR, M.; AZER, S. A.", "Alanine aminotransferase (ALT) test", 2024, "NBK559278"),
+  `NATIONAL KIDNEY FOUNDATION. **CKD-EPI creatinine equation (2021)**. New York, [2026]. Disponível em: ${URL_FONTE.NKF}. ${ACESSO_17}`,
   `OLLAMA. **Ollama**. [S. l.], [2026]. Disponível em: https://ollama.com. ${ACESSO}`,
   statpearls("PAPPAN, N.; AWOSIKA, A. O.; REHMAN, A.", "Dyslipidemia", 2024, "NBK560891"),
   `PYTHON SOFTWARE FOUNDATION. **Python**. Versão 3.12. [S. l.], 2023. Disponível em: https://www.python.org. ${ACESSO}`,
   "ROEDIGER, H. L.; KARPICKE, J. D. Test-enhanced learning: taking memory tests improves long-term retention. **Psychological Science**, [s. l.], v. 17, n. 3, p. 249-255, mar. 2006. DOI: https://doi.org/10.1111/j.1467-9280.2006.01693.x.",
   statpearls("ROUT, P.; AFZAL, M.", "Hyponatremia", 2026, "NBK470386"),
   "RYAN, R. M.; DECI, E. L. Self-determination theory and the facilitation of intrinsic motivation, social development, and well-being. **American Psychologist**, [s. l.], v. 55, n. 1, p. 68-78, jan. 2000. DOI: https://doi.org/10.1037//0003-066x.55.1.68.",
+  manualMsd("SAIMAN, Y.", "Exames laboratoriais para fígado e da vesícula biliar", "2025", URL_FONTE.FIGADO),
   "SERRA, M. J. et al. The use of retrieval practice in the health professions: a state-of-the-art review. **Behavioral Sciences**, [s. l.], v. 15, n. 7, art. 974, jul. 2025. DOI: https://doi.org/10.3390/bs15070974.",
   statpearls("SHRIMANKER, I.; BHATTARAI, S.", "Electrolytes", 2023, "NBK541123"),
   statpearls("SIMON, L. V.; ROUT, P.", "Hyperkalemia", 2025, "NBK470284"),
+  manualMsd("SWEIS, R. N.; JIVAN, A.", "Visão geral das síndromes coronarianas agudas", "2025", URL_FONTE.SCA),
   statpearls("VENUGOPAL, S. K.; ANORUO, M.; JIALAL, I.", "Biochemistry, low density lipoprotein", 2023, "NBK500010"),
   clinicalMethods("Alkaline phosphatase and gamma glutamyltransferase", "1990a", "NBK203"),
   clinicalMethods("Aminotransferases", "1990b", "NBK425"),
@@ -369,8 +413,9 @@ function fontesDoMarcador(sigla) {
   const cit = [];
   for (const r of extra.referencias) {
     const nbk = r.url.replace(/\/+$/, "").split("/").pop();
-    if (!CITACAO_NBK[nbk]) throw new Error(`fonte sem referência no relatório: ${r.url}`);
-    if (!vistos.has(nbk)) { vistos.add(nbk); cit.push(CITACAO_NBK[nbk]); }
+    const citacao = CITACAO_NBK[nbk] || CITACAO_URL[r.url];
+    if (!citacao) throw new Error(`fonte sem referência no relatório: ${r.url}`);
+    if (!vistos.has(citacao)) { vistos.add(citacao); cit.push(citacao); }
   }
   return cit.join("; ");
 }
@@ -504,11 +549,14 @@ const folhaDeRosto = [
 
 const agradecimentos = [
   tituloPre("AGRADECIMENTOS"),
-  p("Ao Prof. Francisco de Assis Cavallaro, pela orientação ao longo deste projeto."),
-  p("À Universidade Cidade de São Paulo e ao Conselho Nacional de Desenvolvimento Científico e " +
-    "Tecnológico (CNPq), pelo Programa Institucional de Bolsas de Iniciação Científica, no qual " +
-    "este trabalho foi realizado."),
-  p("[[PREENCHER: agradecimento aos estudantes que participaram da avaliação e a outras pessoas que contribuíram.]]"),
+  p(`Ao ${ORIENTADOR}, pela orientação ao longo deste projeto.`),
+  p("Aos professores da Universidade Cidade de São Paulo, pela formação e pelo apoio."),
+  p("Ao Conselho Nacional de Desenvolvimento Científico e Tecnológico (CNPq), pela bolsa de " +
+    "iniciação científica concedida pelo Programa Institucional de Bolsas de Iniciação Científica " +
+    "(PIBIC), no qual este trabalho foi realizado."),
+  p("Aos estudantes e às demais pessoas que participaram da avaliação do aplicativo e ajudaram no " +
+    "seu desenvolvimento com dúvidas, críticas e sugestões."),
+  p("À minha família, aos colegas e aos amigos, pelo apoio durante todo o trabalho."),
 ];
 
 const resumo = [
@@ -516,23 +564,28 @@ const resumo = [
   p("O estudo dos marcadores bioquímicos exige que o estudante retenha faixas de referência e associe " +
     "cada alteração às condições clínicas que ela sugere, um conteúdo extenso que tende a ser esquecido " +
     "entre a disciplina e a prática. Este trabalho teve como objetivo desenvolver e avaliar o " +
-    "BioquímicaEDU, software educacional para o estudo de 20 marcadores bioquímicos de seis sistemas, " +
-    "fundamentado em prática de recuperação, repetição espaçada e monitoramento metacognitivo. O " +
-    "software foi desenvolvido em Python, de forma iterativa e com controle de versões, em três versões " +
-    "que compartilham o mesmo conteúdo e o mesmo motor de aprendizagem: uma para computador, uma para " +
-    "computador com tutor de inteligência artificial executado localmente e uma para dispositivos " +
-    "móveis, configurada para gerar pacotes Android. O motor agenda as revisões com uma adaptação do " +
-    "algoritmo SM-2, atribui notas diferentes a revisões, flashcards, questões e casos clínicos, e " +
-    `compara a confiança declarada pelo estudante antes de ver a resposta com o acerto real. O conteúdo reúne ${C.flashcards} ` +
-    `flashcards, ${C.questoes} questões, ${C.casos_clinicos} casos clínicos, ${C.exemplos} exemplos clínicos e ${C.diagramas} ` +
-    "diagramas, com fontes conferidas na literatura médica, e os dados do estudante permanecem no " +
-    "próprio aparelho. A verificação funcional foi feita com testes automatizados que percorrem as " +
-    "telas das versões para computador e para celular. [[PREENCHER: síntese da avaliação com usuários — " +
-    "número de participantes, instrumento e principais resultados.]] Após a avaliação, as interfaces " +
-    "foram unificadas num único aplicativo, que se adapta ao celular, ao tablet e ao computador, com " +
-    "recursos de acessibilidade — texto ampliado, alto contraste, fonte para baixa visão, leitura em voz " +
-    "alta e atalho para Libras — e um tutor opcional com inteligência artificial generativa, ancorado no " +
-    "conteúdo curado. Conclui-se que [[PREENCHER: conclusão apoiada nos resultados da avaliação.]]",
+    `BioquímicaEDU, software educacional para o estudo de ${CE.marcadores} marcadores bioquímicos de seis sistemas, ` +
+    "fundamentado em prática de recuperação, repetição espaçada e monitoramento metacognitivo. " +
+    "Desenvolvido em Python, de forma iterativa, o software tinha na primeira versão completa " +
+    "interfaces separadas para computador e para celular; depois, elas foram unificadas num único " +
+    "aplicativo, que se adapta ao celular, ao tablet e ao computador e é distribuído com instaladores " +
+    "para Windows e Android. Um motor de aprendizagem agenda as revisões " +
+    "com uma adaptação do algoritmo SM-2, integra revisões, flashcards, questões, casos clínicos e " +
+    "jogos, e compara a confiança declarada pelo estudante antes de ver a resposta com o acerto real. O " +
+    `conteúdo reúne ${CE.flashcards} flashcards, ${CE.questoes} questões, ${CE.casos_clinicos} casos clínicos e ` +
+    `${CE.exemplos} exemplos clínicos, com fontes conferidas na literatura médica, além de dois jogos didáticos, ` +
+    "uma régua interativa das faixas de referência e uma calculadora da taxa de filtração glomerular " +
+    "estimada. O aplicativo oferece ainda recursos de acessibilidade — texto ampliado, alto contraste, " +
+    "fonte para baixa visão, leitura em voz alta e atalho para Libras —, conta Google opcional e um " +
+    "tutor opcional com inteligência artificial generativa, ancorado no conteúdo curado. A verificação " +
+    "funcional foi feita com testes automatizados. Durante o " +
+    "desenvolvimento, o software foi apresentado a 12 pessoas — profissionais, recém-formados e " +
+    "estudantes — em conversas online, cujas sugestões orientaram sua evolução; para avaliar a " +
+    "aprendizagem, adotou-se um pré-teste e um pós-teste de dez questões com estudantes que ainda vão " +
+    "cursar a disciplina. [[PREENCHER: resultado do pré e pós-teste — quantos concluíram e como " +
+    "variaram as notas.]] Conclui-se que o BioquímicaEDU atende aos itens da proposta do projeto e " +
+    "reúne, num mesmo aplicativo, conteúdo verificado e estratégias de estudo com evidência de " +
+    "eficácia. [[PREENCHER: conclusão sobre a aprendizagem, apoiada no pré e pós-teste.]]",
     { semRecuo: true }),
   p("**Palavras-chave:** bioquímica clínica; repetição espaçada; software educacional; aprendizagem " +
     "móvel; metacognição.", { semRecuo: true, antes: LINHA_15 }),
@@ -543,22 +596,27 @@ const abstract = [
   p("Studying biochemical markers requires students to retain reference ranges and to relate each " +
     "abnormality to the clinical conditions it suggests, a large body of content that tends to be " +
     "forgotten between coursework and practice. This work aimed to develop and evaluate BioquímicaEDU, " +
-    "an educational software for studying 20 biochemical markers across six body systems, grounded in " +
+    `an educational software for studying ${CE.marcadores} biochemical markers across six body systems, grounded in ` +
     "retrieval practice, spaced repetition and metacognitive monitoring. The software was developed in " +
-    "Python, iteratively and under version control, in three versions that share the same content and " +
-    "learning engine: a desktop version, a desktop version with an artificial intelligence tutor run " +
-    "locally, and a mobile version configured to build Android packages. The engine schedules reviews " +
-    "with an adaptation of the SM-2 algorithm, assigns different grades to reviews, flashcards, " +
-    "questions and clinical cases, and compares the confidence students declare before seeing the " +
-    `answer with their actual accuracy. The content comprises ${C.flashcards} flashcards, ${C.questoes} questions, ` +
-    `${C.casos_clinicos} clinical cases, ${C.exemplos} clinical examples and ${C.diagramas} diagrams, with sources checked ` +
-    "against the medical literature, and all student data stay on the device. Functional verification " +
-    "used automated tests that go through the screens of the desktop and mobile versions. [[PREENCHER: " +
-    "summary of the user evaluation — participants, instrument and main results.]] After the evaluation, " +
-    "the interfaces were merged into a single app that adapts to phones, tablets and computers, with " +
-    "accessibility features — larger text, high contrast, a typeface for low vision, read-aloud and a " +
-    "shortcut to Brazilian Sign Language (Libras) — and an optional generative artificial intelligence " +
-    "tutor grounded in the curated content. [[PREENCHER: conclusion.]]",
+    "Python, iteratively and under version control. Its first complete version had separate desktop and " +
+    "mobile interfaces; these were later merged into a single app that adapts to phones, tablets and " +
+    "computers and is distributed with installers for Windows and Android. A learning engine schedules " +
+    "reviews with an adaptation of the SM-2 algorithm, integrates reviews, flashcards, questions, " +
+    "clinical cases and games, and compares the confidence students declare before seeing the answer " +
+    `with their actual accuracy. The content comprises ${CE.flashcards} flashcards, ${CE.questoes} questions, ` +
+    `${CE.casos_clinicos} clinical cases and ${CE.exemplos} clinical examples, with sources checked against the ` +
+    "medical literature, plus two educational games, an interactive reference-range ruler and an " +
+    "estimated glomerular filtration rate calculator. The app also offers accessibility features — " +
+    "larger text, high contrast, a typeface for low vision, read-aloud and a shortcut to Brazilian Sign " +
+    "Language (Libras) —, an optional Google account and an optional generative artificial intelligence " +
+    "tutor grounded in the curated content. Functional verification used automated tests. During " +
+    "development, the software was shown to 12 people — professionals, recent " +
+    "graduates and students — in online conversations whose suggestions guided its evolution; learning " +
+    "was assessed with a ten-question pretest and posttest given to students who have yet to take the " +
+    "course. [[PREENCHER: pretest and posttest results — how many completed and how scores changed.]] " +
+    "BioquímicaEDU meets the items of the project proposal and brings together, in a single app, " +
+    "verified content and study strategies with evidence of effectiveness. [[PREENCHER: conclusion on " +
+    "learning, based on the pretest and posttest.]]",
     { semRecuo: true }),
   p("**Keywords:** clinical biochemistry; spaced repetition; educational software; mobile learning; " +
     "metacognition.", { semRecuo: true, antes: LINHA_15 }),
@@ -575,22 +633,27 @@ const SIGLAS = [
   ["APK", "Pacote de aplicativo Android (~Android Package~)"],
   ["AST", "Aspartato aminotransferase"],
   ["CK-MB", "Creatinoquinase, fração MB"],
+  ["CKD-EPI", "~Chronic Kidney Disease Epidemiology Collaboration~"],
   ["CNPq", "Conselho Nacional de Desenvolvimento Científico e Tecnológico"],
   ["CSV", "Valores separados por vírgula (~Comma-Separated Values~)"],
   ["dp", "Pixel independente de densidade (~density-independent pixel~)"],
   ["EF", "Fator de facilidade (~Easiness Factor~)"],
   ["GGT", "Gama-glutamiltransferase"],
   ["HbA1c", "Hemoglobina glicada"],
+  ["HCO3", "Bicarbonato"],
   ["HDL", "Lipoproteína de alta densidade (~High-Density Lipoprotein~)"],
   ["HTTPS", "Protocolo de transferência de hipertexto seguro (~Hypertext Transfer Protocol Secure~)"],
   ["IA", "Inteligência artificial"],
   ["JSON", "Notação de objetos JavaScript (~JavaScript Object Notation~)"],
+  ["KDIGO", "~Kidney Disease: Improving Global Outcomes~"],
   ["LDH", "Lactato desidrogenase"],
   ["LDL", "Lipoproteína de baixa densidade (~Low-Density Lipoprotein~)"],
   ["LGPD", "Lei Geral de Proteção de Dados Pessoais"],
   ["Libras", "Língua Brasileira de Sinais"],
   ["PIBIC", "Programa Institucional de Bolsas de Iniciação Científica"],
+  ["SHA-1", "Algoritmo de resumo criptográfico (~Secure Hash Algorithm 1~)"],
   ["SM-2", "Algoritmo SuperMemo 2"],
+  ["TFGe", "Taxa de filtração glomerular estimada"],
   ["UNICID", "Universidade Cidade de São Paulo"],
   ["WCAG", "Diretrizes de acessibilidade para conteúdo web (~Web Content Accessibility Guidelines~)"],
 ];
@@ -648,33 +711,37 @@ const introducao = [
   p("Este trabalho, desenvolvido no Programa Institucional de Bolsas de Iniciação Científica (PIBIC) da " +
     "Universidade Cidade de São Paulo (UNICID), no curso de Ciência da Computação, apresenta o " +
     "BioquímicaEDU, software educacional para o estudo de marcadores bioquímicos construído sobre esses " +
-    "princípios. O relatório descreve as decisões de projeto, a implementação das versões para " +
-    "computador e para dispositivos móveis, a verificação realizada, a avaliação com usuários e a " +
-    "evolução do software depois dela."),
+    "princípios. O relatório descreve as decisões de projeto, a primeira versão completa do software, " +
+    "a avaliação formativa feita durante o desenvolvimento, a evolução que se seguiu — que completou " +
+    "os itens da proposta do projeto e unificou as interfaces num único aplicativo — e a avaliação da " +
+    "aprendizagem."),
 
   h2("1.1 OBJETIVOS"),
   h3("1.1.1 Objetivo geral"),
-  p("Desenvolver e avaliar um software educacional para o estudo de marcadores bioquímicos que " +
-    "organize o estudo por prática de recuperação e repetição espaçada, disponível para computador e " +
-    "para dispositivos móveis."),
+  p("Desenvolver e avaliar um software educacional interativo para o estudo de marcadores " +
+    "bioquímicos que organize o estudo por prática de recuperação e repetição espaçada e ofereça quiz, " +
+    "casos clínicos e jogos, disponível para computador e para dispositivos móveis."),
   h3("1.1.2 Objetivos específicos"),
   p("Os objetivos específicos foram:", { manterComProximo: true }),
   ...alineas([
-    "reunir conteúdo sobre 20 marcadores bioquímicos — faixas de referência, interpretação das " +
-      "alterações, casos clínicos e diagramas — com fontes verificáveis;",
+    "reunir conteúdo sobre os marcadores bioquímicos previstos na proposta — faixas de referência, " +
+      "interpretação das alterações, casos clínicos e diagramas — com fontes verificáveis;",
     "implementar um motor de aprendizagem que agende as revisões por repetição espaçada e integre as " +
       "diferentes atividades de estudo;",
     "registrar a confiança declarada pelo estudante e compará-la com o desempenho, como recurso de " +
       "autorregulação;",
-    "disponibilizar o software em versões para computador e para dispositivos móveis, mantendo os " +
-      "dados do estudante no próprio aparelho;",
-    "avaliar o software com estudantes quanto à usabilidade e à percepção de aprendizagem " +
-      "[[CONFIRMAR: ajustar ao que a avaliação de fato mediu]].",
+    "oferecer atividades de prática com ~feedback~ imediato — quiz, casos clínicos e jogos didáticos — " +
+      "e uma visualização gráfica interativa das faixas de referência;",
+    "disponibilizar o software para computador e para dispositivos móveis, com instaladores para " +
+      "Windows e Android, mantendo o progresso de estudo no próprio aparelho;",
+    "avaliar o software com usuários durante o desenvolvimento e avaliar a aprendizagem com pré-teste " +
+      "e pós-teste.",
   ]),
 
   h2("1.2 ORGANIZAÇÃO DO RELATÓRIO"),
   p("A seção 2 apresenta a fundamentação teórica; a seção 3 descreve materiais e métodos; a seção 4 " +
-    "reúne os resultados, isto é, o software produzido, sua avaliação e a evolução posterior; a seção 5 discute as decisões " +
+    "reúne os resultados — a primeira versão do software, a avaliação formativa, a evolução posterior e " +
+    "a avaliação da aprendizagem; a seção 5 compara o que foi feito com a proposta e discute as decisões " +
     "de projeto e as limitações; e a seção 6 traz as considerações finais."),
 ];
 
@@ -692,7 +759,7 @@ const fundamentacao = [
     "marcador de escolha para lesão do miocárdio (Zubair; Sharma, 2026); e a hemoglobina glicada " +
     "(HbA1c) reflete a glicemia média dos meses anteriores, servindo ao diagnóstico e ao acompanhamento " +
     "do diabetes (Eyth; Zubair; Naik, 2025)."),
-  p(`O software aborda ${C.marcadores} marcadores distribuídos em ${C.sistemas} sistemas, apresentados no Quadro 1. A ` +
+  p(`O software aborda ${CE.marcadores} marcadores distribuídos em ${CE.sistemas} sistemas, apresentados no Quadro 1. A ` +
     "seleção cobre exames de rotina na prática clínica e permite montar casos em que vários marcadores " +
     "precisam ser lidos em conjunto.", { manterComProximo: true }),
   ...quadro("Marcadores abordados no software, por sistema",
@@ -751,7 +818,9 @@ const fundamentacao = [
     "desempenho reduziram a motivação intrínseca medida pelo comportamento de livre escolha, enquanto o " +
     "~feedback~ positivo a aumentou (d = 0,33) e elevou o interesse declarado (d = 0,31) (Deci; " +
     "Koestner; Ryan, 1999). Para o projeto, a consequência foi tratar os números exibidos como " +
-    "informação sobre a competência do estudante, e não como prêmio pela atividade."),
+    "informação sobre a competência do estudante, e não como prêmio pela atividade. Pelo mesmo motivo, " +
+    "os jogos incluídos depois (seção 4.7.1) usam pontos e estrelas apenas dentro de cada partida, como " +
+    "~feedback~ do desempenho no desafio, sem classificação entre estudantes."),
 
   h2("2.5 METACOGNIÇÃO E CALIBRAÇÃO"),
   p("Calibração é a correspondência entre o desempenho que a pessoa julga ter e o desempenho real. " +
@@ -776,20 +845,25 @@ const COLUNAS_TECNOLOGIAS = [
 const metodos = [
   h1("3 MATERIAIS E MÉTODOS"),
   h2("3.1 NATUREZA DA PESQUISA E ETAPAS"),
-  p("Trata-se de pesquisa aplicada, de desenvolvimento tecnológico, com avaliação junto a usuários " +
-    "[[CONFIRMAR: abordagem quantitativa, qualitativa ou mista]]. O software foi construído de forma " +
-    "iterativa e incremental: cada ciclo de implementação, verificação e revisão foi registrado no " +
-    `sistema de controle de versões Git, e o código está publicado em ${REPOSITORIO}. O trabalho seguiu ` +
-    "as etapas abaixo:", { manterComProximo: true }),
+  p("Trata-se de pesquisa aplicada, de desenvolvimento tecnológico, com abordagem mista: uma " +
+    "avaliação formativa, qualitativa, durante o desenvolvimento, e uma avaliação da aprendizagem, " +
+    "quantitativa, por pré-teste e pós-teste. O software foi construído de forma iterativa e " +
+    "incremental: cada ciclo de implementação, verificação e revisão foi registrado no sistema de " +
+    `controle de versões Git, e o código está publicado em ${REPOSITORIO}. O trabalho seguiu as etapas ` +
+    "abaixo:", { manterComProximo: true }),
   ...alineas([
     "levantamento do conteúdo e das fontes bibliográficas de cada marcador;",
     "prototipação das versões para computador e para dispositivos móveis;",
     "implementação do motor de aprendizagem e sua integração às atividades de estudo;",
     "redesenho da interface móvel e criação da identidade visual;",
     "verificação automatizada do funcionamento;",
-    "avaliação com usuários;",
-    "evolução após a avaliação: interface única para celular, tablet e computador, recursos de " +
-      "acessibilidade, intervalos diferenciados na revisão e tutor com inteligência artificial generativa.",
+    "avaliação formativa com usuários, ao longo do desenvolvimento;",
+    "conferência, item por item, do que a proposta do projeto previa;",
+    "evolução a partir das sugestões e da proposta: novos marcadores, jogos didáticos, régua das faixas " +
+      "de referência, interface única para celular, tablet e computador, acessibilidade, intervalos " +
+      "diferenciados na revisão, tutor com inteligência artificial generativa, conta Google opcional, " +
+      "site e instaladores;",
+    "avaliação da aprendizagem por pré-teste e pós-teste.",
   ]),
 
   h2("3.2 CURADORIA DO CONTEÚDO"),
@@ -801,29 +875,37 @@ const metodos = [
     "programa a partir de dados, com a biblioteca Matplotlib, o que garante que possam ser refeitos e " +
     "corrigidos."),
   p("Cada marcador foi associado a capítulos do StatPearls e do ~Clinical Methods~, obras de " +
-    "referência médica disponíveis no NCBI Bookshelf; a relação completa está no Apêndice A. Durante o " +
-    "desenvolvimento, links de vídeos cuja origem não pôde ser confirmada foram removidos e substituídos " +
-    "por essa bibliografia, restando apenas dois vídeos de canais identificados. Os textos também foram " +
-    "revisados quanto à acentuação e ao uso da vírgula decimal. [[CONFIRMAR: se o conteúdo foi revisado " +
-    "pelo orientador ou por docente da área da saúde, e como.]]"),
+    "referência médica disponíveis no NCBI Bookshelf; a relação completa está no Apêndice A. Os " +
+    "marcadores incluídos depois — a taxa de filtração glomerular estimada (TFGe) e o bicarbonato — e o " +
+    "aprofundamento sobre as bilirrubinas usam também a diretriz KDIGO 2024, o artigo que propôs a " +
+    "equação CKD-EPI 2021 e capítulos do Manual MSD em português, com o identificador DOI conferido no " +
+    "Crossref. Durante o desenvolvimento, links de vídeos cuja origem não pôde ser confirmada foram " +
+    "removidos e substituídos por essa bibliografia, restando, na primeira versão, apenas dois vídeos de " +
+    "canais identificados; depois, a pedido dos participantes da avaliação formativa, foram incluídos " +
+    "vídeos em português de canais identificados de ensino (seção 4.6). Os textos também foram " +
+    "revisados quanto à acentuação e ao uso da vírgula decimal, e uma revisão dos ~flashcards~ contra as " +
+    "fichas e as fontes corrigiu 17 cartões com valores divergentes ou erros de conteúdo. [[CONFIRMAR: " +
+    "se o conteúdo foi revisado pelo orientador ou por docente da área da saúde, e como.]]"),
 
   h2("3.3 TECNOLOGIAS UTILIZADAS"),
   p("O software foi escrito em Python (Python Software Foundation, 2023), escolhido por permitir " +
     "compartilhar o mesmo motor de aprendizagem e os mesmos dados entre as interfaces para computador " +
     "e para celular. O Quadro 2 lista as tecnologias empregadas.", { manterComProximo: true }),
   ...quadro("Tecnologias utilizadas", COLUNAS_TECNOLOGIAS, [
-    ["Python", "3.12", "Linguagem de todas as versões e dos programas auxiliares"],
-    ["Tkinter (Tk)", "8.6", "Interface das versões para computador"],
-    ["Kivy", "2.3.1", "Interface da versão para dispositivos móveis e, após a avaliação, do aplicativo único (Kivy Organization, 2024)"],
-    ["Buildozer e python-for-android", "—", "Empacotamento da versão móvel para Android"],
+    ["Python", "3.12", "Linguagem do aplicativo, dos programas auxiliares e dos testes"],
+    ["Tkinter (Tk)", "8.6", "Interface das versões clássicas para computador"],
+    ["Kivy", "2.3.1", "Interface da versão para dispositivos móveis e, depois, do aplicativo único (Kivy Organization, 2024)"],
+    ["Buildozer e python-for-android", "—", "Geração do pacote para Android (APK), executada no GitHub Actions"],
+    ["PyInstaller", "—", "Geração do instalador para Windows"],
     ["Ollama", "—", "Execução local do modelo de linguagem do tutor, opcional (Ollama, [2026])"],
-    ["Gemini API", "gemini-3.8-flash", "Modelo de linguagem em nuvem do tutor, opcional, após a avaliação (Google, [2026b])"],
-    ["Cloudflare Workers", "—", "Servidor intermediário que guarda a chave do Gemini para a versão móvel (Cloudflare, [2026])"],
+    ["Gemini API", "gemini-3.8-flash", "Modelo de linguagem em nuvem do tutor, opcional; gemini-3.5-flash como reserva (Google, [2026b])"],
+    ["Cloudflare Workers", "—", "Servidor intermediário que guarda a chave do Gemini para o instalador e o celular (Cloudflare, [2026])"],
+    ["Firebase", "—", "Login com Google, preferência da conta (Cloud Firestore) e hospedagem do site"],
     ["Atkinson Hyperlegible", "—", "Fonte opcional para leitura facilitada (Braille Institute, [2026])"],
     ["Matplotlib", "3.11", "Diagramas do conteúdo e gráficos deste relatório"],
     ["Pillow", "12.3", "Ícone e tela de abertura do aplicativo; capturas de tela"],
-    ["fontTools", "4.64", "Conversão do texto da logo em contornos vetoriais"],
-    ["Git e GitHub", "—", "Controle de versões e publicação do código"],
+    ["fontTools", "4.64", "Conversão do texto da logo em contornos vetoriais; conferência dos caracteres das fontes"],
+    ["Git e GitHub", "—", "Controle de versões, publicação do código e distribuição dos instaladores"],
   ], "elaborado pelo autor (2026)."),
 
   h2("3.4 ARQUITETURA DO SOFTWARE"),
@@ -837,42 +919,88 @@ const metodos = [
   p("A versão móvel é um pacote próprio, dividido em tema (cores e tipografia), componentes visuais " +
     "reutilizáveis, telas e acesso a dados. No Android, o empacotador sempre executa o arquivo " +
     "main.py; por isso esse arquivo verifica em que plataforma está e, no celular, inicia a versão " +
-    "móvel antes de carregar o Tkinter, que não existe no Android. Depois da avaliação, a camada de " +
-    "interfaces passou a ter um único aplicativo, também iniciado pelo main.py (seção 4.7.2)."),
+    "móvel antes de carregar o Tkinter, que não existe no Android. Depois, a camada de interfaces " +
+    "passou a ter um único aplicativo, também iniciado pelo main.py (seção 4.7.3). Os jogos e a " +
+    "calculadora da TFGe, acrescentados mais tarde, seguem a mesma separação: as regras ficam em módulos " +
+    "sem interface (jogos.py e calculos.py), testados à parte, e as telas apenas as exibem."),
 
   h2("3.5 VERIFICAÇÃO DO SOFTWARE"),
   p("O funcionamento foi verificado com programas de teste automatizado incluídos no repositório. O " +
-    "primeiro abre a versão móvel e percorre todas as abas, a busca e o filtro de marcadores, o detalhe " +
-    "com suas abas, uma revisão completa, os ~flashcards~, um quiz inteiro, um caso clínico e o tutor, " +
-    "conferindo ao final se o painel inicial reflete a sessão; depois da avaliação, passou a rodar nos " +
-    "formatos de celular e de computador e a conferir também os recursos de acessibilidade e a troca de " +
-    "formato ao redimensionar a janela. O segundo abre cada tela das duas versões para computador e o " +
-    "detalhe de um marcador em todas as abas. Um terceiro, criado com o tutor em nuvem, é descrito na " +
-    "seção 4.7.4. Os testes gravam numa pasta temporária, de modo que o progresso real do usuário não é " +
-    "lido nem alterado."),
-  p("Além disso, as telas da versão móvel foram renderizadas na resolução de um celular — e, depois da " +
-    "avaliação, também nas de tablet e de computador — e inspecionadas uma a uma, e o comportamento do " +
-    "motor de agendamento foi conferido executando o próprio código com sequências de respostas cujo " +
-    "resultado esperado pode ser calculado à mão (seção 4.2)."),
+    "principal abre o aplicativo e percorre todas as abas, a busca e o filtro de marcadores, o detalhe " +
+    "com suas abas, uma revisão completa, os ~flashcards~, um quiz inteiro, um caso clínico, os dois " +
+    "jogos, a calculadora da TFGe e o tutor, conferindo ao final se o painel inicial reflete a sessão; " +
+    "ele roda nos formatos de celular e de computador e confere também os recursos de acessibilidade e a " +
+    "troca de formato ao redimensionar a janela. Outros testes cobrem as versões clássicas para " +
+    "computador, as regras dos jogos, o tutor em nuvem (seção 4.7.5), o login com Google, com o serviço " +
+    "simulado, e o próprio conteúdo: a presença de todos os marcadores da proposta, cada um com fontes, " +
+    "exemplos e vídeos; a ausência de caracteres que as fontes do aplicativo não conseguem desenhar; e a " +
+    "calculadora, que deve reproduzir valores da equação CKD-EPI 2021 e os limites das categorias da " +
+    "KDIGO. Os testes gravam numa pasta temporária, de modo que o progresso real do usuário não é lido " +
+    "nem alterado."),
+  p("Além disso, as telas foram renderizadas na resolução de um celular — e, depois, também nas de " +
+    "tablet e de computador — e inspecionadas uma a uma, e o comportamento do motor de agendamento foi " +
+    "conferido executando o próprio código com sequências de respostas cujo resultado esperado pode ser " +
+    "calculado à mão (seção 4.2)."),
 
   h2("3.6 AVALIAÇÃO COM USUÁRIOS"),
-  p("[[PREENCHER: tipo de estudo — por exemplo, estudo exploratório com questionário após uso do software.]]"),
-  p("**Participantes:** [[PREENCHER: número, curso, semestre e forma de recrutamento.]]"),
-  p("**Instrumento:** [[PREENCHER: questionário próprio, escala de usabilidade, pré e pós-teste de " +
-    "conhecimento etc. Se houver questionário próprio, incluí-lo como Apêndice.]]"),
-  p("**Procedimento:** [[PREENCHER: versão usada (computador ou celular), duração do uso, tarefas " +
-    "solicitadas e local.]]"),
-  p("**Análise dos dados:** [[PREENCHER: estatística descritiva, testes aplicados.]]"),
-  p("**Aspectos éticos:** [[PREENCHER: aprovação pelo Comitê de Ética em Pesquisa (número do CAAE e " +
-    "do parecer) ou justificativa de dispensa, e forma de registro do consentimento livre e esclarecido.]]"),
+  p("A avaliação teve duas partes, de naturezas diferentes: uma avaliação formativa, feita ao longo do " +
+    "desenvolvimento para orientar as mudanças no software, e uma avaliação da aprendizagem, por " +
+    "pré-teste e pós-teste, como previa a proposta do projeto. Quem já cursou a disciplina ou é formado " +
+    "avalia o aplicativo por um questionário de opinião."),
+  h3("3.6.1 Avaliação formativa"),
+  p("Durante o desenvolvimento, o software foi apresentado a 12 pessoas em conversas online, a maioria " +
+    "pelo Microsoft Teams e algumas pelo Zoom: dois profissionais que atuam na área e se formaram há " +
+    "bastante tempo; cinco recém-formados, em mestrado ou já trabalhando; e cinco estudantes, dos quais " +
+    "alguns já haviam cursado a disciplina, outros a cursavam e outros ainda iriam cursá-la. Em cada " +
+    "conversa, o autor mostrava o aplicativo funcionando, perguntava o que a pessoa queria ver ou testar " +
+    "e conversava sobre as dúvidas, as dificuldades e as sugestões que surgiam. Não houve questionário " +
+    "nem roteiro fixo: o objetivo era encontrar problemas e prioridades enquanto o software ainda podia " +
+    "mudar, e não medir a satisfação com um produto acabado."),
+  h3("3.6.2 Pré-teste e pós-teste"),
+  p("Para avaliar a aprendizagem, adotou-se o delineamento previsto na proposta: pré-teste, uso do " +
+    "software e pós-teste, sem grupo de comparação. Participam estudantes com 18 anos ou mais que ainda " +
+    "vão cursar Bioquímica Clínica ou disciplina equivalente — o público do aplicativo —, porque começam " +
+    "com pouco conhecimento do conteúdo e, sem aulas da disciplina no período, a melhora não se confunde " +
+    "com o efeito das aulas. Quem já cursou a disciplina ou é formado não faz os testes, porque " +
+    "acertaria quase tudo já no pré-teste, e responde apenas ao questionário de opinião (seção 3.6.3)."),
+  p("O instrumento tem dez questões de múltipla escolha sobre os marcadores, com a opção “Não sei”, " +
+    "para reduzir o acerto ao acaso (Apêndice C). O pré-teste é respondido antes do primeiro uso do " +
+    "aplicativo e não mostra as respostas certas. Segue-se uma semana de uso, com pelo menos três " +
+    "sessões de 15 minutos — revisão do dia, estudo, quiz, casos clínicos e jogos —, e, no pós-teste, as " +
+    "mesmas questões aparecem em outra ordem, acompanhadas de afirmações de avaliação do aplicativo. Os " +
+    "dois testes são respondidos em formulários online."),
+  p("Cada participante recebe uma nota de 0 a 10 em cada teste, com “Não sei” contado como erro. As " +
+    "notas são comparadas pelo teste de Wilcoxon para amostras pareadas, adequado a amostras pequenas " +
+    "por não pressupor distribuição normal, acompanhado do tamanho do efeito; com menos de seis pares, a " +
+    "análise é apenas descritiva. Também se comparam o acerto por questão e a proporção de respostas " +
+    "“Não sei”. Usam-se somente as respostas dadas, sem completar dados ausentes, e informa-se quantos " +
+    "participantes começaram e quantos concluíram."),
+  h3("3.6.3 Questionário de opinião"),
+  p("Quem já cursou a disciplina ou é formado avalia o aplicativo por um questionário com perfil em " +
+    "poucas categorias, afirmações numa escala de 1 (discordo totalmente) a 5 (concordo totalmente) — " +
+    "facilidade de uso, clareza e confiabilidade do conteúdo, qualidade das imagens e utilidade da " +
+    "revisão espaçada, dos casos clínicos, dos jogos, do tutor e da acessibilidade — e três perguntas " +
+    "abertas (Apêndice D). As afirmações são resumidas pela mediana e pelo número de respostas 4 ou 5, e " +
+    "os comentários, agrupados por tema."),
+  h3("3.6.4 Aspectos éticos e proteção de dados"),
+  p("Os formulários abrem com um termo de consentimento livre e esclarecido, e só prossegue quem " +
+    "declara ter 18 anos ou mais e concordar em participar. Para que as respostas sejam anônimas, não se " +
+    "coletam nome, e-mail, matrícula nem outro dado identificador: o pré-teste e o pós-teste são ligados " +
+    "por um código de duas letras e dois números inventado pelo próprio participante, e os resultados " +
+    "são divulgados apenas em conjunto. Dados anonimizados não são considerados dados pessoais pela Lei " +
+    "Geral de Proteção de Dados Pessoais (LGPD), salvo quando a anonimização puder ser revertida com " +
+    "esforços razoáveis (Brasil, 2018). Pelo protocolo, as respostas ficam na conta institucional, com " +
+    "acesso apenas do autor e do orientador. [[CONFIRMAR com o orientador: submissão ao Comitê de Ética em Pesquisa " +
+    "(CAAE e número do parecer) ou enquadramento na dispensa da Resolução CNS nº 510/2016.]]"),
 
   h2("3.7 USO DE FERRAMENTAS DE INTELIGÊNCIA ARTIFICIAL"),
   p("Durante o desenvolvimento foi utilizado um assistente de programação baseado em inteligência " +
-    "artificial (IA), o Claude, da empresa Anthropic, como apoio na implementação, na revisão do código, " +
-    "na documentação e na redação deste relatório. O assistente foi usado sob supervisão do autor, que " +
-    "definiu os requisitos, revisou as alterações e validou o funcionamento do software. As referências " +
-    "citadas foram conferidas nas bases de origem (PubMed e NCBI Bookshelf). [[CONFIRMAR com o " +
-    "orientador a redação desta declaração, conforme a política da instituição e do programa.]]"),
+    "artificial (IA), o Claude, da empresa Anthropic, como apoio na implementação, na revisão do código " +
+    "e do conteúdo, na documentação e na redação deste relatório. O assistente foi usado sob supervisão " +
+    "do autor, que definiu os requisitos, revisou as alterações e validou o funcionamento do software. As " +
+    "referências citadas foram conferidas nas bases de origem (PubMed, NCBI Bookshelf, Europe PMC e " +
+    "Crossref). [[CONFIRMAR com o orientador a redação desta declaração, conforme a política da " +
+    "instituição e do programa.]]"),
 ];
 
 const COLUNAS_ADAPTACOES = [
@@ -888,8 +1016,19 @@ const COLUNAS_NOTAS = [
   { titulo: "Justificativa", largura: 3870 },
 ];
 const COLUNAS_CONTEUDO = [
-  { titulo: "Item", largura: 6200 },
-  { titulo: "Quantidade", largura: 2000, alinhamento: AlignmentType.CENTER },
+  { titulo: "Item", largura: 5200 },
+  { titulo: "Primeira versão", largura: 1900, alinhamento: AlignmentType.CENTER },
+  { titulo: "Versão atual", largura: 1900, alinhamento: AlignmentType.CENTER },
+];
+const COLUNAS_PROPOSTA = [
+  { titulo: "Previsto na proposta", largura: 3000 },
+  { titulo: "Realizado", largura: 4772 },
+  { titulo: "Seção", largura: 1300, alinhamento: AlignmentType.CENTER },
+];
+const COLUNAS_PRE_POS = [
+  { titulo: "Medida", largura: 4600 },
+  { titulo: "Pré-teste", largura: 2200, alinhamento: AlignmentType.CENTER },
+  { titulo: "Pós-teste", largura: 2200, alinhamento: AlignmentType.CENTER },
 ];
 const COLUNAS_CODIGO = [
   { titulo: "Módulo", largura: 6200 },
@@ -907,7 +1046,6 @@ const serie = (v) => v.join(", ");
 
 // Evolução após a avaliação (seção 4.7): números gerados por gerar_figuras.py
 const SM2E = JSON.parse(fs.readFileSync(path.join(FIG, "sm2_evolucao.json"), "utf8"));
-const ME = JSON.parse(fs.readFileSync(path.join(FIG, "metricas_evolucao.json"), "utf8"));
 const TUTOR = TEM_FIGURA_TUTOR
   ? JSON.parse(fs.readFileSync(path.join(FIG, "evolucao_tutor.json"), "utf8")) : null;
 const trio = (v) => v.join(" / ");
@@ -915,7 +1053,7 @@ const MESES = ["jan.", "fev.", "mar.", "abr.", "maio", "jun.", "jul.", "ago.", "
 const dataAbnt = (iso) => { const [a, m, d] = iso.split("-").map(Number); return `${d} ${MESES[m - 1]} ${a}`; };
 const COLUNAS_INTERVALOS = [
   { titulo: "Revisão", largura: 2270 },
-  { titulo: "Versão avaliada (Difícil / Bom / Fácil)", largura: 3400, alinhamento: AlignmentType.CENTER },
+  { titulo: "Primeira versão (Difícil / Bom / Fácil)", largura: 3400, alinhamento: AlignmentType.CENTER },
   { titulo: "Versão atual (Difícil / Bom / Fácil)", largura: 3400, alinhamento: AlignmentType.CENTER },
 ];
 const COLUNAS_FORMATOS = [
@@ -930,29 +1068,33 @@ const ROTULO_REVISAO = { 1: "1ª (primeiro acerto)", 2: "2ª", 3: "3ª", 4: "4ª
 const resultados = [
   h1("4 RESULTADOS"),
   h2("4.1 VISÃO GERAL DO SOFTWARE"),
-  p("O BioquímicaEDU foi entregue em três versões que compartilham conteúdo e motor de aprendizagem " +
-    "(Quadro 3). As versões para computador foram testadas em Windows 10; a versão móvel roda também no " +
-    "computador, o que facilita o desenvolvimento, e está configurada para gerar o pacote Android.",
-    { manterComProximo: true }),
+  p("As seções 4.1 a 4.5 descrevem a primeira versão completa do BioquímicaEDU, formada por três " +
+    "versões que compartilham conteúdo e motor de aprendizagem (Quadro 3). As versões para computador " +
+    "foram testadas em Windows 10; a versão móvel roda também no computador, o que facilita o " +
+    "desenvolvimento, e está configurada para gerar o pacote Android. O que mudou depois é descrito " +
+    "na seção 4.7.", { manterComProximo: true }),
   ...quadro("Versões do BioquímicaEDU", COLUNAS_VERSOES, [
     ["Computador", "main.py", "Painel de estudo, revisão espaçada, estudo por marcador, ~flashcards~, quiz e casos clínicos"],
     ["Computador com tutor", "main_enhanced.py", "Recursos da versão anterior, mais tutor por conversa, questões geradas pelo modelo de linguagem e discussão de casos"],
     ["Dispositivos móveis", "main_kivy_completo.py (no Android, main.py)", "Cinco abas — Início, Estudo, Cards, Prática e Tutor — e revisão espaçada"],
   ], "elaborado pelo autor (2026)."),
-  p("A Tabela 1 resume o conteúdo educacional disponível, e a Tabela 2, o tamanho do código-fonte.",
-    { manterComProximo: true }),
+  p("A Tabela 1 resume o conteúdo educacional dessa versão e, para comparação, o da versão atual; a " +
+    "Tabela 2 mostra o tamanho do código-fonte da primeira versão.", { manterComProximo: true }),
   ...tabela("Conteúdo educacional do software", COLUNAS_CONTEUDO, [
-    ["Marcadores bioquímicos", String(C.marcadores)],
-    ["Sistemas", String(C.sistemas)],
-    ["~Flashcards~", String(C.flashcards)],
-    ["Questões de múltipla escolha", String(C.questoes)],
-    ["Casos clínicos para diagnóstico", String(C.casos_clinicos)],
-    ["Exemplos clínicos ligados aos marcadores", String(C.exemplos)],
-    [`Diagramas (em ${C.marcadores_com_diagrama} marcadores)`, String(C.diagramas)],
-    [`Vínculos com referências bibliográficas (${C.referencias_unicas} fontes distintas)`, String(C.referencias)],
-    ["Vídeos de canais identificados", String(C.videos)],
-  ], "elaborado pelo autor (2026), a partir dos arquivos de dados do software."),
-  ...tabela("Tamanho do código-fonte por módulo", COLUNAS_CODIGO, [
+    ["Marcadores bioquímicos", C.marcadores, CE.marcadores],
+    ["Sistemas", C.sistemas, CE.sistemas],
+    ["~Flashcards~", C.flashcards, CE.flashcards],
+    ["Questões de múltipla escolha", C.questoes, CE.questoes],
+    ["Casos clínicos para diagnóstico", C.casos_clinicos, CE.casos_clinicos],
+    ["Exemplos clínicos ligados aos marcadores", C.exemplos, CE.exemplos],
+    ["Aprofundamentos (frações, categorias, fórmulas)", C.aprofundamentos ?? 0, CE.aprofundamentos],
+    ["Diagramas", C.diagramas, CE.diagramas],
+    ["Vínculos com referências bibliográficas", C.referencias, CE.referencias],
+    ["Fontes bibliográficas distintas", C.referencias_unicas, CE.referencias_unicas],
+    ["Vídeos de canais identificados", C.videos, CE.videos],
+    ["Jogos didáticos", 0, 2],
+  ].map((l) => l.map(String)), "elaborado pelo autor (2026), a partir dos arquivos de dados do software."),
+  ...tabela("Tamanho do código-fonte por módulo na primeira versão", COLUNAS_CODIGO, [
     ...Object.entries(M.codigo).map(([k, v]) => [k, fmt(v)]),
     totalLinha(["Total", fmt(M.codigo_total)]),
   ], "elaborado pelo autor (2026). Contam-se as linhas não vazias, excluídos os comentários."),
@@ -963,10 +1105,10 @@ const resultados = [
     "sempre a mesma ordem: o estudante vê a pergunta, declara numa escala de cinco níveis o quanto acha " +
     "que sabe, vê a resposta e se autoavalia em quatro botões — “De novo”, “Difícil”, “Bom” e “Fácil” " +
     "—, que correspondem às notas 0, 3, 4 e 5 do SM-2. Cada botão mostra, antes de ser tocado, quando o " +
-    "marcador voltará. Na versão avaliada, o próximo intervalo é calculado com o fator de facilidade " +
+    "marcador voltará. Na primeira versão, o próximo intervalo é calculado com o fator de facilidade " +
     "anterior à resposta; por isso, depois do primeiro contato, “Difícil”, “Bom” e “Fácil” levam ao mesmo " +
     "próximo intervalo, e a diferença entre essas avaliações aparece nos intervalos seguintes, pelo " +
-    "ajuste do fator. Esse comportamento foi alterado depois da avaliação (seção 4.7.1)."),
+    "ajuste do fator. Esse comportamento foi alterado depois (seção 4.7.2)."),
   p("O Quadro 4 descreve as três adaptações feitas ao SM-2 original.", { manterComProximo: true }),
   ...quadro("Adaptações do BioquímicaEDU ao SM-2", COLUNAS_ADAPTACOES, [
     ["Fator de facilidade após erro (nota < 3)",
@@ -1055,18 +1197,17 @@ const resultados = [
     "Prática e tutor na versão móvel",
     "elaborado pelo autor (2026), com progresso de exemplo.",
     { nota: "(a) quiz, com ~feedback~ após uma resposta errada; (b) caso clínico; (c) tutor." }),
-  p("No quiz e nos casos clínicos, cada resposta recebe ~feedback~ imediato com a explicação. Na versão " +
-    "avaliada, o tutor da versão móvel funciona sem internet: responde a partir da base do próprio " +
+  p("No quiz e nos casos clínicos, cada resposta recebe ~feedback~ imediato com a explicação. Na " +
+    "primeira versão, o tutor da versão móvel funciona sem internet: responde a partir da base do próprio " +
     "aplicativo, apresentando faixa de referência, interpretação e condições associadas ao marcador " +
-    "perguntado, e oferece sugestões de perguntas. A seção 4.7.4 descreve o tutor com inteligência " +
+    "perguntado, e oferece sugestões de perguntas. A seção 4.7.5 descreve o tutor com inteligência " +
     "artificial generativa acrescentado depois."),
   p("Para o Android, o arquivo de configuração do empacotamento define a versão 36 da API como alvo, " +
     "exigência da Google Play para novos aplicativos e atualizações desde 31 de agosto de 2026 (Google, " +
-    "[2026c]), e a versão 21 como mínima, abrangendo aparelhos antigos. O aplicativo não solicita nenhuma " +
-    "permissão: não acessa a internet, e as referências e vídeos abrem no navegador do sistema. Depois " +
-    "da avaliação, só o tutor em nuvem, opcional, passou a exigir acesso à internet (seção 4.7.4). " +
-    "[[CONFIRMAR: se o APK foi gerado e testado em aparelho físico; em caso afirmativo, informar " +
-    "modelo e versão do Android.]]"),
+    "[2026c]), e a versão 21 como mínima, abrangendo aparelhos antigos. Nessa versão, o aplicativo não " +
+    "solicita nenhuma permissão: não acessa a internet, e as referências e vídeos abrem no navegador do " +
+    "sistema. Mais tarde, o tutor em nuvem e o login com Google, ambos opcionais, passaram a " +
+    "usar a internet (seções 4.7.5 e 4.7.6), e a geração do pacote foi automatizada (seção 4.7.7)."),
 
   h2("4.4 VERSÕES PARA COMPUTADOR"),
   p("A versão para computador oferece o mesmo motor, com a tela inicial organizada como um painel em " +
@@ -1089,26 +1230,71 @@ const resultados = [
   ...figura("logo", path.join(RAIZ, "assets", "logo", "horizontal.png"), "Logo do BioquímicaEDU",
     "elaborado pelo autor (2026).", { larguraCm: 10 }),
 
-  h2("4.6 RESULTADOS DA AVALIAÇÃO COM USUÁRIOS"),
-  p("[[PREENCHER: caracterização dos participantes — pode ser apresentada em tabela.]]"),
-  p("[[PREENCHER: resultados do instrumento — médias, desvios-padrão e distribuição das respostas; " +
-    "se for usada escala de usabilidade, o escore médio e sua interpretação.]]"),
-  p("[[PREENCHER: comentários abertos mais frequentes, com exemplos.]]"),
+  h2("4.6 AVALIAÇÃO FORMATIVA"),
+  p("Nas conversas descritas na seção 3.6.1, os participantes viram o aplicativo funcionando, " +
+    "testaram o que lhes interessava e fizeram sugestões e pedidos de mudança. A recepção foi positiva, " +
+    "e os estudantes que ainda não haviam cursado a disciplina disseram que pensavam em usar o " +
+    "aplicativo para estudar. Os pedidos mais diretos foram vídeos em português, no lugar dos dois " +
+    "vídeos em inglês da primeira versão, e imagens e esquemas de melhor qualidade. [[PREENCHER: outras " +
+    "sugestões que você anotou nas conversas, se houver.]]"),
+  p("Como a avaliação foi formativa e sem instrumento padronizado, esses resultados não medem " +
+    "usabilidade nem satisfação: indicam o que pessoas do público do aplicativo e da área consideraram " +
+    "importante. As sugestões orientaram as mudanças visuais e de estrutura e as funções acrescentadas " +
+    "depois, junto com os itens da proposta que ainda faltavam (seção 4.7). Os vídeos em português foram " +
+    "incluídos; a melhoria dos diagramas do conteúdo ainda não foi feita e fica como trabalho futuro."),
 
-  h2("4.7 EVOLUÇÃO DO SOFTWARE APÓS A AVALIAÇÃO"),
-  p("Depois da avaliação com usuários, o software continuou a ser desenvolvido. As mudanças são " +
-    "descritas aqui, separadas das seções anteriores, porque os participantes usaram a versão " +
-    "apresentada nas seções 4.1 a 4.5 [[CONFIRMAR: versão usada na avaliação]] e porque elas não foram " +
-    "avaliadas com usuários. Quatro frentes foram tratadas: os intervalos da revisão, que não " +
-    "diferenciavam de imediato as avaliações “Difícil”, “Bom” e “Fácil”; a existência de uma interface " +
-    "diferente para cada aparelho; a acessibilidade, que ainda não havia sido tratada de forma " +
-    "sistemática; e o tutor, que passou a contar, como opção, com um modelo de linguagem em nuvem. A " +
-    "tela de abertura, a apresentação do primeiro acesso e a identidade visual também foram completadas. " +
-    `Com essas mudanças, o código-fonte passou de ${fmt(M.codigo_total)} para ${fmt(ME.codigo_total)} ` +
-    "linhas não vazias, excluídos os comentários."),
+  h2("4.7 EVOLUÇÃO DO SOFTWARE"),
+  p("Depois da primeira versão, o software continuou a ser desenvolvido, orientado pelas sugestões da " +
+    "avaliação formativa e por uma conferência, item por item, da proposta do projeto, que mostrou o que " +
+    "ainda faltava: dois marcadores, as frações da bilirrubina, os jogos didáticos e uma visualização " +
+    "gráfica interativa. As mudanças são descritas aqui, separadas das seções 4.1 a 4.5, para que se " +
+    "distinga o que existia na primeira versão do que veio depois. Além dos itens da proposta, foram " +
+    "tratados os intervalos da revisão, que não diferenciavam de imediato as avaliações “Difícil”, " +
+    "“Bom” e “Fácil”; a existência de uma interface diferente para cada aparelho; a acessibilidade, que " +
+    "ainda não havia sido tratada de forma sistemática; o tutor, que passou a contar, como opção, com um " +
+    "modelo de linguagem em nuvem; a entrada no aplicativo, com conta Google opcional; e a distribuição, " +
+    `com site e instaladores. Com essas mudanças, o código-fonte passou de ${fmt(M.codigo_total)} para ` +
+    `${fmt(ME.codigo_total)} linhas não vazias, excluídos os comentários.`),
 
-  h3("4.7.1 Intervalos da revisão"),
-  p("Na versão avaliada, “Difícil”, “Bom” e “Fácil” levavam ao mesmo próximo intervalo depois do " +
+  h3("4.7.1 Itens da proposta: novos marcadores, jogos e régua das faixas"),
+  p("A proposta listava, entre os marcadores, a taxa de filtração glomerular estimada (TFGe), o " +
+    "bicarbonato e as bilirrubinas. Os dois primeiros foram incluídos como marcadores, com faixa de " +
+    "referência, interpretação, condições associadas, exemplos clínicos, fontes e vídeos, e a ficha da " +
+    "bilirrubina ganhou um aprofundamento sobre as frações direta e indireta e o que a predominância de " +
+    "cada uma sugere. A TFGe tem uma particularidade: não é dosada, e sim calculada a partir da " +
+    "creatinina, da idade e do sexo. Por isso, sua ficha traz uma calculadora com a equação CKD-EPI " +
+    "2021, que dispensa o coeficiente racial das equações anteriores (Inker ~et al.~, 2021), e classifica " +
+    "o resultado nas categorias G1 a G5 da diretriz KDIGO (Kidney Disease: Improving Global Outcomes, " +
+    "2024). A calculadora aceita adultos de 18 a 120 anos e creatinina de 0,1 a 30 mg/dL e avisa que " +
+    "serve ao estudo, não substituindo o laudo nem a avaliação clínica."),
+  p("Os jogos didáticos ganharam uma seção própria na aba Prática e um atalho na tela inicial " +
+    `(Figura ${fig("evolucao_jogos")}). No primeiro, “Alto, normal ou baixo?”, o estudante vê o valor de um marcador e o ` +
+    "classifica em relação à faixa de referência, em dez rodadas. Os valores são sorteados dentro de " +
+    "faixas plausíveis para cada classe, e alterações sem sentido clínico — como uma troponina abaixo do " +
+    "normal — não são sorteadas. Cada acerto vale 10 pontos, com bônus por acertos seguidos; a faixa " +
+    "pode ser consultada como dica, mas então o acerto vale metade; e um relógio opcional dá 15 segundos " +
+    "por rodada. O retorno mostra a régua da faixa com o valor marcado e a interpretação da alteração. " +
+    "As respostas dadas sem dica também alimentam o agendamento das revisões, com as notas do quiz " +
+    "(Tabela 3), porque nelas o estudante recuperou a faixa da memória. No segundo jogo, de memória, o " +
+    "estudante forma seis pares entre um marcador e o órgão ou sistema que ele avalia, e cada par formado " +
+    "traz uma explicação curta. Os dois jogos dão até três estrelas conforme o desempenho e guardam " +
+    "o recorde do próprio estudante, sem classificação entre estudantes (seção 2.4).",
+    { manterComProximo: true }),
+  ...figura("evolucao_jogos", path.join(FIG, "evolucao_jogos.png"),
+    "Jogos didáticos e calculadora da TFG estimada na versão para celular",
+    "elaborado pelo autor (2026).",
+    { nota: "(a) “Alto, normal ou baixo?”, com o retorno de uma rodada e a régua da faixa; (b) jogo da " +
+            "memória com dois pares formados; (c) calculadora da TFGe, com a categoria da KDIGO e a régua." }),
+  p("A visualização gráfica interativa prevista na proposta tomou a forma dessa régua de faixas, " +
+    "desenhada pelo próprio aplicativo: três zonas — baixo, normal e alto —, com a escala comprimida fora " +
+    "da faixa normal, para que valores muito alterados caibam na tela sem achatar a faixa, e um " +
+    "indicador animado que desliza até o valor. Ela aparece no retorno do jogo e no resultado da " +
+    "calculadora da TFGe. Por fim, os vídeos em português pedidos na avaliação formativa foram " +
+    `incluídos: de ${C.videos} vídeos na primeira versão, o conteúdo passou a ${CE.videos}, de canais de ` +
+    "professores, especialistas e projetos de ensino identificados."),
+
+  h3("4.7.2 Intervalos da revisão"),
+  p("Na primeira versão, “Difícil”, “Bom” e “Fácil” levavam ao mesmo próximo intervalo depois do " +
     "primeiro contato (seção 4.2). Na versão atual, cada avaliação leva a um intervalo diferente já no " +
     "agendamento seguinte. No primeiro acerto, os intervalos são de 1, 2 e 4 dias; no segundo, de 4, 6 e " +
     "8 dias, isto é, o intervalo de 6 dias do SM-2 multiplicado por 0,6, 1,0 e 1,3. A partir do terceiro " +
@@ -1121,14 +1307,14 @@ const resultados = [
     { manterComProximo: true }),
   ...tabela("Próximo intervalo, em dias, conforme a avaliação, nas duas versões do motor", COLUNAS_INTERVALOS,
     Object.keys(SM2E.atual).map((n) => [ROTULO_REVISAO[n], trio(SM2E.avaliada[n]), trio(SM2E.atual[n])]),
-    "elaborado pelo autor (2026), executando o código do motor (progresso.py) da versão avaliada e da atual."),
+    "elaborado pelo autor (2026), executando o código do motor (progresso.py) da primeira versão e da atual."),
   p("Com isso, a escolha do estudante passa a ter consequência visível no próprio botão, que já " +
     `mostrava, antes do toque, quando o marcador voltaria (Figura ${fig("evolucao_formatos")}c, na seção ` +
-    "4.7.2). A sequência em que todas as respostas são “Bom” mudou apenas no primeiro intervalo, de 1 " +
+    "4.7.3). A sequência em que todas as respostas são “Bom” mudou apenas no primeiro intervalo, de 1 " +
     "para 2 dias."),
 
-  h3("4.7.2 Um aplicativo para celular, tablet e computador"),
-  p("Na versão avaliada, o computador tinha duas interfaces em Tkinter, e o celular, uma em Kivy " +
+  h3("4.7.3 Um aplicativo para celular, tablet e computador"),
+  p("Na primeira versão, o computador tinha duas interfaces em Tkinter, e o celular, uma em Kivy " +
     "(Quadro 3), o que obrigava a manter interfaces separadas para o mesmo conteúdo, com aparência e " +
     "recursos diferentes entre os aparelhos. Como a interface em Kivy também " +
     "roda no computador, ela passou a ser a única: o comando python main.py abre o mesmo aplicativo no " +
@@ -1154,10 +1340,9 @@ const resultados = [
     "cabem no celular, em qualquer intervalo do dia; o computador e o tablet favorecem o estudo mais " +
     "longo — a leitura do detalhe de cada marcador, os casos clínicos e as conversas com o tutor —, com " +
     "mais informação visível ao mesmo tempo. Como o conteúdo, o motor de aprendizagem e a interface são " +
-    "os mesmos, o estudante encontra as mesmas telas e as mesmas regras em qualquer aparelho. Hoje, porém, " +
-    "cada aparelho guarda o próprio progresso; a sincronização opcional, por meio da conta Google, está " +
-    "em desenvolvimento. [[CONFIRMAR: atualizar se a sincronização for concluída antes da entrega.]] " +
-    `A Figura ${fig("evolucao_formatos")} mostra o aplicativo nos três formatos.`,
+    "os mesmos, o estudante encontra as mesmas telas e as mesmas regras em qualquer aparelho. Cada " +
+    "aparelho, porém, guarda o próprio progresso; a sincronização pela conta Google fica como trabalho " +
+    `futuro (seção 4.7.6). A Figura ${fig("evolucao_formatos")} mostra o aplicativo nos três formatos.`,
     { manterComProximo: true }),
   ...figura("evolucao_formatos", path.join(FIG, "evolucao_formatos.png"),
     "O mesmo aplicativo no computador, no tablet e no celular",
@@ -1166,7 +1351,7 @@ const resultados = [
             "lista de marcadores em duas colunas; (c) celular, com a revisão depois da resposta e os novos " +
             "intervalos nos botões de autoavaliação." }),
 
-  h3("4.7.3 Acessibilidade"),
+  h3("4.7.4 Acessibilidade"),
   p("A Lei Brasileira de Inclusão da Pessoa com Deficiência inclui a informação e a comunicação, com " +
     "seus sistemas e tecnologias, entre o que deve ser acessível (Brasil, 2015). No BioquímicaEDU, os " +
     "recursos de acessibilidade foram reunidos numa tela própria, aberta pelo ícone no topo da tela " +
@@ -1181,8 +1366,8 @@ const resultados = [
       "com letras e números de formas bem distintas (Braille Institute, [2026]);",
     "leitura em voz alta do conteúdo, com a voz do próprio sistema e três velocidades;",
     "atalho para o VLibras, tradutor gratuito de português para Libras mantido pelo Governo Federal " +
-      "(Brasil, [2026]): o aplicativo copia o texto e abre o VLibras no celular, ou a página dele no " +
-      "computador, onde basta colar o texto;",
+      "(Brasil, [2026]): o aplicativo abre, no navegador, uma página do site do projeto que já recebe o " +
+      "texto e o traduz com o VLibras, o que exige acesso à internet;",
     "modo foco, que reduz a tela inicial ao essencial, sessões de revisão de 5, 12 ou 20 itens e opção " +
       "para reduzir as animações.",
   ]),
@@ -1197,11 +1382,11 @@ const resultados = [
     "contraste. Botões e chips têm área de toque de pelo menos 44 dp. A leitura em voz alta existe porque " +
     "o Kivy não se integra a leitores de tela, como o TalkBack, do Android: em vez de depender deles, o " +
     "próprio aplicativo lê o conteúdo, com o serviço de voz do Android ou, no Windows, com a voz do " +
-    "sistema. O VLibras, por sua vez, não oferece integração direta para aplicativos nativos; por isso, o " +
-    "atalho leva o texto pela área de transferência."),
+    "sistema. O VLibras, por sua vez, não oferece integração direta para aplicativos nativos; por isso, a " +
+    "tradução acontece no navegador, numa página do site que recebe o texto pelo próprio endereço."),
 
-  h3("4.7.4 Tutor com inteligência artificial generativa"),
-  p("Na versão avaliada, o tutor do celular respondia apenas pela base do aplicativo, e o do computador " +
+  h3("4.7.5 Tutor com inteligência artificial generativa"),
+  p("Na primeira versão, o tutor do celular respondia apenas pela base do aplicativo, e o do computador " +
     "podia usar um modelo de linguagem local, executado com o Ollama (seção 4.4). Modelos locais, porém, " +
     "não rodam no celular e, nos tamanhos que cabem num computador comum, tendem a responder mais devagar " +
     "e com qualidade inferior à de modelos maiores. O tutor passou a aceitar, como opção, o Gemini, " +
@@ -1212,7 +1397,7 @@ const resultados = [
     "Provedores de resposta do tutor e local da chave de acesso",
     "elaborado pelo autor (2026)."),
   p("A principal decisão foi manter o conteúdo curado como fonte da verdade. A cada pergunta, o tutor " +
-    "envia ao modelo uma instrução fixa e as fichas dos 20 marcadores do aplicativo — faixa de " +
+    `envia ao modelo uma instrução fixa e as fichas dos ${CE.marcadores} marcadores do aplicativo — faixa de ` +
     "referência, interpretação e condições associadas —, com o marcador da pergunta em destaque, além das " +
     "últimas seis mensagens da conversa. A instrução determina que valores e interpretações venham somente " +
     "desses dados, que o modelo não faça diagnóstico nem indique conduta para pacientes reais e que " +
@@ -1220,12 +1405,17 @@ const resultados = [
     "responder a perguntas de continuidade, como “e quando está baixo?”, sem se afastar do conteúdo " +
     "curado. A temperatura de geração foi fixada em 0,3, para respostas mais estáveis."),
   p("A chave de acesso à API do Gemini dá acesso à conta de quem a criou e, por isso, não fica no " +
-    "código-fonte nem no pacote do aplicativo, de onde poderia ser extraída. No computador, ela é lida de " +
-    "um arquivo local excluído do controle de versões; no celular, o aplicativo não tem chave e envia a " +
-    "pergunta a um servidor intermediário, executado no Cloudflare Workers, que guarda a chave como " +
-    "segredo e aplica a mesma instrução fixa (Cloudflare, [2026]). Só são aceitas conexões criptografadas " +
-    "(HTTPS). Essa é a única função que exige acesso à internet no Android, e a permissão só precisa ser " +
-    "incluída no pacote quando o servidor é configurado."),
+    "código-fonte nem nos pacotes do aplicativo, de onde poderia ser extraída. Quem roda o aplicativo a " +
+    "partir do código pode usar a própria chave, lida de um arquivo local excluído do controle de " +
+    "versões; o instalador para Windows e o celular não têm chave e enviam a pergunta a um servidor " +
+    "intermediário, executado no Cloudflare Workers, que guarda a chave como segredo e aplica a mesma " +
+    "instrução fixa (Cloudflare, [2026]). Só são aceitas conexões criptografadas (HTTPS)."),
+  p("Na camada gratuita, o Gemini às vezes fica sobrecarregado e recusa ou demora a responder. Por " +
+    "isso, o tutor tenta de novo após falhas passageiras e, se a sobrecarga persiste, passa a um modelo " +
+    `de reserva (${TUTOR ? TUTOR.reserva.join(", ") : "gemini-3.5-flash"}), que tem cota de uso própria. No servidor, cada tentativa tem ` +
+    "tempo limite, para que o estudante receba a resposta — ou o aviso do motivo e a resposta da base — " +
+    "antes de a conexão expirar. Além disso, o raciocínio interno do modelo foi fixado no nível baixo, " +
+    "o que encurta a espera."),
   p("O projeto usa a camada gratuita da API, adequada a demonstrações. Nela, o Google pode usar as " +
     "perguntas e respostas para melhorar seus produtos, com possibilidade de revisão humana, e os termos " +
     "pedem que não se enviem informações pessoais ou sensíveis; na camada paga, os dados não são usados " +
@@ -1235,66 +1425,150 @@ const resultados = [
     "falta de internet, limite de uso da camada gratuita, chave recusada ou bloqueio pelo filtro de " +
     "segurança —, o tutor informa o motivo em linguagem simples e responde pela base."),
   p("Esse comportamento é verificado por um programa de testes que substitui a conexão com o Google por " +
-    "uma simulada: ele confere o conteúdo enviado, a leitura das respostas, cada tipo de falha, o caminho " +
-    "do celular, a igualdade entre as instruções do aplicativo e do servidor e a ausência de chaves de API " +
-    "nos arquivos do projeto." +
+    "uma simulada: ele confere o conteúdo enviado, a leitura das respostas, cada tipo de falha, as novas " +
+    "tentativas, a troca para o modelo de reserva, o tempo limite, o caminho pelo servidor, a igualdade " +
+    "entre as instruções do aplicativo e do servidor e a ausência de chaves de API nos arquivos do " +
+    "projeto." +
     (TEM_FIGURA_TUTOR ? ` A Figura ${fig("evolucao_tutor")} mostra uma conversa real com o tutor.` : ""),
     { manterComProximo: TEM_FIGURA_TUTOR }),
   ...(TEM_FIGURA_TUTOR
     ? figura("evolucao_tutor", path.join(FIG, "evolucao_tutor.png"),
         "Conversa com o tutor usando o Gemini na versão para celular",
-        `elaborado pelo autor (2026). Respostas geradas pelo modelo ${TUTOR.modelo} em ` +
-          `${dataAbnt(TUTOR.data)}, sem edição.`,
+        `elaborado pelo autor (2026). Respostas geradas pelo Gemini (modelo principal ${TUTOR.modelo}) em ` +
+          `${dataAbnt(TUTOR.data)}${TUTOR.via_servidor ? ", por meio do servidor intermediário" : ""}, sem edição.`,
         { nota: "(a) início da conversa, com o aviso sobre a camada gratuita; (b) resposta a uma pergunta " +
                 "de comparação; (c) resposta a uma pergunta de continuidade." })
     : [p("[[PREENCHER: figura com uma conversa real com o tutor usando o Gemini — gerada por " +
          "relatorio/gerar_figuras.py depois que a chave for configurada (docs/TUTOR_GEMINI.md).]]")]),
 
-  h3("4.7.5 Abertura, apresentação e identidade visual"),
-  p("Por fim, o aplicativo ganhou uma tela de abertura com a logo, exibida enquanto o conteúdo e o " +
-    "progresso são carregados, que, se a leitura dos dados falhar, explica o problema e oferece nova " +
-    "tentativa; uma apresentação de três passos no primeiro acesso, que termina nos ajustes de " +
-    "acessibilidade; e as variações da identidade visual de que um aplicativo precisa, como o ícone " +
-    "adaptativo do Android, que se ajusta ao formato de ícone de cada aparelho."),
+  h3("4.7.6 Abertura, conta Google opcional e apresentação"),
+  p("O aplicativo ganhou uma tela de abertura com a logo, exibida enquanto o conteúdo e o progresso " +
+    "são carregados, que, se a leitura dos dados falhar, explica o problema e oferece nova tentativa. No " +
+    "primeiro acesso, o estudante escolhe entrar com a conta Google ou continuar sem conta; em seguida, " +
+    "vê uma apresentação de três passos, que termina nos ajustes de acessibilidade. O login usa o " +
+    "Firebase Authentication, do Google: no computador, pela página de login do Google no navegador, e " +
+    "no Android, pelo seletor de contas do próprio sistema. A conta guarda apenas se o estudante já viu a " +
+    "apresentação, para que ela não se repita ao trocar de aparelho; o progresso de estudo continua no " +
+    "aparelho, e as regras do banco de dados só permitem a cada estudante ler e gravar o próprio " +
+    "registro. No Windows, a sessão fica gravada de forma cifrada pelo próprio sistema. A identidade " +
+    "visual também foi completada com as variações de que um aplicativo precisa, como o ícone adaptativo " +
+    "do Android, que se ajusta ao formato de ícone de cada aparelho."),
+
+  h3("4.7.7 Site e instaladores"),
+  p("Para que o aplicativo possa ser usado sem instalar o Python, foram criados um site e dois " +
+    `instaladores. O site, hospedado no Firebase Hosting em ${SITE}, apresenta o aplicativo e oferece ` +
+    "os downloads, guardados nas versões publicadas (~releases~) de um repositório do GitHub. O " +
+    "instalador para Windows é um executável único, de cerca de 41 MB, gerado com o PyInstaller, que " +
+    "reúne o Python, o Kivy, o conteúdo e o aplicativo; como não tem assinatura digital paga, o Windows " +
+    "exibe um aviso na primeira execução, e o site explica como prosseguir antes do download."),
+  p("O pacote para Android (APK) é gerado no GitHub Actions, num computador Linux do próprio GitHub, " +
+    "porque o Buildozer não roda no Windows. Ele é gerado para processadores de 64 bits (arm64-v8a), os " +
+    "dos celulares e tablets atuais e os exigidos pela Google Play, e é assinado sempre com a mesma " +
+    "chave, guardada fora do repositório: o Android só atualiza um aplicativo assinado pela mesma chave, " +
+    "e o login com Google confere a impressão digital (SHA-1) dela. Nenhum dos dois pacotes contém a " +
+    "chave do Gemini nem o progresso e as preferências de quem os gerou: o empacotamento os exclui, e " +
+    "os arquivos internos de cada pacote foram conferidos. Ambos usam o servidor intermediário da seção " +
+    "4.7.5. [[CONFIRMAR: aparelho Android em " +
+    "que o APK foi testado — modelo e versão do Android — e se ele já está publicado no site.]]"),
+
+  h2("4.8 AVALIAÇÃO DA APRENDIZAGEM"),
+  p("[[PREENCHER: quantos estudantes fizeram o pré-teste e quantos concluíram o pós-teste; perfil em " +
+    "categorias (curso), sem cruzar com as respostas individuais.]]", { manterComProximo: true }),
+  ...tabela("Notas no pré-teste e no pós-teste (0 a 10)", COLUNAS_PRE_POS, [
+    ["Participantes", "[[n]]", "[[n]]"],
+    ["Mediana (mínimo–máximo)", "[[  ]]", "[[  ]]"],
+    ["Média", "[[  ]]", "[[  ]]"],
+    ["Respostas “Não sei” (% do total)", "[[  ]]", "[[  ]]"],
+  ], "elaborado pelo autor (2026), a partir das respostas dos participantes."),
+  p("[[PREENCHER: comparação pareada — quantos melhoraram, ficaram iguais ou pioraram; resultado do " +
+    "teste de Wilcoxon (valor de p) e tamanho do efeito, ou só a descrição, se houver menos de seis " +
+    "pares.]]"),
+  p("[[PREENCHER: questões que mais melhoraram e as que não mudaram, e o que isso indica sobre o " +
+    "conteúdo do aplicativo.]]"),
+  p("[[PREENCHER: avaliação do aplicativo no pós-teste e no questionário de opinião — mediana e número " +
+    "de respostas 4 ou 5 em cada afirmação; temas mais citados nas respostas abertas.]]"),
 ];
 
 const discussao = [
   h1("5 DISCUSSÃO"),
+  p("A proposta do projeto previa um software em Python com uma base de dados dos marcadores, modos de " +
+    "estudo, quiz e diagnóstico simulado, jogos didáticos, visualizações gráficas interativas e " +
+    "validação pedagógica por pré-teste e pós-teste. O Quadro 6 compara cada item previsto com o que foi " +
+    "realizado.", { manterComProximo: true }),
+  ...quadro("Itens da proposta do projeto e o que foi realizado", COLUNAS_PROPOSTA, [
+    ["Marcadores hepáticos (ALT, AST, GGT e bilirrubinas), renais (creatinina, ureia e TFGe), glicêmicos " +
+      "e lipídicos (glicose, HbA1c, colesterol total, HDL, LDL e triglicerídeos), eletrólitos e " +
+      "equilíbrio ácido-base (Na, K, Cl, HCO3 e pH) e cardíacos (CK-MB, troponina e LDH)",
+      "Todos incluídos; as bilirrubinas como bilirrubina total, com aprofundamento sobre as frações " +
+      `direta e indireta; acrescentado o ácido úrico, num total de ${CE.marcadores} marcadores`,
+      "2.1 e 4.7.1"],
+    ["Base de dados em CSV ou SQLite, manipulada com Pandas, com nome, valor de referência, unidade, " +
+      "interpretação clínica e doenças associadas",
+      "Arquivo CSV com esses campos e arquivos JSON para cards, questões, casos, exemplos, fontes e " +
+      "vídeos, lidos pela biblioteca padrão do Python, sem Pandas",
+      "3.2"],
+    ["Interface em Tkinter ou PyQt5",
+      "Tkinter nas versões clássicas para computador; Kivy no aplicativo único para celular, tablet e " +
+      "computador", "3.3 e 4.7.3"],
+    ["Visualizações com Matplotlib, Seaborn ou Plotly",
+      "Diagramas do conteúdo gerados com Matplotlib; régua interativa das faixas desenhada pelo próprio " +
+      "aplicativo", "3.2 e 4.7.1"],
+    ["Modo Estudo, Modo Quiz e Modo Diagnóstico Simulado, com ~feedback~ imediato",
+      "Aba Estudo, com fichas detalhadas por marcador; quiz e casos clínicos com explicação imediata",
+      "4.3"],
+    ["Jogos didáticos", "“Alto, normal ou baixo?” e jogo da memória", "4.7.1"],
+    ["Validação pedagógica: pré-teste, uso por período determinado, pós-teste e análise comparativa",
+      "Pré-teste, uma semana de uso e pós-teste com estudantes que ainda vão cursar a disciplina, além " +
+      "da avaliação formativa durante o desenvolvimento", "3.6, 4.6 e 4.8"],
+    ["Ajustes e refinamento a partir da validação",
+      "Evolução orientada pelas sugestões da avaliação formativa", "4.7"],
+  ], "elaborado pelo autor (2026), a partir da proposta do projeto."),
+  p("As mudanças de tecnologia tiveram motivo prático. O Tkinter não roda no Android, e o PyQt5 " +
+    "exigiria uma cadeia de empacotamento própria para o celular; o Kivy, também em Python, roda no " +
+    "Android, no Windows e em outros sistemas com o mesmo código, o que permitiu chegar a um único " +
+    "aplicativo. O Pandas foi dispensado porque a base, com algumas dezenas de linhas, é lida em poucos " +
+    "comandos pela biblioteca padrão, e uma dependência a menos reduz o tamanho dos instaladores; o " +
+    "SQLite também não foi necessário, porque o conteúdo é apenas lido e o progresso do estudante cabe " +
+    "num arquivo JSON. Por fim, a fundamentação teórica foi construída com fontes cujo acesso pôde ser " +
+    "conferido nas bases de origem, pelo DOI ou pelo endereço do capítulo."),
   p("O SM-2 foi escolhido por ser simples, publicado e auditável: cada intervalo pode ser explicado ao " +
     "estudante a partir de regras curtas, e o comportamento do motor pode ser conferido à mão, como na " +
     `Figura ${fig("sm2")}. As adaptações não pretenderam melhorar a previsão de esquecimento do algoritmo, mas ` +
     "integrar ao mesmo agendamento atividades de natureza diferente — revisão, ~flashcards~, quiz e casos " +
     "— e manter as sessões curtas. O efeito dessas adaptações sobre a retenção não foi medido neste " +
-    "trabalho. Na versão avaliada, depois do primeiro contato, “Difícil”, “Bom” e “Fácil” mostravam o " +
+    "trabalho. Na primeira versão, depois do primeiro contato, “Difícil”, “Bom” e “Fácil” mostravam o " +
     "mesmo próximo intervalo, o que podia fazer a autoavaliação graduada parecer sem efeito. A versão " +
-    "atual diferencia os intervalos já no agendamento seguinte (seção 4.7.1), com os multiplicadores " +
+    "atual diferencia os intervalos já no agendamento seguinte (seção 4.7.2), com os multiplicadores " +
     "padrão do Anki para “Difícil” e “Fácil”; esses valores não foram calibrados com dados de estudantes " +
     "do próprio software, o que exigiria acompanhar o desempenho por meses."),
-  p("A ausência deliberada de pontos, medalhas e classificações segue a evidência discutida na seção " +
-    "2.4: recompensas esperadas podem reduzir a motivação intrínseca (Deci; Koestner; Ryan, 1999), e " +
-    "medalhas e classificações não melhoraram o desempenho em turmas ~online~ (Balci; Secaur; Morris, " +
-    "2022). Os números exibidos medem memória e domínio, funcionando como ~feedback~ de competência, e os " +
-    "marcos correspondem a algo que o estudante passou a saber. Há, porém, evidência de que gamificação " +
-    "baseada em desafios pode elevar desempenho e motivação (Kaya; Ercag, 2023), de modo que a escolha " +
-    "por um painel informativo pode ter custo em engajamento — questão a ser examinada com usuários. " +
-    "[[PREENCHER: relacionar com os resultados da avaliação, se houver dados sobre motivação.]]"),
+  p("No painel de estudo, a ausência deliberada de medalhas e classificações segue a evidência " +
+    "discutida na seção 2.4: recompensas esperadas podem reduzir a motivação intrínseca (Deci; Koestner; " +
+    "Ryan, 1999), e medalhas e classificações não melhoraram o desempenho em turmas ~online~ (Balci; " +
+    "Secaur; Morris, 2022). Os números exibidos medem memória e domínio, funcionando como ~feedback~ de " +
+    "competência, e os marcos correspondem a algo que o estudante passou a saber. Os jogos, exigidos " +
+    "pela proposta, introduziram pontos e estrelas, mas restritos à partida: indicam o desempenho naquele " +
+    "desafio, não premiam o tempo de uso e não comparam estudantes. Esse formato se aproxima da " +
+    "gamificação baseada em desafios, que elevou desempenho e motivação num semestre de uso (Kaya; Ercag, " +
+    "2023), sem abrir mão do painel informativo. [[PREENCHER: relacionar com a afirmação sobre os jogos " +
+    "no pós-teste e no questionário de opinião, se houver dados.]]"),
   p("O registro de calibração torna visível uma diferença que, segundo a literatura, o estudante tende a " +
     "não perceber sozinho (Kruger; Dunning, 1999; Cleary ~et al.~, 2019). Como a má calibração de " +
     "estudantes de baixo desempenho se mostrou estável mesmo diante de notas anteriores (Karaca ~et al.~, " +
     "2023), uma devolutiva explícita e frequente pode ajudar, mas esse efeito também precisa ser " +
     "investigado."),
-  p("Quanto à privacidade, todos os dados do estudante ficam no aparelho, não há cadastro e a versão " +
-    "móvel não solicita acesso à internet. A escolha está alinhada ao princípio da necessidade da Lei " +
-    "Geral de Proteção de Dados Pessoais (LGPD), que limita o tratamento ao mínimo necessário para sua " +
-    "finalidade (Brasil, 2018). O custo é a falta de sincronização: o progresso no celular e no " +
-    "computador é independente. Na versão atual, isso continua valendo enquanto o tutor com Gemini não é " +
-    "usado. Quando é, a pergunta e o conteúdo curado saem do aparelho para um serviço externo, e a camada " +
-    "gratuita permite ao Google usá-los para melhorar seus produtos (Google, [2026a]). O aviso ao " +
-    "estudante e o fato de o aplicativo não enviar nenhuma identificação dele reduzem esse risco, mas não " +
-    "o eliminam, porque o estudante pode digitar dados pessoais na pergunta; fora de demonstrações, a " +
-    "camada paga seria a escolha adequada. A sincronização pela conta Google, por sua vez, trará dados " +
-    "pessoais, como nome e e-mail, e exigirá base legal, aviso de privacidade e consentimento, nos termos " +
-    "da LGPD."),
+  p("Quanto à privacidade, o progresso de estudo fica no aparelho, e o aplicativo funciona sem conta e " +
+    "sem internet. A escolha está alinhada ao princípio da necessidade da Lei Geral de Proteção de Dados " +
+    "Pessoais (LGPD), que limita o tratamento ao mínimo necessário para sua finalidade (Brasil, 2018). O " +
+    "custo é a falta de sincronização: o progresso no celular e no computador é independente. Os recursos " +
+    "opcionais acrescentados depois mudam esse quadro de formas diferentes. O login com Google trata " +
+    "dados pessoais da conta, como nome e e-mail, mas grava na nuvem apenas se a apresentação já foi " +
+    "vista, e as regras do banco limitam cada estudante ao próprio registro. O tutor com Gemini envia a " +
+    "pergunta e o conteúdo curado a um serviço externo, e a camada gratuita permite ao Google usá-los " +
+    "para melhorar seus produtos (Google, [2026a]); o aviso ao estudante e o fato de o aplicativo não " +
+    "enviar nenhuma identificação dele reduzem esse risco, mas não o eliminam, porque o estudante pode " +
+    "digitar dados pessoais na pergunta. Fora de demonstrações, a camada paga seria a escolha adequada, " +
+    "e a sincronização do progresso pela conta exigirá base legal, aviso de privacidade e consentimento, " +
+    "nos termos da LGPD."),
   p("Os recursos de acessibilidade seguem critérios verificáveis, como a razão mínima de contraste da " +
     "WCAG 2.2, mas a falta de integração do Kivy com leitores de tela é uma limitação estrutural: a " +
     "leitura em voz alta do próprio aplicativo atende a quem prefere ouvir o conteúdo, mas não substitui a " +
@@ -1305,42 +1579,74 @@ const discussao = [
     "inventados, mas não a elimina, e a qualidade das explicações não foi avaliada. Antes de recomendar o " +
     "recurso para estudo autônomo, seria necessário que docentes da área da saúde avaliassem as respostas " +
     "a um conjunto representativo de perguntas."),
-  p("O trabalho tem limitações. O conteúdo cobre 20 marcadores, e o banco de 12 questões é pequeno, o " +
-    "que favorece a repetição das mesmas perguntas. As questões geradas pelo modelo de linguagem na " +
-    "versão com tutor não passam por curadoria e podem conter erros. A versão para iOS, possível com o " +
-    "Kivy, não foi testada. Os recursos acrescentados depois da avaliação (seção 4.7) não foram testados " +
-    "com usuários, em particular com estudantes com deficiência. Por fim, a avaliação [[PREENCHER: limitações da avaliação — tamanho e perfil " +
-    "da amostra, duração do uso]], e o efeito do software sobre a retenção de longo prazo exigiria um " +
-    "estudo longitudinal."),
+  p(`O trabalho tem limitações. O conteúdo cobre ${CE.marcadores} marcadores, e o banco de ${CE.questoes} questões é ` +
+    "pequeno, o que favorece a repetição das mesmas perguntas. As questões geradas pelo modelo de " +
+    "linguagem na versão clássica com tutor não passam por curadoria e podem conter erros. Os diagramas " +
+    "do conteúdo ainda são os da primeira versão, e a melhoria pedida na avaliação formativa não foi " +
+    "feita. A versão para iOS, possível com o Kivy, não foi testada, e os recursos de acessibilidade não " +
+    "foram avaliados com estudantes com deficiência. Na avaliação, a parte formativa não usou instrumento " +
+    "padronizado nem produziu medidas; o pré-teste e o pós-teste não têm grupo de comparação, repetem as " +
+    "mesmas questões — parte da melhora pode vir de já tê-las visto — e reúnem uma amostra pequena e de " +
+    "conveniência [[CONFIRMAR: ajustar ao número real de participantes]]. O efeito do software sobre a " +
+    "retenção de longo prazo exigiria um estudo longitudinal."),
 ];
 
 const consideracoes = [
   h1("6 CONSIDERAÇÕES FINAIS"),
   p("Este trabalho desenvolveu o BioquímicaEDU, software educacional para o estudo de marcadores " +
     "bioquímicos baseado em prática de recuperação, repetição espaçada e registro de calibração. Em " +
-    `relação aos objetivos, foram reunidos conteúdos sobre ${C.marcadores} marcadores com fontes verificáveis; foi ` +
-    "implementado um motor de aprendizagem que agenda as revisões com uma adaptação do SM-2 e integra " +
-    "revisão, ~flashcards~, quiz e casos clínicos; a confiança declarada pelo estudante passou a ser " +
-    "comparada com seu desempenho; e o software foi disponibilizado em versões para computador e para " +
-    "dispositivos móveis, com os dados mantidos no aparelho. [[PREENCHER: o que a avaliação com " +
-    "usuários permitiu concluir sobre o último objetivo.]]"),
-  p("Depois da avaliação, o software foi unificado num único aplicativo, que se adapta ao celular, ao " +
+    `relação aos objetivos, foram reunidos conteúdos sobre ${CE.marcadores} marcadores — todos os previstos na ` +
+    "proposta, mais o ácido úrico — com fontes verificáveis; foi implementado um motor de aprendizagem " +
+    "que agenda as revisões com uma adaptação do SM-2 e integra revisão, ~flashcards~, quiz, casos " +
+    "clínicos e jogos; a confiança declarada pelo estudante passou a ser comparada com seu desempenho; " +
+    "foram oferecidos quiz, casos clínicos e dois jogos didáticos, com ~feedback~ imediato e uma régua " +
+    "interativa das faixas de referência; e o software foi disponibilizado para computador e para " +
+    "dispositivos móveis, com instaladores para Windows e Android e com o progresso de estudo mantido no " +
+    "aparelho. A avaliação formativa com 12 pessoas orientou a evolução do aplicativo, e [[PREENCHER: o " +
+    "que o pré-teste e o pós-teste permitiram concluir sobre a aprendizagem.]]"),
+  p("Ao longo do projeto, o software foi unificado num único aplicativo, que se adapta ao celular, ao " +
     "tablet e ao computador e cujos formatos se complementam no estudo; ganhou recursos de " +
     "acessibilidade — texto ampliado, alto contraste, fonte para baixa visão, leitura em voz alta e " +
-    "atalho para Libras —; passou a diferenciar os intervalos de “Difícil”, “Bom” e “Fácil”; e recebeu, " +
-    "como opção, um tutor com inteligência artificial generativa ancorado no conteúdo curado, com a chave " +
-    "de acesso mantida fora do aplicativo."),
+    "atalho para Libras —; passou a diferenciar os intervalos de “Difícil”, “Bom” e “Fácil”; ganhou " +
+    "conta Google opcional, site e instaladores; e recebeu, como opção, um tutor com inteligência " +
+    "artificial generativa ancorado no conteúdo curado, com a chave de acesso mantida fora do aplicativo."),
   p("Como trabalhos futuros, sugerem-se: ampliar o número de marcadores e de questões, com revisão por " +
-    "docentes da área da saúde; realizar estudo longitudinal que compare a retenção com e sem o " +
-    "agendamento espaçado; publicar a versão móvel na Google Play, após testes em diferentes aparelhos; " +
-    "concluir a sincronização opcional entre aparelhos pela conta Google, mediante consentimento " +
-    "explícito; avaliar os recursos de acessibilidade com estudantes com deficiência e a qualidade das " +
-    "respostas do tutor com docentes; e testar a versão para iOS."),
+    "docentes da área da saúde; melhorar os diagramas e esquemas do conteúdo, como pediram os " +
+    "participantes; realizar estudo com grupo de comparação e acompanhamento da retenção ao longo de " +
+    "meses; sincronizar o progresso entre aparelhos pela conta Google, mediante consentimento explícito; " +
+    "publicar o aplicativo na Google Play, após testes em diferentes aparelhos; levar a tradução para " +
+    "Libras para dentro do próprio aplicativo, sem depender do navegador; avaliar os recursos de " +
+    "acessibilidade com estudantes com deficiência e a qualidade das respostas do tutor com docentes; e " +
+    "testar a versão para iOS."),
 ];
 
 const referencias = [
   h1("REFERÊNCIAS", { centro: true }),
   ...REFERENCIAS.map(referencia),
+];
+
+// Apêndice C: as questões de docs/AVALIACAO_PRE_POS_TESTE.md, com o índice da alternativa certa
+const QUESTOES_PRE_POS = [
+  ["Qual destas enzimas é a mais específica do fígado?", ["AST", "ALT", "LDH", "CK-MB"], 1],
+  ["Na bilirrubina alta com predomínio da indireta (não conjugada), qual é a causa mais provável entre as opções?",
+    ["Obstrução das vias biliares", "Hemólise (destruição de hemácias)", "Colestase causada por medicamento",
+      "Tumor na cabeça do pâncreas"], 1],
+  ["Uma taxa de filtração glomerular estimada abaixo de 60 mL/min/1,73 m² por mais de 3 meses caracteriza:",
+    ["Lesão renal aguda", "Doença renal crônica", "Função renal normal", "Hiperfiltração glomerular"], 1],
+  ["A hemoglobina glicada (HbA1c) reflete a glicemia média de aproximadamente:",
+    ["Últimas 24 horas", "Últimas 2 semanas", "Últimos 3 meses", "Último ano"], 2],
+  ["Uma glicemia de jejum de 112 mg/dL, confirmada em outra dosagem, é classificada como:",
+    ["Normal", "Glicemia de jejum alterada (pré-diabetes)", "Diabetes mellitus", "Hipoglicemia"], 1],
+  ["Triglicerídeos muito elevados aumentam principalmente o risco de:",
+    ["Pancreatite aguda", "Hipoglicemia", "Hepatite viral", "Anemia hemolítica"], 0],
+  ["Um potássio de 6,8 mEq/L tem como principal risco imediato:",
+    ["Arritmias cardíacas", "Icterícia", "Hipoglicemia", "Crise de gota"], 0],
+  ["Uma gasometria arterial com pH 7,20 e bicarbonato (HCO3) de 10 mEq/L indica:",
+    ["Alcalose metabólica", "Acidose metabólica", "Alcalose respiratória", "Resultado normal"], 1],
+  ["Vômitos persistentes costumam causar:",
+    ["Acidose metabólica com potássio alto", "Alcalose metabólica com potássio baixo", "Acidose respiratória",
+      "Nenhuma alteração de pH ou de eletrólitos"], 1],
+  ["Qual marcador é o mais específico para lesão do músculo cardíaco?", ["CK-MB", "LDH", "Troponina", "AST"], 2],
 ];
 
 const COLUNAS_APENDICE = [
@@ -1358,19 +1664,60 @@ const apendices = [
     "elaborado pelo autor (2026), a partir de data/marcadores_extras.json."),
 
   h1("APÊNDICE B – CÓDIGO-FONTE E EXECUÇÃO", { centro: true }),
-  p(`O código-fonte, os dados e este relatório estão em ${REPOSITORIO}. As versões são iniciadas pelos ` +
-    "comandos abaixo, executados na pasta do projeto com Python 3 instalado:", { manterComProximo: true }),
+  p(`No site ${SITE} estão os instaladores para Windows e Android, e no repositório ` +
+    `${REPOSITORIO} estão o código-fonte, os dados e este relatório. A partir do código, as versões ` +
+    "são iniciadas pelos comandos abaixo, executados na pasta do projeto com Python 3 e o Kivy " +
+    "instalados:", { manterComProximo: true }),
   ...alineas([
-    "aplicativo para celular, tablet e computador: python main.py, após instalar o Kivy;",
+    "aplicativo para celular, tablet e computador: python main.py;",
     "o mesmo aplicativo em formato de celular: python main.py --celular;",
     "versão clássica para computador, em Tkinter: python main.py --classico;",
     "versão com tutor local: python main_enhanced.py (o Ollama é opcional);",
-    "testes automatizados: python test_kivy_completo.py, python test_tutor.py e python test_desktop.py.",
+    "testes automatizados: python test_kivy_completo.py, python test_conteudo.py, python " +
+      "test_jogos.py, python test_tutor.py, python test_login.py e python test_desktop.py.",
   ]),
-  p("O pacote Android é gerado com o Buildozer, a partir do arquivo buildozer.spec, conforme o guia " +
-    "GUIA_MOBILE.md do repositório. O tutor com Gemini é configurado conforme docs/TUTOR_GEMINI.md, sem " +
-    "que a chave de acesso entre no repositório. As figuras deste relatório são refeitas por " +
+  p("O pacote Android é gerado pelo GitHub Actions (docs/ANDROID.md), e o instalador para Windows, " +
+    "pelo PyInstaller, com a configuração da pasta empacotamento. O tutor com Gemini e o login com " +
+    "Google são configurados conforme docs/TUTOR_GEMINI.md e docs/LOGIN_GOOGLE.md, sem que chaves de " +
+    "acesso entrem no repositório. As figuras deste relatório são refeitas por " +
     "relatorio/gerar_figuras.py."),
+
+  h1("APÊNDICE C – QUESTÕES DO PRÉ-TESTE E DO PÓS-TESTE", { centro: true }),
+  p("As mesmas dez questões são usadas nos dois testes; no pós-teste, em outra ordem. Todas têm a " +
+    "alternativa “Não sei”, e a letra da resposta correta está indicada ao fim de cada questão. O " +
+    "protocolo completo, com o termo de consentimento, está em docs/AVALIACAO_PRE_POS_TESTE.md.",
+    { manterComProximo: true }),
+  ...QUESTOES_PRE_POS.flatMap(([enunciado, opcoes, certa], i) => [
+    p(`**Q${i + 1}.** ${enunciado} (resposta: ${"abcde"[certa]})`,
+      { semRecuo: true, antes: 120, manterComProximo: true }),
+    ...alineas([...opcoes, "Não sei"].map((o, j, todas) => o + (j === todas.length - 1 ? "." : ";"))),
+  ]),
+
+  h1("APÊNDICE D – QUESTIONÁRIO DE OPINIÃO", { centro: true }),
+  p("Aplicado a quem já cursou a disciplina ou é formado, depois de um termo de consentimento igual ao " +
+    "do pré-teste, sem coleta de nome ou e-mail.", { manterComProximo: true }),
+  p("**Perfil:** situação atual (estudante de graduação; formado, em pós-graduação; formado, " +
+    "trabalhando; outra); se já cursou a disciplina; área (lista fechada de cursos da saúde); como " +
+    "conheceu o aplicativo (usou no computador; usou no celular ou tablet; viu uma demonstração).",
+    { semRecuo: true }),
+  p("**Afirmações**, de 1 (discordo totalmente) a 5 (concordo totalmente):",
+    { semRecuo: true, manterComProximo: true }),
+  ...alineas([
+    "o aplicativo é fácil de usar;",
+    "encontrei com facilidade o que procurava;",
+    "as explicações dos marcadores são claras;",
+    "o conteúdo parece confiável;",
+    "as imagens e os esquemas têm boa qualidade;",
+    "a revisão espaçada me ajudaria a lembrar do conteúdo;",
+    "os casos clínicos ajudam a relacionar os marcadores às doenças;",
+    "eu usaria o BioquímicaEDU para estudar (ou teria usado, quando cursei a disciplina);",
+    "eu recomendaria o BioquímicaEDU a colegas;",
+    "os jogos ajudam a fixar as faixas de referência;",
+    "o tutor respondeu bem às minhas dúvidas (com a opção “Não usei”);",
+    "os recursos de acessibilidade são úteis (com a opção “Não usei”).",
+  ]),
+  p("**Perguntas abertas**, com o aviso de não escrever nomes nem dados pessoais: do que você mais " +
+    "gostou? Do que não gostou, ou o que mudaria? O que acrescentaria?", { semRecuo: true }),
 ];
 
 // ════════════════════════════════════════════════════════════════════

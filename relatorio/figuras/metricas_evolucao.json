@@ -1,12 +1,30 @@
 {
   "codigo": {
-    "Aplicativo (mobile/)": 4339,
+    "Aplicativo (mobile/)": 5810,
     "Versões clássicas para computador": 3527,
-    "Motor de aprendizagem (progresso.py)": 502,
-    "Tutor (assistente.py)": 260,
+    "Motor de aprendizagem (progresso.py)": 543,
+    "Jogos e calculadora (jogos.py, calculos.py)": 250,
+    "Tutor (assistente.py)": 298,
+    "Login com Google (autenticacao.py)": 405,
     "Geradores (imagens, logo, ícones)": 1027,
-    "Testes automatizados": 535,
-    "Servidor intermediário (servidor/)": 73
+    "Empacotamento (empacotamento/)": 126,
+    "Testes automatizados": 1489,
+    "Servidor intermediário (servidor/)": 96
   },
-  "codigo_total": 10263
+  "codigo_total": 13571,
+  "conteudo": {
+    "marcadores": 22,
+    "sistemas": 6,
+    "flashcards": 59,
+    "questoes": 14,
+    "casos_clinicos": 15,
+    "exemplos": 45,
+    "referencias": 42,
+    "referencias_unicas": 34,
+    "videos": 40,
+    "diagramas": 16,
+    "marcadores_com_diagrama": 8,
+    "aprofundamentos": 8
+  },
+  "commits": 43
 }
