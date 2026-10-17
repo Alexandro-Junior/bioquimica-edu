@@ -14,6 +14,12 @@
       "runtimeArgs": ["main_kivy_completo.py"],
       "port": null,
       "type": "kivy"
+    },
+    {
+      "name": "Site (prévia local)",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8765", "--bind", "127.0.0.1", "--directory", "dist/site_previa"],
+      "port": 8765
     }
   ]
 }
