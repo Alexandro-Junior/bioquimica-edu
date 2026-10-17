@@ -81,8 +81,11 @@ android.api = 36
 # (int) API mínima (Android 5.0)
 android.minapi = 21
 
-# (list) Arquiteturas: celulares atuais e antigos
-android.archs = arm64-v8a, armeabi-v7a
+# (list) Arquiteturas: só a de 64 bits, a dos celulares e tablets atuais e a
+# que a Google Play exige. Com duas, o python-for-android recria o mesmo venv
+# para a segunda e deixa o pip quebrado ("cannot import name
+# BuildDependencyInstallError"), e o APK não sai.
+android.archs = arm64-v8a
 
 # (bool) Aceita a licença do SDK automaticamente
 android.accept_sdk_license = True
