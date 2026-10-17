@@ -1,0 +1,108 @@
+# Gera o APK do BioquímicaEDU num computador Linux do GitHub (o Buildozer
+# não roda no Windows). Roda quando alguém clica em "Run workflow" na aba
+# Actions, ou quando sai uma versão nova (tag v*).
+#
+# Segredos e variáveis do repositório (Settings › Secrets and variables › Actions):
+#   ANDROID_KEYSTORE_BASE64  segredo: a chave de assinatura (.p12) em base64.
+#                            É sempre a mesma: o Firebase confere o SHA-1 dela
+#                            para o login com Google, e o Android só aceita
+#                            atualizar o app assinado pela mesma chave.
+#   ANDROID_KEYSTORE_SENHA   segredo: a senha da chave.
+#   FIREBASE_CONFIG_JSON     segredo: o conteúdo de config/firebase.json (fora do Git).
+#   TUTOR_SERVIDOR           variável: endereço do servidor do tutor (Cloudflare).
+# Passo a passo em docs/ANDROID.md.
+
+name: APK Android
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  apk:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 150
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configuração que fica fora do Git
+        env:
+          FIREBASE_CONFIG_JSON: ${{ secrets.FIREBASE_CONFIG_JSON }}
+          TUTOR_SERVIDOR: ${{ vars.TUTOR_SERVIDOR }}
+        run: |
+          mkdir -p config
+          if [ -n "$FIREBASE_CONFIG_JSON" ]; then
+            printf '%s' "$FIREBASE_CONFIG_JSON" > config/firebase.json
+            echo "login com Google: configurado"
+          else
+            echo "::warning::FIREBASE_CONFIG_JSON vazio: o APK sai sem login com Google"
+          fi
+          if [ -n "$TUTOR_SERVIDOR" ]; then
+            printf '{\n  "servidor": "%s"\n}\n' "$TUTOR_SERVIDOR" > config/tutor_nuvem.json
+            echo "tutor com IA: $TUTOR_SERVIDOR"
+          else
+            echo "::warning::TUTOR_SERVIDOR vazio: o tutor do APK responde só pela base do app"
+          fi
+          # a chave do Gemini nunca vai no APK
+          test ! -e .env
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Dependências do sistema
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            git zip unzip autoconf automake libtool pkg-config zlib1g-dev \
+            libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev \
+            libssl-dev build-essential ccache
+          pip install --upgrade pip
+          pip install buildozer "cython<3.1"
+
+      - name: Cache do SDK e do NDK do Android
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.buildozer
+            .buildozer
+          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          restore-keys: buildozer-${{ runner.os }}-
+
+      - name: Chave de assinatura
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::error::Falta o segredo ANDROID_KEYSTORE_BASE64 (docs/ANDROID.md)"
+            exit 1
+          fi
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/bioquimicaedu.p12"
+
+      - name: Gerar o APK
+        env:
+          P4A_RELEASE_KEYSTORE: ${{ runner.temp }}/bioquimicaedu.p12
+          P4A_RELEASE_KEYSTORE_PASSWD: ${{ secrets.ANDROID_KEYSTORE_SENHA }}
+          P4A_RELEASE_KEYALIAS: bioquimicaedu
+          P4A_RELEASE_KEYALIAS_PASSWD: ${{ secrets.ANDROID_KEYSTORE_SENHA }}
+        run: yes | buildozer android release
+
+      - name: Conferir a assinatura
+        run: |
+          APK=$(ls bin/*.apk | head -n 1)
+          APKSIGNER=$(ls ~/.buildozer/android/platform/android-sdk/build-tools/*/apksigner | sort | tail -n 1)
+          "$APKSIGNER" verify --print-certs "$APK" | grep -i "SHA-1"
+          cp "$APK" BioquimicaEDU-Android.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BioquimicaEDU-Android
+          path: BioquimicaEDU-Android.apk
+          retention-days: 30
