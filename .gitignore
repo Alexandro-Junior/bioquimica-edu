@@ -71,3 +71,6 @@ config/firebase.json
 data/sessao_google.dat
 data/sessao_google.tmp
 *.p12
+
+# endereço do servidor do tutor (Cloudflare): fora do GitHub para não expor a cota gratuita
+config/tutor_nuvem.json

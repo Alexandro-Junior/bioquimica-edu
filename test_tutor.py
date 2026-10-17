@@ -215,7 +215,7 @@ def sobrecarga_passageira_tenta_de_novo():
         enviadas = rede_falsa(erro=urllib.error.HTTPError("https://x", 503, "erro", {}, None))
         _texto, fonte, aviso = Assistente([direto(), BaseLocal(MARCADORES)]).responder(
             "potássio alto", K)
-        assert fonte == "base do app" and "503" in aviso and len(enviadas) == 6, aviso
+        assert fonte == "base do app" and "sobrecarregado" in aviso and len(enviadas) == 6, aviso
         # chave recusada (403) não muda com outro modelo: uma tentativa só
         enviadas = rede_instavel([403], gemini_respondeu("nunca chega"))
         _texto, fonte, aviso = Assistente([direto(), BaseLocal(MARCADORES)]).responder(
@@ -236,9 +236,21 @@ def demora_do_gemini_nao_vira_falta_de_internet():
         encoding="utf-8")
     nivel = assistente.CONFIG_GERACAO["thinkingConfig"]["thinkingLevel"]
     assert f'thinkingLevel: "{nivel}"' in codigo, "configuração diferente no servidor"
-    assert "gemini.status === 503" in codigo, "o servidor precisa repassar o 503"
+    assert "AbortController" in codigo, "o servidor precisa de prazo para cada modelo"
     for modelo in assistente.MODELOS_RESERVA:
         assert f'"{modelo}"' in codigo, f"o servidor não tem o modelo reserva {modelo}"
+
+
+@teste
+def app_se_identifica_e_nao_como_robo():
+    """O Cloudflare recusa (erro 1010) o User-Agent padrão "Python-urllib"."""
+    for modelo in (direto(), ModeloNuvem(MARCADORES, EXTRAS, config={
+            "chave": None, "servidor": "https://tutor.exemplo.workers.dev",
+            "token_app": None, "modelo": "m"})):
+        enviadas = rede_falsa(gemini_respondeu("ok") if modelo.cfg["chave"] else {"texto": "ok"})
+        modelo.responder("potássio alto", K)
+        agente = enviadas[0].get_header("User-agent") or ""
+        assert agente.startswith("BioquimicaEDU/") and "Python-urllib" not in agente, agente
 
 
 @teste

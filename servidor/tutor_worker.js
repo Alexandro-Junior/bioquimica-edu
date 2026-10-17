@@ -30,8 +30,33 @@ const MODELO_PADRAO = "gemini-3.8-flash";
 // Igual a MODELOS_RESERVA em assistente.py: se o modelo principal estiver
 // sobrecarregado, sem cota gratuita ou falhar no servidor, tenta este.
 const MODELOS_RESERVA = ["gemini-3.5-flash"];
-const TROCA_DE_MODELO = [429, 500, 503, 504];
+// Tempo máximo de cada modelo. Somados, ficam abaixo dos 30 s que o app espera
+// (TEMPO_LIMITE em assistente.py); sem isso, uma chamada presa no Google
+// passava de dois minutos e o Cloudflare devolvia 524.
+const TEMPOS_MS = [14000, 13000];
 const LIMITES = { pergunta: 600, contexto: 20000, turnos: 6, turno: 1500 };
+
+// Uma chamada ao Gemini com prazo. Devolve a resposta, ou null se estourar o
+// prazo ou a conexão falhar (aí vale tentar o próximo modelo).
+async function perguntarAoGemini(modelo, corpo, chave, tempoMs) {
+  const controle = new AbortController();
+  const relogio = setTimeout(() => controle.abort(), tempoMs);
+  try {
+    return await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-goog-api-key": chave },
+        body: corpo,
+        signal: controle.signal,
+      },
+    );
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(relogio);
+  }
+}
 
 function resposta(dados, status = 200) {
   return new Response(JSON.stringify(dados), {
@@ -83,22 +108,18 @@ export default {
       // igual a CONFIG_GERACAO em assistente.py (raciocínio baixo: resposta mais rápida)
       generationConfig: { temperature: 0.3, maxOutputTokens: 2048, thinkingConfig: { thinkingLevel: "low" } },
     });
-    let gemini;
+    let gemini = null;
     for (const [i, modelo] of modelos.entries()) {
-      gemini = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
-          body: corpoGemini,
-        },
-      );
-      if (gemini.ok || !TROCA_DE_MODELO.includes(gemini.status) || i === modelos.length - 1) break;
+      gemini = await perguntarAoGemini(modelo, corpoGemini, env.GEMINI_API_KEY,
+                                       TEMPOS_MS[Math.min(i, TEMPOS_MS.length - 1)]);
+      // sobrecarga (5xx), cota (429) ou prazo estourado: tenta o próximo modelo
+      if (gemini && (gemini.ok || (gemini.status !== 429 && gemini.status < 500))) break;
     }
+    if (!gemini) return resposta({ erro: "o Gemini demorou demais para responder" }, 504);
     if (!gemini.ok) {
-      // repassa o 429 (limite gratuito) para o app explicar ao estudante e o 503
-      // (sobrecarga passageira) para o app tentar de novo; o resto vira 502
-      const status = gemini.status === 429 || gemini.status === 503 ? gemini.status : 502;
+      // os modelos já foram tentados aqui: o app não repete, só explica. O 429
+      // (limite gratuito) vai como está; o resto vira 502 (sobrecarga ou falha)
+      const status = gemini.status === 429 ? 429 : 502;
       return resposta({ erro: `Gemini respondeu ${gemini.status}` }, status);
     }
     const texto = textoDoGemini(await gemini.json());

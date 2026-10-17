@@ -128,6 +128,9 @@ MODELO_PADRAO = "gemini-3.8-flash"
 ENDPOINT_GEMINI = ("https://generativelanguage.googleapis.com/v1beta/models/"
                    "{modelo}:generateContent")
 TEMPO_LIMITE = 30  # segundos por modelo; depois do modelo reserva, a base do app responde
+# O Cloudflare recusa (erro 1010) pedidos que se apresentam como "Python-urllib",
+# a assinatura padrão de robôs; o app se identifica pelo próprio nome.
+AGENTE = "BioquimicaEDU/1.0 (app educacional; +https://bioquimicaedu.web.app)"
 # Raciocínio "baixo": o tutor explica dados já conferidos, não resolve problemas
 # abertos, e assim responde bem mais rápido (com o padrão, chegava a 37 s em
 # horário de muito uso). Mantenha igual em servidor/tutor_worker.js.
@@ -244,9 +247,14 @@ def _esperar(segundos):
     time.sleep(segundos)
 
 
-def _pedir_json(requisicao):
-    """Envia a requisição e devolve o JSON; repete em falha passageira do servidor."""
-    for pausa in (*PAUSAS_ENTRE_TENTATIVAS, None):
+def _pedir_json(requisicao, tentar_de_novo=True):
+    """Envia a requisição e devolve o JSON; repete em falha passageira do servidor.
+
+    Pelo servidor intermediário não se repete: ele mesmo já tentou os modelos,
+    e repetir faria o estudante esperar mais de um minuto.
+    """
+    pausas = PAUSAS_ENTRE_TENTATIVAS if tentar_de_novo else ()
+    for pausa in (*pausas, None):
         try:
             with _abrir(requisicao, TEMPO_LIMITE) as resposta:
                 return json.loads(resposta.read().decode("utf-8"))
@@ -308,7 +316,7 @@ class ModeloNuvem:
         for i, modelo in enumerate(modelos):
             requisicao = urllib.request.Request(
                 ENDPOINT_GEMINI.format(modelo=modelo), data=dados, method="POST",
-                headers={"Content-Type": "application/json",
+                headers={"Content-Type": "application/json", "User-Agent": AGENTE,
                          "x-goog-api-key": self.cfg["chave"]})
             try:
                 return texto_da_resposta(_pedir_json(requisicao))
@@ -320,13 +328,13 @@ class ModeloNuvem:
     def _pelo_servidor(self, pergunta, contexto, historico):
         corpo = {"pergunta": pergunta[:600], "contexto": contexto,
                  "historico": [{"papel": p, "texto": t} for p, t in historico]}
-        cabecalhos = {"Content-Type": "application/json"}
+        cabecalhos = {"Content-Type": "application/json", "User-Agent": AGENTE}
         if self.cfg.get("token_app"):
             cabecalhos["X-App-Token"] = self.cfg["token_app"]
         requisicao = urllib.request.Request(self.cfg["servidor"], method="POST",
                                             data=json.dumps(corpo).encode("utf-8"),
                                             headers=cabecalhos)
-        dados = _pedir_json(requisicao)
+        dados = _pedir_json(requisicao, tentar_de_novo=False)
         if dados.get("texto"):
             return dados["texto"]
         raise ValueError(dados.get("erro") or "o servidor não devolveu texto")
@@ -346,6 +354,8 @@ def _motivo(erro):
             return "o limite gratuito de perguntas foi atingido por agora"
         if erro.code in (401, 403):
             return "a chave de acesso não foi aceita"
+        if erro.code in (502, 503, 504):
+            return "o Gemini está sobrecarregado ou lento agora (muito uso)"
         return f"o serviço respondeu com erro {erro.code}"
     if isinstance(erro, TimeoutError) or isinstance(getattr(erro, "reason", None), TimeoutError):
         return "o Gemini demorou demais para responder (muito uso agora)"
