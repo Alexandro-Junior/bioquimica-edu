@@ -884,8 +884,10 @@ const metodos = [
     "canais identificados; depois, a pedido dos participantes da avaliação formativa, foram incluídos " +
     "vídeos em português de canais identificados de ensino (seção 4.6). Os textos também foram " +
     "revisados quanto à acentuação e ao uso da vírgula decimal, e uma revisão dos ~flashcards~ contra as " +
-    "fichas e as fontes corrigiu 17 cartões com valores divergentes ou erros de conteúdo. [[CONFIRMAR: " +
-    "se o conteúdo foi revisado pelo orientador ou por docente da área da saúde, e como.]]"),
+    "fichas e as fontes corrigiu 17 cartões com valores divergentes ou erros de conteúdo. O conteúdo " +
+    "não passou por revisão formal de um docente da área da saúde: foi conferido pelo autor nas fontes " +
+    "citadas e ajustado a partir das observações de profissionais da área e de estudantes que já haviam " +
+    "cursado a disciplina, na avaliação formativa (seção 3.6.1)."),
 
   h2("3.3 TECNOLOGIAS UTILIZADAS"),
   p("O software foi escrito em Python (Python Software Foundation, 2023), escolhido por permitir " +
@@ -1234,9 +1236,9 @@ const resultados = [
   p("Nas conversas descritas na seção 3.6.1, os participantes viram o aplicativo funcionando, " +
     "testaram o que lhes interessava e fizeram sugestões e pedidos de mudança. A recepção foi positiva, " +
     "e os estudantes que ainda não haviam cursado a disciplina disseram que pensavam em usar o " +
-    "aplicativo para estudar. Os pedidos mais diretos foram vídeos em português, no lugar dos dois " +
-    "vídeos em inglês da primeira versão, e imagens e esquemas de melhor qualidade. [[PREENCHER: outras " +
-    "sugestões que você anotou nas conversas, se houver.]]"),
+    "aplicativo para estudar. Alguns participantes contribuíram também com ideias para os casos " +
+    "clínicos e para os jogos. Os pedidos mais diretos foram vídeos em português, no lugar dos dois " +
+    "vídeos em inglês da primeira versão, e imagens e esquemas de melhor qualidade."),
   p("Como a avaliação foi formativa e sem instrumento padronizado, esses resultados não medem " +
     "usabilidade nem satisfação: indicam o que pessoas do público do aplicativo e da área consideraram " +
     "importante. As sugestões orientaram as mudanças visuais e de estrutura e as funções acrescentadas " +
@@ -1579,8 +1581,9 @@ const discussao = [
     "inventados, mas não a elimina, e a qualidade das explicações não foi avaliada. Antes de recomendar o " +
     "recurso para estudo autônomo, seria necessário que docentes da área da saúde avaliassem as respostas " +
     "a um conjunto representativo de perguntas."),
-  p(`O trabalho tem limitações. O conteúdo cobre ${CE.marcadores} marcadores, e o banco de ${CE.questoes} questões é ` +
-    "pequeno, o que favorece a repetição das mesmas perguntas. As questões geradas pelo modelo de " +
+  p(`O trabalho tem limitações. O conteúdo cobre ${CE.marcadores} marcadores e não passou por revisão formal de ` +
+    `docente da área da saúde, e o banco de ${CE.questoes} questões é pequeno, o que favorece a repetição das ` +
+    "mesmas perguntas. As questões geradas pelo modelo de " +
     "linguagem na versão clássica com tutor não passam por curadoria e podem conter erros. Os diagramas " +
     "do conteúdo ainda são os da primeira versão, e a melhoria pedida na avaliação formativa não foi " +
     "feita. A versão para iOS, possível com o Kivy, não foi testada, e os recursos de acessibilidade não " +
