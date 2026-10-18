@@ -18,6 +18,11 @@ from autenticacao import ErroLogin, LoginCancelado, conferir_token, criar_nonce
 TIPO_TOKEN_GOOGLE = "com.google.android.libraries.identity.googleid.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL"
 TEMPO_LIMITE = 180   # segundos para escolher a conta
 
+# O Java guarda só um ponteiro para o objeto de retorno: a referência fica
+# aqui até o próximo login, mesmo que este seja cancelado e a resposta chegue
+# depois.
+_VIVOS = {}
+
 
 class LoginAndroid:
     def __init__(self, cfg):
@@ -44,9 +49,12 @@ class LoginAndroid:
                     if credencial.getType() != TIPO_TOKEN_GOOGLE:
                         resultado["erro"] = ErroLogin("O Android não devolveu uma conta Google.")
                     else:
-                        token = autoclass("com.google.android.libraries.identity.googleid."
-                                          "GoogleIdTokenCredential").createFrom(
-                            credencial.getData())
+                        classe = autoclass("com.google.android.libraries.identity.googleid."
+                                           "GoogleIdTokenCredential")
+                        try:
+                            token = classe.createFrom(credencial.getData())   # @JvmStatic
+                        except Exception:   # noqa: BLE001
+                            token = classe.Companion.createFrom(credencial.getData())
                         resultado["token"] = token.getIdToken()
                 except Exception as erro:   # noqa: BLE001 (vem do Java)
                     resultado["erro"] = ErroLogin(f"Não foi possível ler a conta ({erro}).")
@@ -68,7 +76,6 @@ class LoginAndroid:
                         f"Não foi possível entrar com o Google agora ({nome}: {detalhe[:160]}).")
                 pronto.set()
 
-        retorno = Retorno()   # referência viva até o fim: o Java só guarda um ponteiro
         sinal = autoclass("android.os.CancellationSignal")()
 
         @run_on_ui_thread
@@ -76,6 +83,11 @@ class LoginAndroid:
             # Um erro aqui acontece na thread da interface: sem este try, ele
             # sumia e o login ficava esperando até o tempo limite.
             try:
+                # O retorno implementa uma interface das bibliotecas do app
+                # (androidx.credentials). Numa thread criada pelo Python, o Java
+                # procura classes só no sistema e não a encontra
+                # (ClassNotFoundException); na thread da interface, encontra.
+                retorno = _VIVOS["retorno"] = Retorno()
                 atividade = autoclass("org.kivy.android.PythonActivity").mActivity
                 opcao = autoclass("com.google.android.libraries.identity.googleid."
                                   "GetSignInWithGoogleOption$Builder")(self.cfg["webClientId"]) \
