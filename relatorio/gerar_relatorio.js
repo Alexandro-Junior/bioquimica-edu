@@ -985,6 +985,9 @@ const metodos = [
     "abertas (Apêndice D). As afirmações são resumidas pela mediana e pelo número de respostas 4 ou 5, e " +
     "os comentários, agrupados por tema."),
   h3("3.6.4 Aspectos éticos e proteção de dados"),
+  p("As conversas da avaliação formativa não envolveram coleta de dados pessoais nem registro de " +
+    "respostas individuais: os participantes opinaram sobre o software, como consultores, e este " +
+    "relatório apresenta apenas o perfil do grupo e as sugestões recebidas."),
   p("Os formulários abrem com um termo de consentimento livre e esclarecido, e só prossegue quem " +
     "declara ter 18 anos ou mais e concordar em participar. Para que as respostas sejam anônimas, não se " +
     "coletam nome, e-mail, matrícula nem outro dado identificador: o pré-teste e o pós-teste são ligados " +
@@ -993,7 +996,9 @@ const metodos = [
     "Geral de Proteção de Dados Pessoais (LGPD), salvo quando a anonimização puder ser revertida com " +
     "esforços razoáveis (Brasil, 2018). Pelo protocolo, as respostas ficam na conta institucional, com " +
     "acesso apenas do autor e do orientador. [[CONFIRMAR com o orientador: submissão ao Comitê de Ética em Pesquisa " +
-    "(CAAE e número do parecer) ou enquadramento na dispensa da Resolução CNS nº 510/2016.]]"),
+    "(CAAE e número do parecer) ou enquadramento na dispensa da Resolução CNS nº 510/2016, art. 1º, " +
+    "parágrafo único — sobretudo para o pré-teste e o pós-teste, que medem o conhecimento dos " +
+    "participantes.]]"),
 
   h2("3.7 USO DE FERRAMENTAS DE INTELIGÊNCIA ARTIFICIAL"),
   p("Durante o desenvolvimento foi utilizado um assistente de programação baseado em inteligência " +
@@ -1470,8 +1475,11 @@ const resultados = [
     "e o login com Google confere a impressão digital (SHA-1) dela. Nenhum dos dois pacotes contém a " +
     "chave do Gemini nem o progresso e as preferências de quem os gerou: o empacotamento os exclui, e " +
     "os arquivos internos de cada pacote foram conferidos. Ambos usam o servidor intermediário da seção " +
-    "4.7.5. [[CONFIRMAR: aparelho Android em " +
-    "que o APK foi testado — modelo e versão do Android — e se ele já está publicado no site.]]"),
+    "4.7.5. O APK foi testado num celular Samsung Galaxy S20 FE 5G, com Android [[CONFIRMAR: versão]], e " +
+    "num tablet [[CONFIRMAR: modelo]] com Android 10, em pé e deitado: a disposição das telas, o quiz, " +
+    "os jogos, o tutor com Gemini, os vídeos e as referências, o atalho para Libras e o alto contraste " +
+    "funcionaram. " +
+    "[[CONFIRMAR: resultado do login com Google no Android e se o APK já está publicado no site.]]"),
 
   h2("4.8 AVALIAÇÃO DA APRENDIZAGEM"),
   p("[[PREENCHER: quantos estudantes fizeram o pré-teste e quantos concluíram o pós-teste; perfil em " +
