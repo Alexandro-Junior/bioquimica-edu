@@ -15,7 +15,6 @@ Sem dependência do Kivy: as telas chamam estes métodos (os que acessam a
 rede, numa thread) e os testes os exercitam com um Google simulado.
 """
 
-import sys
 import threading
 from pathlib import Path
 
@@ -26,7 +25,7 @@ ARQUIVO_SESSAO = "sessao_google.dat"
 
 
 class Acesso:
-    def __init__(self, prefs, pasta_sessao, cfg=..., plataforma=sys.platform,
+    def __init__(self, prefs, pasta_sessao, cfg=..., plataforma=A.PLATAFORMA,
                  obter_token=None, firebase=None):
         self.prefs = prefs
         self.cfg = A.ler_config() if cfg is ... else cfg

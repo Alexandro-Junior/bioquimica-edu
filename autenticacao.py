@@ -117,7 +117,22 @@ def ler_config(raiz=RAIZ):
     return cfg
 
 
-def login_disponivel(cfg, plataforma=sys.platform):
+def plataforma_atual():
+    """sys.platform, mas "android" em qualquer Python do python-for-android.
+
+    Só a partir do Python 3.13 o sys.platform do Android é "android"; antes,
+    era "linux", e o app tentaria o login do computador (pelo navegador).
+    """
+    if sys.platform == "android" or "ANDROID_ARGUMENT" in os.environ \
+            or hasattr(sys, "getandroidapilevel"):
+        return "android"
+    return sys.platform
+
+
+PLATAFORMA = plataforma_atual()
+
+
+def login_disponivel(cfg, plataforma=PLATAFORMA):
     """O login com Google tem o que precisa nesta plataforma?"""
     if not cfg:
         return False
@@ -359,8 +374,10 @@ class Firebase:
         })
         if status != 200 or "localId" not in d or "refreshToken" not in d:
             codigo = _codigo_erro(d)
-            raise ErroLogin(MENSAGENS_FIREBASE.get(codigo, "Não foi possível entrar agora. "
-                                                           "Tente de novo."))
+            # o código vai junto para que um relato do estudante diga onde parou
+            raise ErroLogin(MENSAGENS_FIREBASE.get(
+                codigo, f"Não foi possível entrar agora (Firebase: {codigo or status}). "
+                        "Tente de novo."))
         return Sessao(uid=d["localId"], email=d.get("email", ""),
                       nome=d.get("displayName") or d.get("fullName") or "",
                       token_renovacao=d["refreshToken"], token_acesso=d.get("idToken", ""),
@@ -453,7 +470,7 @@ def _dpapi(dados, cifrar):
 class Cofre:
     """Arquivo da sessão: cifrado no Windows; nos outros sistemas, só o dono lê."""
 
-    def __init__(self, caminho, plataforma=sys.platform):
+    def __init__(self, caminho, plataforma=PLATAFORMA):
         self.caminho = Path(caminho)
         self.windows = plataforma == "win32"
 

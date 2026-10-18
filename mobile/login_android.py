@@ -55,13 +55,17 @@ class LoginAndroid:
             @java_method("(Ljava/lang/Object;)V")
             def onError(self, excecao):
                 nome = excecao.getClass().getSimpleName()
+                detalhe = excecao.getMessage() or ""
+                print(f"[conta] Credential Manager: {nome}: {detalhe}")
                 if "Cancellation" in nome:
                     resultado["erro"] = LoginCancelado("Login cancelado.")
                 elif "NoCredential" in nome:
                     resultado["erro"] = ErroLogin("Nenhuma conta Google neste aparelho. Adicione "
                                                   "uma em Configurações › Contas.")
                 else:
-                    resultado["erro"] = ErroLogin("Não foi possível entrar com o Google agora.")
+                    # o motivo técnico vai junto: é o que permite consertar
+                    resultado["erro"] = ErroLogin(
+                        f"Não foi possível entrar com o Google agora ({nome}: {detalhe[:160]}).")
                 pronto.set()
 
         retorno = Retorno()   # referência viva até o fim: o Java só guarda um ponteiro
@@ -69,19 +73,27 @@ class LoginAndroid:
 
         @run_on_ui_thread
         def pedir():
-            atividade = autoclass("org.kivy.android.PythonActivity").mActivity
-            opcao = autoclass("com.google.android.libraries.identity.googleid."
-                              "GetSignInWithGoogleOption$Builder")(self.cfg["webClientId"]) \
-                .setNonce(nonce_hash).build()
-            pedido = autoclass("androidx.credentials.GetCredentialRequest$Builder")() \
-                .addCredentialOption(opcao).build()
-            fabrica = autoclass("androidx.credentials.CredentialManager")
+            # Um erro aqui acontece na thread da interface: sem este try, ele
+            # sumia e o login ficava esperando até o tempo limite.
             try:
-                gerenciador = fabrica.create(atividade)        # @JvmStatic
-            except Exception:   # noqa: BLE001
-                gerenciador = fabrica.Companion.create(atividade)
-            executor = autoclass("androidx.core.content.ContextCompat").getMainExecutor(atividade)
-            gerenciador.getCredentialAsync(atividade, pedido, sinal, executor, retorno)
+                atividade = autoclass("org.kivy.android.PythonActivity").mActivity
+                opcao = autoclass("com.google.android.libraries.identity.googleid."
+                                  "GetSignInWithGoogleOption$Builder")(self.cfg["webClientId"]) \
+                    .setNonce(nonce_hash).build()
+                pedido = autoclass("androidx.credentials.GetCredentialRequest$Builder")() \
+                    .addCredentialOption(opcao).build()
+                fabrica = autoclass("androidx.credentials.CredentialManager")
+                try:
+                    gerenciador = fabrica.create(atividade)        # @JvmStatic
+                except Exception:   # noqa: BLE001
+                    gerenciador = fabrica.Companion.create(atividade)
+                executor = autoclass("androidx.core.content.ContextCompat").getMainExecutor(atividade)
+                gerenciador.getCredentialAsync(atividade, pedido, sinal, executor, retorno)
+            except Exception as erro:   # noqa: BLE001 (vem do Java)
+                print(f"[conta] falha ao abrir o seletor de contas: {type(erro).__name__}: {erro}")
+                resultado["erro"] = ErroLogin("Não foi possível abrir o seletor de contas "
+                                              f"({type(erro).__name__}: {str(erro)[:160]}).")
+                pronto.set()
 
         pedir()
         esperado = 0.0

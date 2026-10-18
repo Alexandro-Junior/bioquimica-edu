@@ -210,6 +210,8 @@ class TelaDetalhe(TelaBase):
             linha.add_widget(chip)
             self.chips[chave] = chip
         coluna.add_widget(faixa)
+        self.faixa_abas = faixa
+        self.aba = None
 
         self.conteudo = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(12))
         self.conteudo.bind(minimum_height=self.conteudo.setter("height"))
@@ -259,6 +261,7 @@ class TelaDetalhe(TelaBase):
         return cartao
 
     def mostrar_aba(self, chave):
+        trocou = self.aba is not None
         for k, chip in self.chips.items():
             chip.selecionado = k == chave
         self.aba = chave
@@ -270,6 +273,19 @@ class TelaDetalhe(TelaBase):
         for bloco in blocos:
             self.conteudo.add_widget(bloco)
         C.aparecer(blocos, atraso=0.0, passo=0.05)
+        if trocou:
+            # Quem troca de aba com a tela rolada para baixo ficava parado no
+            # vazio abaixo do conteúdo novo: volta para o início da aba, depois
+            # que a coluna assume a altura nova.
+            Clock.schedule_once(lambda _dt: self._rolar_para_abas(), 0.1)
+
+    def _rolar_para_abas(self):
+        coluna = self.scroll.children[0] if self.scroll.children else None
+        if coluna is None or coluna.height <= self.scroll.height:
+            self.scroll.scroll_y = 1   # cabe tudo: topo
+        else:
+            # se as abas estão à vista, nada muda; senão, sobem até o topo
+            self.scroll.scroll_to(self.faixa_abas, padding=dp(8), animate=False)
 
     # ── abas ────────────────────────────────────────────────────────
     def _interpretacao(self, icone, titulo, texto, doencas, cor, fundo):

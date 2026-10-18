@@ -162,8 +162,10 @@ class TelaAcesso(TelaBase):
             return
         except Exception as e:   # noqa: BLE001  (nada pode derrubar a tela)
             print(f"[conta] falha inesperada no login: {type(e).__name__}: {e}")
-            Clock.schedule_once(lambda _dt: self._falhou(
-                cancelar, "Não foi possível entrar agora. Tente de novo."), 0)
+            # o motivo técnico aparece junto, para que um relato diga onde parou
+            mensagem = (f"Não foi possível entrar agora ({type(e).__name__}: {str(e)[:160]}). "
+                        "Tente de novo.")
+            Clock.schedule_once(lambda _dt: self._falhou(cancelar, mensagem), 0)
             return
         Clock.schedule_once(lambda _dt: self._entrou(cancelar, sessao), 0)
 
