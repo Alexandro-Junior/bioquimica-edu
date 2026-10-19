@@ -1475,8 +1475,8 @@ const resultados = [
     "e o login com Google confere a impressão digital (SHA-1) dela. Nenhum dos dois pacotes contém a " +
     "chave do Gemini nem o progresso e as preferências de quem os gerou: o empacotamento os exclui, e " +
     "os arquivos internos de cada pacote foram conferidos. Ambos usam o servidor intermediário da seção " +
-    "4.7.5. O APK foi testado num celular Samsung Galaxy S20 FE 5G, com Android [[CONFIRMAR: versão]], e " +
-    "num tablet [[CONFIRMAR: modelo]] com Android 10, em pé e deitado: a disposição das telas, o quiz, " +
+    "4.7.5. O APK foi testado num celular Samsung Galaxy S20 FE 5G, com Android 13, e num tablet " +
+    "Samsung Galaxy Tab S4, com Android 10, em pé e deitado: a disposição das telas, o quiz, " +
     "os jogos, o tutor com Gemini, os vídeos e as referências, o atalho para Libras e o alto contraste " +
     "funcionaram. " +
     "[[CONFIRMAR: resultado do login com Google no Android e se o APK já está publicado no site.]]"),
