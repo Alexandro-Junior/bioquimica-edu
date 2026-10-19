@@ -94,12 +94,23 @@ jobs:
           P4A_RELEASE_KEYALIAS_PASSWD: ${{ secrets.ANDROID_KEYSTORE_SENHA }}
         run: yes | buildozer android release
 
+      - name: Dependências do Gradle (diagnóstico)
+        if: always()
+        run: |
+          cd .buildozer/android/platform/build-*/dists/bioquimicaedu || exit 0
+          ./gradlew -q dependencies --configuration releaseRuntimeClasspath > "$RUNNER_TEMP/deps.txt" 2>&1 || true
+          grep -nE "androidx\.core|androidx\.fragment:fragment|credentials" "$RUNNER_TEMP/deps.txt" | head -40 || true
+
       - name: Conferir a assinatura
         run: |
           APK=$(ls bin/*.apk | head -n 1)
           APKSIGNER=$(ls ~/.buildozer/android/platform/android-sdk/build-tools/*/apksigner | sort | tail -n 1)
           "$APKSIGNER" verify --print-certs "$APK" | grep -i "SHA-1"
           cp "$APK" BioquimicaEDU-Android.apk
+
+      # classes do login presentes; sem chave do Gemini nem dados de quem gerou
+      - name: Conferir o conteúdo do APK
+        run: python empacotamento/conferir_apk.py BioquimicaEDU-Android.apk
 
       - uses: actions/upload-artifact@v4
         with:

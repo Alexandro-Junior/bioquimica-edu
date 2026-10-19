@@ -65,7 +65,10 @@ android.permissions = INTERNET
 # (bool / list) Login com Google pelo seletor de contas do Android
 # (Credential Manager; mobile/login_android.py)
 android.enable_androidx = True
-android.gradle_dependencies = androidx.credentials:credentials:1.3.0, androidx.credentials:credentials-play-services-auth:1.3.0, com.google.android.libraries.identity.googleid:googleid:1.1.1
+# androidx.core vai explícita: só como dependência das outras, ficou fora do
+# APK, e o login parava com ClassNotFoundException (ContextCompat).
+# empacotamento/conferir_apk.py confere isso a cada APK gerado.
+android.gradle_dependencies = androidx.core:core:1.13.1, androidx.credentials:credentials:1.3.0, androidx.credentials:credentials-play-services-auth:1.3.0, com.google.android.libraries.identity.googleid:googleid:1.1.1
 
 # (str) Trecho extra do manifesto: declara a consulta ao serviço de voz
 # (leitura em voz alta) e ao app VLibras (atalho para Libras), exigida a

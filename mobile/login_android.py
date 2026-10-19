@@ -5,7 +5,7 @@ Google" (a antiga, GoogleSignInClient, foi descontinuada). O sistema mostra
 as contas do aparelho; o app recebe só um token de identidade assinado pelo
 Google, que autenticacao.Firebase troca por uma sessão.
 
-Requisitos no buildozer.spec: androidx ligado e as bibliotecas
+Requisitos no buildozer.spec: androidx ligado e as bibliotecas androidx.core,
 androidx.credentials e googleid (android.gradle_dependencies). No Google,
 o app precisa estar registrado com o nome do pacote e a impressão digital
 SHA-1 do certificado que assina o APK (docs/LOGIN_GOOGLE.md).

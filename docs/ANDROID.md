@@ -38,6 +38,14 @@ Também roda sozinho quando sai uma versão nova (tag `v*`).
 
 O APK fica em **Artifacts** no fim da execução (`BioquimicaEDU-Android`).
 
+Antes disso, o workflow roda `empacotamento/conferir_apk.py`, que falha se
+faltar alguma biblioteca do login com Google ou se o pacote levar a chave do
+Gemini ou dados pessoais. Para conferir um APK baixado:
+
+```bash
+python empacotamento/conferir_apk.py BioquimicaEDU-Android.apk
+```
+
 ## 4. Publicar
 
 O APK vai para os Releases do repositório do site, com o nome
