@@ -374,10 +374,9 @@ class Firebase:
         })
         if status != 200 or "localId" not in d or "refreshToken" not in d:
             codigo = _codigo_erro(d)
-            # o código vai junto para que um relato do estudante diga onde parou
-            raise ErroLogin(MENSAGENS_FIREBASE.get(
-                codigo, f"Não foi possível entrar agora (Firebase: {codigo or status}). "
-                        "Tente de novo."))
+            print(f"[conta] o Firebase recusou o login: {codigo or status}")
+            raise ErroLogin(MENSAGENS_FIREBASE.get(codigo, "Não foi possível entrar agora. "
+                                                           "Tente de novo."))
         return Sessao(uid=d["localId"], email=d.get("email", ""),
                       nome=d.get("displayName") or d.get("fullName") or "",
                       token_renovacao=d["refreshToken"], token_acesso=d.get("idToken", ""),

@@ -57,7 +57,9 @@ class LoginAndroid:
                             token = classe.Companion.createFrom(credencial.getData())
                         resultado["token"] = token.getIdToken()
                 except Exception as erro:   # noqa: BLE001 (vem do Java)
-                    resultado["erro"] = ErroLogin(f"Não foi possível ler a conta ({erro}).")
+                    print(f"[conta] falha ao ler a conta: {type(erro).__name__}: {erro}")
+                    resultado["erro"] = ErroLogin("Não foi possível ler a sua conta Google. "
+                                                  "Tente de novo.")
                 pronto.set()
 
             @java_method("(Ljava/lang/Object;)V")
@@ -71,9 +73,9 @@ class LoginAndroid:
                     resultado["erro"] = ErroLogin("Nenhuma conta Google neste aparelho. Adicione "
                                                   "uma em Configurações › Contas.")
                 else:
-                    # o motivo técnico vai junto: é o que permite consertar
-                    resultado["erro"] = ErroLogin(
-                        f"Não foi possível entrar com o Google agora ({nome}: {detalhe[:160]}).")
+                    # o motivo técnico fica no registro (logcat), não na tela
+                    resultado["erro"] = ErroLogin("Não foi possível entrar com o Google agora. "
+                                                  "Tente de novo ou use o app sem conta.")
                 pronto.set()
 
         sinal = autoclass("android.os.CancellationSignal")()
@@ -103,8 +105,8 @@ class LoginAndroid:
                 gerenciador.getCredentialAsync(atividade, pedido, sinal, executor, retorno)
             except Exception as erro:   # noqa: BLE001 (vem do Java)
                 print(f"[conta] falha ao abrir o seletor de contas: {type(erro).__name__}: {erro}")
-                resultado["erro"] = ErroLogin("Não foi possível abrir o seletor de contas "
-                                              f"({type(erro).__name__}: {str(erro)[:160]}).")
+                resultado["erro"] = ErroLogin("Não foi possível abrir a escolha de conta do "
+                                              "Google. Tente de novo ou use o app sem conta.")
                 pronto.set()
 
         pedir()
