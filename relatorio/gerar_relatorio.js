@@ -884,7 +884,11 @@ const metodos = [
     "canais identificados; depois, a pedido dos participantes da avaliação formativa, foram incluídos " +
     "vídeos em português de canais identificados de ensino (seção 4.6). Os textos também foram " +
     "revisados quanto à acentuação e ao uso da vírgula decimal, e uma revisão dos ~flashcards~ contra as " +
-    "fichas e as fontes corrigiu 17 cartões com valores divergentes ou erros de conteúdo. O conteúdo " +
+    "fichas e as fontes corrigiu 17 cartões com valores divergentes ou erros de conteúdo. Uma revisão " +
+    "final de todo o conteúdo, conferida nas fontes, corrigiu ainda casos clínicos com valores " +
+    "incoerentes com o diagnóstico — num deles, nenhuma alternativa era aceita como certa —, além de " +
+    "cards e questões imprecisos; um teste automatizado passou a conferir que a resposta de cada caso " +
+    "está entre as alternativas. O conteúdo " +
     "não passou por revisão formal de um docente da área da saúde: foi conferido pelo autor nas fontes " +
     "citadas e ajustado a partir das observações de profissionais da área e de estudantes que já haviam " +
     "cursado a disciplina, na avaliação formativa (seção 3.6.1)."),
