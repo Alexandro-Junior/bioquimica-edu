@@ -14,6 +14,7 @@ aparecer no dex só como referência, então só conta a classe que está defini
 """
 
 import io
+import json
 import struct
 import sys
 import tarfile
@@ -67,6 +68,11 @@ def conferir(caminho):
         if "assets/private.tar" in internos:
             with tarfile.open(fileobj=io.BytesIO(apk.read("assets/private.tar"))) as tar:
                 internos += tar.getnames()
+                if "config/firebase.json" in tar.getnames():
+                    firebase = json.load(tar.extractfile("config/firebase.json"))
+                    # o celular só usa apiKey, projectId e webClientId
+                    if firebase.get("desktopClientSecret"):
+                        problemas.append("config/firebase.json leva o segredo do cliente do computador")
         for nome in internos:
             if nome.rsplit("/", 1)[-1] in ARQUIVOS_PROIBIDOS:
                 problemas.append(f"arquivo que não pode ir no APK: {nome}")

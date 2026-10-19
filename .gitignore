@@ -65,12 +65,32 @@ GoogleService-Info.plist
 client_secret*.json
 data/progresso.json
 
-# Login com Google: configuração do Firebase (modelo em config/firebase.exemplo.json),
-# sessão cifrada do computador e chave de assinatura do APK
-config/firebase.json
+# Configuração local: tudo em config/ fica fora do Git, menos o modelo.
+# firebase.json (login com Google) e tutor_nuvem.json (endereço do servidor do
+# tutor, fora do GitHub para não expor a cota gratuita).
+config/*
+!config/firebase.exemplo.json
+
+# Login com Google: sessão do computador; chaves de assinatura do APK
 data/sessao_google.dat
 data/sessao_google.tmp
 *.p12
+*.jks
 
-# endereço do servidor do tutor (Cloudflare): fora do GitHub para não expor a cota gratuita
-config/tutor_nuvem.json
+# Progresso: gravação em andamento e arquivo ilegível posto de lado
+data/*.tmp
+data/progresso.ilegivel-*.json
+
+# Cloudflare (wrangler) e Firebase CLI
+.dev.vars
+.wrangler/
+.firebase/
+
+# Node: o gerador do relatório usa o pacote docx instalado à parte
+node_modules/
+package.json
+package-lock.json
+
+# Claude Code: configurações locais e cópias de trabalho dos revisores
+.claude/settings.local.json
+.claude/worktrees/

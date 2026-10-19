@@ -19,6 +19,10 @@ on:
   push:
     tags: ["v*"]
 
+# o workflow só lê o repositório: não publica nada nem mexe em releases
+permissions:
+  contents: read
+
 jobs:
   apk:
     runs-on: ubuntu-22.04
@@ -34,14 +38,17 @@ jobs:
         run: |
           mkdir -p config
           if [ -n "$FIREBASE_CONFIG_JSON" ]; then
-            printf '%s' "$FIREBASE_CONFIG_JSON" > config/firebase.json
+            # no celular bastam estes três campos: o segredo do cliente OAuth
+            # do computador (desktopClientSecret) não vai no APK
+            python3 -c 'import json, os; c = json.loads(os.environ["FIREBASE_CONFIG_JSON"]); json.dump({k: c[k] for k in ("apiKey", "projectId", "webClientId") if k in c}, open("config/firebase.json", "w"))'
             echo "login com Google: configurado"
           else
             echo "::warning::FIREBASE_CONFIG_JSON vazio: o APK sai sem login com Google"
           fi
           if [ -n "$TUTOR_SERVIDOR" ]; then
             printf '{\n  "servidor": "%s"\n}\n' "$TUTOR_SERVIDOR" > config/tutor_nuvem.json
-            echo "tutor com IA: $TUTOR_SERVIDOR"
+            # o endereço não aparece no registro, que é público
+            echo "tutor com IA: configurado"
           else
             echo "::warning::TUTOR_SERVIDOR vazio: o tutor do APK responde só pela base do app"
           fi
@@ -93,13 +100,6 @@ jobs:
           P4A_RELEASE_KEYALIAS: bioquimicaedu
           P4A_RELEASE_KEYALIAS_PASSWD: ${{ secrets.ANDROID_KEYSTORE_SENHA }}
         run: yes | buildozer android release
-
-      - name: Dependências do Gradle (diagnóstico)
-        if: always()
-        run: |
-          cd .buildozer/android/platform/build-*/dists/bioquimicaedu || exit 0
-          ./gradlew -q dependencies --configuration releaseRuntimeClasspath > "$RUNNER_TEMP/deps.txt" 2>&1 || true
-          grep -nE "androidx\.core|androidx\.fragment:fragment|credentials" "$RUNNER_TEMP/deps.txt" | head -40 || true
 
       - name: Conferir a assinatura
         run: |
