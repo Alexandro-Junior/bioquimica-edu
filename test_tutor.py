@@ -274,7 +274,36 @@ def celular_fala_com_o_servidor_e_nao_com_o_google():
     assert req.get_header("X-goog-api-key") is None
     corpo = json.loads(req.data)
     assert corpo["pergunta"] == "potássio alto" and corpo["historico"][0]["papel"] == "usuario"
-    assert "Potássio" in corpo["contexto"]
+    # o servidor monta o contexto com a cópia dele: o app manda só a sigla
+    assert corpo["marcador"] == "K" and "contexto" not in corpo, corpo
+
+
+@teste
+def servidor_tem_o_conteudo_atual_do_app():
+    """Mudou uma ficha ou um exemplo? Rode servidor/atualizar_worker.py e cole no Cloudflare."""
+    import shutil
+    import subprocess
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "servidor"))
+    import atualizar_worker
+    codigo = atualizar_worker.WORKER.read_text(encoding="utf-8")
+    assert atualizar_worker.codigo_atualizado(codigo) == codigo, \
+        "o servidor está com fichas antigas: rode servidor/atualizar_worker.py"
+    if not shutil.which("node"):
+        print("    (Node não instalado: comparação do texto montado pelo servidor pulada)")
+        return
+    # o texto que o servidor monta é igual ao do app, letra por letra
+    modulo = Path(tempfile.mkdtemp(prefix="bioq_worker_")) / "worker.cjs"
+    modulo.write_text(codigo.replace("export default", "const _servidor =")
+                      + "\nmodule.exports = { contextoCurado };\n", encoding="utf-8")
+    script = ("const { contextoCurado } = require(process.argv[1]);"
+              "process.stdout.write(JSON.stringify(['K', 'TFGe', null].map(contextoCurado)));")
+    saida = subprocess.run(["node", "-e", script, str(modulo)], capture_output=True, check=True)
+    do_servidor = json.loads(saida.stdout.decode("utf-8"))
+    por_sigla = {m["sigla"]: m for m in MARCADORES}
+    do_app = [assistente.contexto_curado(MARCADORES, por_sigla.get(s), EXTRAS)
+              for s in ("K", "TFGe", None)]
+    assert do_servidor == do_app, "o servidor monta um contexto diferente do app"
 
 
 @teste

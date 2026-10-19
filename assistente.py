@@ -209,14 +209,22 @@ def ler_config_nuvem(raiz=RAIZ):
     return cfg
 
 
+def linha_exemplo(ex):
+    return (f"Exemplo clínico — {ex.get('titulo', '')}: {ex.get('descricao', '')} "
+            f"Conduta: {ex.get('conducao', '')}")
+
+
 def contexto_curado(marcadores, foco=None, extras=None):
-    """Os marcadores do app, com o marcador da pergunta primeiro e completo."""
+    """Os marcadores do app, com o marcador da pergunta primeiro e completo.
+
+    O servidor do tutor monta o mesmo texto com a cópia que tem das fichas
+    (servidor/atualizar_worker.py); o test_tutor.py confere que são iguais.
+    """
     partes = []
     if foco is not None:
         partes.append("MARCADOR DA PERGUNTA:\n" + ficha(foco))
         for ex in (extras or {}).get(foco["sigla"], {}).get("exemplos", [])[:3]:
-            partes.append(f"Exemplo clínico — {ex.get('titulo', '')}: {ex.get('descricao', '')} "
-                          f"Conduta: {ex.get('conducao', '')}")
+            partes.append(linha_exemplo(ex))
     partes.append("TODOS OS MARCADORES DO APP:")
     partes += [ficha(m) for m in marcadores if foco is None or m["sigla"] != foco["sigla"]]
     return "\n\n".join(partes)
@@ -295,10 +303,10 @@ class ModeloNuvem:
         return bool(self.cfg.get("chave") or self.cfg.get("servidor"))
 
     def responder(self, pergunta, marcador, historico=None):
-        contexto = contexto_curado(self.marcadores, marcador, self.extras)
         historico = [(papel, str(texto)[:1500]) for papel, texto in (historico or [])][-6:]
         if self.cfg.get("servidor"):
-            return self._pelo_servidor(pergunta, contexto, historico)
+            return self._pelo_servidor(pergunta, marcador, historico)
+        contexto = contexto_curado(self.marcadores, marcador, self.extras)
         return self._direto(pergunta, contexto, historico)
 
     def _direto(self, pergunta, contexto, historico):
@@ -325,8 +333,12 @@ class ModeloNuvem:
                     raise
                 print(f"[tutor] {modelo} falhou ({_motivo(erro)}); tentando {modelos[i + 1]}")
 
-    def _pelo_servidor(self, pergunta, contexto, historico):
-        corpo = {"pergunta": pergunta[:600], "contexto": contexto,
+    def _pelo_servidor(self, pergunta, marcador, historico):
+        # O servidor tem a própria cópia das fichas e monta o contexto: vão só
+        # a pergunta, a conversa e a sigla. Se o app mandasse o contexto, quem
+        # descobrisse o endereço poderia trocá-lo e usar a cota do Gemini para
+        # qualquer coisa.
+        corpo = {"pergunta": pergunta[:600], "marcador": marcador["sigla"] if marcador else None,
                  "historico": [{"papel": p, "texto": t} for p, t in historico]}
         cabecalhos = {"Content-Type": "application/json", "User-Agent": AGENTE}
         if self.cfg.get("token_app"):

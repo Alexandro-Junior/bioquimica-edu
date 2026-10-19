@@ -85,12 +85,30 @@ apresentação precisa.
    }
    ```
    Esse arquivo não tem nada secreto: só o endereço.
-7. No `buildozer.spec`, troque `android.permissions =` por
-   `android.permissions = INTERNET` e gere o APK de novo.
 
 O servidor aceita só `https`, limita o tamanho das perguntas e usa as
 mesmas regras do tutor do computador (um teste confere que as duas cópias
 são iguais).
+
+**O servidor tem a própria cópia das fichas dos marcadores.** O app manda
+só a pergunta, a conversa e a sigla do marcador, e o servidor monta o
+contexto. Assim, quem descobrir o endereço (ele vai dentro do APK e do
+instalador) não consegue trocar as regras do tutor nem usar a cota do
+Gemini para outros fins. Por isso, **sempre que mudar `data/marcadores.csv`
+ou os exemplos de `data/marcadores_extras.json`**:
+
+```bash
+python servidor/atualizar_worker.py
+```
+
+e cole de novo o `servidor/tutor_worker.js` no Cloudflare (**Edit code ›
+Deploy**). O `test_tutor.py` falha enquanto o servidor estiver com fichas
+antigas.
+
+Para limitar o estrago se alguém abusar do endereço, vale também pôr um
+limite de pedidos por dia na chave, no Google AI Studio, e deixar a
+cobrança desligada: na camada gratuita, o pior caso é a cota acabar e o
+tutor responder pela base do app até o dia seguinte.
 
 ## Conferir se está tudo certo
 
