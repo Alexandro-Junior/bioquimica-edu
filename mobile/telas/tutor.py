@@ -37,6 +37,9 @@ class TelaTutor(TelaBase):
                                       ModeloLocal(app.ia), BaseLocal(self.marcadores)])
         self.ocupado = False
         self.historico = []   # [(papel, texto)], papel "usuario" ou "modelo"
+        # A tela é refeita a cada visita, mas uma resposta lenta da conversa
+        # anterior ainda pode chegar: só é entregue a do pedido em andamento.
+        self.pedido_atual = None
         gerador = next((p for p in self.assistente.provedores
                         if p.generativo and p.disponivel()), None)
         self.com_ia = gerador is not None
@@ -175,18 +178,22 @@ class TelaTutor(TelaBase):
             self.conversa.add_widget(linha)
             self.linha_digitando = linha
             self._rolar_para_o_fim()
+            self.pedido_atual = pedido = object()
             threading.Thread(target=self._responder_em_segundo_plano,
-                             args=(pergunta, marcador, historico), daemon=True).start()
+                             args=(pedido, pergunta, marcador, historico), daemon=True).start()
         else:
             texto, _fonte, _aviso = self.assistente.responder(pergunta, marcador, historico)
             self._lembrar(pergunta, texto)
             Clock.schedule_once(lambda _dt: self._balao(texto, do_usuario=False), 0.2)
 
-    def _responder_em_segundo_plano(self, pergunta, marcador, historico):
+    def _responder_em_segundo_plano(self, pedido, pergunta, marcador, historico):
         texto, fonte, aviso = self.assistente.responder(pergunta, marcador, historico)
-        Clock.schedule_once(lambda _dt: self._entregar(pergunta, texto, aviso), 0)
+        Clock.schedule_once(lambda _dt: self._entregar(pedido, pergunta, texto, aviso), 0)
 
-    def _entregar(self, pergunta, texto, aviso):
+    def _entregar(self, pedido, pergunta, texto, aviso):
+        if pedido is not self.pedido_atual:
+            return   # resposta de uma conversa que já foi fechada
+        self.pedido_atual = None
         self.ocupado = False
         self.digitando.parar()
         self.conversa.remove_widget(self.linha_digitando)

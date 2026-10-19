@@ -97,9 +97,13 @@ def cards_e_quiz_cobrem_os_novos_marcadores():
     assert len({q["id"] for q in quiz}) == len(quiz), "id de questão repetido"
     for q in quiz:
         assert 0 <= q["resposta_correta"] < len(q["alternativas"]), q["id"]
-    textos = " ".join(f"{q['pergunta']} {q['explicacao']}" for q in quiz)
+    # como o app reagenda (telas/pratica.py): pelo enunciado e pela resposta certa
+    textos = " ".join(f"{q['pergunta']} {q['alternativas'][q['resposta_correta']]}" for q in quiz)
     for sigla in ("TFGe", "HCO3"):
         assert sigla in marcadores_no_texto(textos, SIGLAS, NOMES), f"quiz sem {sigla}"
+    for q in quiz:
+        texto = f"{q['pergunta']} {q['alternativas'][q['resposta_correta']]}"
+        assert marcadores_no_texto(texto, SIGLAS, NOMES), f"questão {q['id']} não leva a nenhum marcador"
 
 
 @teste

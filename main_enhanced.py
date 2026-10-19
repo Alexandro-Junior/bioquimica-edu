@@ -518,8 +518,7 @@ class TelaQuizDinamico(tk.Frame):
         m = random.choice(self.marcadores)
 
         # Gera pergunta com IA
-        self.area.delete("all")
-        self.area.pack_forget()
+        self.area.destroy()   # um Frame não tem delete(): era AttributeError
         self.area = tk.Frame(self, bg=COR["fundo"])
         self.area.pack(fill=tk.BOTH, expand=True)
 
@@ -540,8 +539,7 @@ class TelaQuizDinamico(tk.Frame):
             self._mostrar_erro(f"Erro ao gerar: {e}")
 
     def _mostrar_pergunta(self, p, m):
-        self.area.delete("all")
-        self.area.pack_forget()
+        self.area.destroy()   # um Frame não tem delete(): era AttributeError
         self.area = tk.Frame(self, bg=COR["fundo"])
         self.area.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
 
@@ -578,8 +576,7 @@ class TelaQuizDinamico(tk.Frame):
             self.acertos += 1
 
         # Feedback
-        self.area.delete("all")
-        self.area.pack_forget()
+        self.area.destroy()   # um Frame não tem delete(): era AttributeError
         self.area = tk.Frame(self, bg=COR["fundo"])
         self.area.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
@@ -601,8 +598,7 @@ class TelaQuizDinamico(tk.Frame):
                   command=self._gerar_proxima, padx=30, pady=12).pack()
 
     def _resultado(self):
-        self.area.delete("all")
-        self.area.pack_forget()
+        self.area.destroy()   # um Frame não tem delete(): era AttributeError
         self.area = tk.Frame(self, bg=COR["fundo"])
         self.area.pack(fill=tk.BOTH, expand=True)
 
@@ -631,8 +627,7 @@ class TelaQuizDinamico(tk.Frame):
                   command=lambda: self.controller.mostrar("inicio"), padx=30, pady=12).pack()
 
     def _mostrar_erro(self, msg):
-        self.area.delete("all")
-        self.area.pack_forget()
+        self.area.destroy()   # um Frame não tem delete(): era AttributeError
         self.area = tk.Frame(self, bg=COR["fundo"])
         self.area.pack(fill=tk.BOTH, expand=True)
         centro = tk.Frame(self.area, bg=COR["fundo"])

@@ -467,17 +467,26 @@ def intervalos_por_avaliacao():
     avaliado = motor_avaliado()
 
     def tabela(modulo):
-        linhas = {}
-        for revisao in range(1, 5):
-            linha = []
-            for nota in (3, 4, 5):
-                caminho = Path(tempfile.mkdtemp(prefix="bioq_sim_")) / "p.json"
-                p = modulo.Progresso(caminho)
-                for _ in range(revisao - 1):
-                    p.registrar_resposta("X", 4)
-                linha.append(p.registrar_resposta("X", nota)["intervalo"])
-            linhas[str(revisao)] = linha
-        return linhas
+        # cada revisão num dia diferente, como na vida real: a versão atual não
+        # alonga o intervalo com um segundo acerto no mesmo dia
+        original = modulo._hoje
+        try:
+            linhas = {}
+            for revisao in range(1, 5):
+                linha = []
+                for nota in (3, 4, 5):
+                    dia = [date(2026, 1, 1)]
+                    modulo._hoje = lambda: dia[0]
+                    caminho = Path(tempfile.mkdtemp(prefix="bioq_sim_")) / "p.json"
+                    p = modulo.Progresso(caminho)
+                    for _ in range(revisao - 1):
+                        intervalo = p.registrar_resposta("X", 4)["intervalo"]
+                        dia[0] += timedelta(days=intervalo)
+                    linha.append(p.registrar_resposta("X", nota)["intervalo"])
+                linhas[str(revisao)] = linha
+            return linhas
+        finally:
+            modulo._hoje = original
 
     saida = {"avaliada": tabela(avaliado), "atual": tabela(atual)}
     json.dump(saida, io.open(FIG / "sm2_evolucao.json", "w", encoding="utf-8"), indent=2)

@@ -290,8 +290,12 @@ class TelaPratica(ModoJogos, TelaBase):
         if acertou:
             self.acertos += 1
 
-        texto = " ".join([pergunta.get("pergunta", ""), *pergunta.get("alternativas", []),
-                          pergunta.get("explicacao", "")])
+        # Só o enunciado e a resposta certa dizem do que a questão trata: as
+        # alternativas erradas e a explicação citam outros marcadores, e um
+        # erro aqui não deve reagendar todos eles.
+        alternativas = pergunta.get("alternativas", [])
+        certa = alternativas[correta] if 0 <= correta < len(alternativas) else ""
+        texto = " ".join([pergunta.get("pergunta", ""), certa])
         self.app.alimentar_memoria(texto, acertou, peso="quiz")
 
         for i, opcao in enumerate(self.opcoes):

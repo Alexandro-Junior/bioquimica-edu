@@ -96,6 +96,10 @@ class Acesso:
                 pendente = False
             except A.ErroLogin as e:
                 print(f"[conta] envio do tutorial adiado: {e}")
+        # a leitura e o envio acima podem levar segundos: quem cancelou nesse
+        # meio-tempo não pode acabar conectado sem saber
+        if cancelar is not None and cancelar.is_set():
+            raise A.LoginCancelado("Login cancelado.")
         self.sessao = sessao
         self.estado = {"tutorial_visto": visto, "tutorial_pendente": pendente}
         self.sessao_encerrada = False

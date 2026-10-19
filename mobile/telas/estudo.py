@@ -5,8 +5,7 @@ marcador (interpretação, casos, imagens, fontes) é longo demais para uma
 janela sobreposta, e a tela cheia ganha o gesto natural de voltar.
 """
 
-import webbrowser
-
+from kivy.app import App
 from kivy.clock import Clock
 from kivy.metrics import dp, sp
 from kivy.uix.boxlayout import BoxLayout
@@ -506,6 +505,7 @@ def abrir_link(url):
         print(f"[link] endereço recusado (não é https): {url!r}")
         return
     try:
-        webbrowser.open(url)
+        # pelo app: no Android, abre com o próprio sistema (Intent)
+        App.get_running_app().abrir_endereco(url)
     except Exception as e:
         print(f"[link] não foi possível abrir: {e}")

@@ -253,34 +253,79 @@ class Progresso:
                 dados = json.load(f)
         except (OSError, json.JSONDecodeError) as e:
             print(f"[progresso] arquivo ilegível ({e}); começando do zero")
+            self._guardar_ilegivel()
             return self._vazio()
 
         base = self._vazio()
         if not isinstance(dados, dict):
             print("[progresso] formato inesperado; começando do zero")
+            self._guardar_ilegivel()
             return base
         # só entra o que tem o tipo esperado: um campo corrompido volta ao
         # padrão sem levar o resto junto
         base.update({k: v for k, v in dados.items()
                      if k in base and isinstance(v, type(base[k]))})
         base["itens"] = {s: e for s, e in base["itens"].items() if self._item_valido(e)}
+        base["sessoes"] = [s for s in base["sessoes"] if self._sessao_valida(s)]
+        base["calibracao"] = [c for c in base["calibracao"] if self._calibracao_valida(c)]
         return base
 
+    def _guardar_ilegivel(self) -> None:
+        """Põe de lado o arquivo que não pôde ser lido, em vez de deixar o
+        próximo salvamento escrever por cima: ainda dá para recuperá-lo."""
+        destino = self.caminho.with_name(
+            f"{self.caminho.stem}.ilegivel-{datetime.now():%Y%m%d-%H%M%S}{self.caminho.suffix}")
+        try:
+            os.replace(self.caminho, destino)
+            print(f"[progresso] cópia do arquivo ilegível: {destino.name}")
+        except OSError as e:
+            print(f"[progresso] não foi possível guardar o arquivo ilegível: {e}")
+
     @staticmethod
-    def _item_valido(e):
+    def _data_valida(texto, opcional=True):
+        if texto is None:
+            return opcional
+        try:
+            date.fromisoformat(texto)
+            return True
+        except (TypeError, ValueError):
+            return False
+
+    @classmethod
+    def _item_valido(cls, e):
         try:
             return (isinstance(e, dict)
                     and int(e["repeticoes"]) >= 0 and int(e["tentativas"]) >= 0
                     and int(e["acertos"]) >= 0 and float(e["facilidade"]) > 0
-                    and int(e["intervalo"]) >= 0)
+                    and int(e["intervalo"]) >= 0
+                    and cls._data_valida(e.get("proxima_revisao"))
+                    and cls._data_valida(e.get("ultima_revisao")))
         except (KeyError, TypeError, ValueError):
             return False
 
+    @classmethod
+    def _sessao_valida(cls, s):
+        return (isinstance(s, dict) and cls._data_valida(s.get("data"), opcional=False)
+                and isinstance(s.get("revisados"), int) and isinstance(s.get("acertos"), int))
+
+    @classmethod
+    def _calibracao_valida(cls, c):
+        return (isinstance(c, dict) and cls._data_valida(c.get("data"), opcional=False)
+                and isinstance(c.get("confianca"), int) and 1 <= c["confianca"] <= 5
+                and isinstance(c.get("acertou"), bool))
+
     def salvar(self) -> None:
+        # Grava num arquivo ao lado e troca de uma vez: se o app for fechado
+        # no meio da gravação (comum no Android), o arquivo anterior continua
+        # inteiro, em vez de ficar vazio e o progresso recomeçar do zero.
+        temporario = self.caminho.with_name(self.caminho.name + ".tmp")
         try:
             self.caminho.parent.mkdir(parents=True, exist_ok=True)
-            with open(self.caminho, "w", encoding="utf-8") as f:
+            with open(temporario, "w", encoding="utf-8") as f:
                 json.dump(self.dados, f, ensure_ascii=False, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temporario, self.caminho)
         except OSError as e:
             print(f"[progresso] não foi possível salvar: {e}")
 
@@ -318,22 +363,27 @@ class Progresso:
         """
         qualidade = max(0, min(5, int(qualidade)))
         e = dict(self.estado(sigla))
+        hoje = _hoje()
 
         e["tentativas"] += 1
         acertou = qualidade >= 3
         if acertou:
             e["acertos"] += 1
 
-        # o intervalo sai do estado de antes da resposta (ver proximo_intervalo)
-        e["intervalo"] = proximo_intervalo(e, qualidade)
-        # Falhou: recomeça o ciclo, e a facilidade cai — adaptação deste
-        # projeto: no SM-2 original ela ficaria intacta (docstring, item 1a)
-        e["repeticoes"] = e["repeticoes"] + 1 if acertou else 0
-        e["facilidade"] = nova_facilidade(e["facilidade"], qualidade)
-
-        hoje = _hoje()
+        # Já acertado hoje (repeticoes > 0 = a última resposta foi acerto):
+        # o acerto conta, mas não alonga o intervalo. Sem isso, passar pelos
+        # cards, pelo quiz e pelos jogos no mesmo dia levava um marcador de 2
+        # a 238 dias numa tarde — o espaçamento mede retenção ao longo dos dias.
+        repetido_hoje = acertou and e["repeticoes"] > 0 and e["ultima_revisao"] == _iso(hoje)
+        if not repetido_hoje:
+            # o intervalo sai do estado de antes da resposta (ver proximo_intervalo)
+            e["intervalo"] = proximo_intervalo(e, qualidade)
+            # Falhou: recomeça o ciclo, e a facilidade cai — adaptação deste
+            # projeto: no SM-2 original ela ficaria intacta (docstring, item 1a)
+            e["repeticoes"] = e["repeticoes"] + 1 if acertou else 0
+            e["facilidade"] = nova_facilidade(e["facilidade"], qualidade)
+            e["proxima_revisao"] = _iso(hoje + timedelta(days=e["intervalo"]))
         e["ultima_revisao"] = _iso(hoje)
-        e["proxima_revisao"] = _iso(hoje + timedelta(days=e["intervalo"]))
 
         self.dados["itens"][sigla] = e
 
