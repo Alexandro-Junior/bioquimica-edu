@@ -9,7 +9,7 @@ from kivy.uix.boxlayout import BoxLayout
 
 from mobile import componentes as C
 from mobile.tema import COR
-from mobile.telas.acesso import BotaoGoogle
+from mobile.telas.acesso import BotaoGoogle, botao_privacidade
 from mobile.telas.base import TelaBase
 
 
@@ -70,6 +70,7 @@ class TelaConta(TelaBase):
         rever = C.Botao("Rever a apresentação", variante="neutro", icone="info")
         rever.bind(on_release=lambda *_: self.app.ir_para("boas_vindas"))
         col.add_widget(rever)
+        col.add_widget(botao_privacidade(self.app))
 
         self.area_sair = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(10))
         self.area_sair.bind(minimum_height=self.area_sair.setter("height"))

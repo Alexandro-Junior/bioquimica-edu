@@ -24,6 +24,16 @@ from mobile import componentes as C
 from mobile.tema import COR, dpt
 from mobile.telas.base import TelaBase
 
+
+def botao_privacidade(app):
+    """Leva ao aviso de privacidade (quem trata os dados, para quê, como pedir
+    a exclusão), publicado no site: docs/PRIVACIDADE.md."""
+    from mobile.app import PRIVACIDADE_PAGINA
+    botao = C.Botao("Aviso de privacidade", variante="fantasma", icone="info",
+                    height=dp(44), tamanho_fonte="13.5sp")
+    botao.bind(on_release=lambda *_: app.abrir_endereco(PRIVACIDADE_PAGINA))
+    return botao
+
 ASSETS = Path(__file__).resolve().parents[2] / "assets"
 SIMBOLO = ASSETS / "logo" / "simbolo.png"
 LOGO_GOOGLE = ASSETS / "google_g.png"   # gerado de google_g.svg, o "G" oficial
@@ -80,6 +90,7 @@ class TelaAcesso(TelaBase):
             text="Com o Google, o app recebe só o seu nome e o seu e-mail. A senha é "
                  "digitada no próprio Google e nunca passa pelo BioquímicaEDU.",
             estilo="micro", halign="center", color=COR["tinta3"]))
+        col.add_widget(botao_privacidade(self.app))
         self.add_widget(scroll)
         self._opcoes(erro)
 

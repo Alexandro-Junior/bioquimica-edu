@@ -128,6 +128,8 @@ APELIDOS = {
 }
 
 LIBRAS_PAGINA = "https://bioquimicaedu.web.app/libras"
+# o mesmo texto de docs/PRIVACIDADE.md, publicado no site
+PRIVACIDADE_PAGINA = "https://bioquimicaedu.web.app/privacidade"
 LIMITE_LIBRAS = 700   # caracteres: o endereço completo fica abaixo de ~2 mil, limite seguro
 
 
