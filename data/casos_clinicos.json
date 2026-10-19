@@ -2,15 +2,14 @@
   {
     "id": 1,
     "titulo": "Caso 1 — Dor no peito e falta de ar",
-    "historia": "Paciente masculino, 58 anos, hipertenso e diabético, chega à emergência com dor torácica intensa irradiando para o braço esquerdo há 2 horas, sudorese e falta de ar.",
+    "historia": "Paciente masculino, 58 anos, hipertenso e diabético, chega à emergência com dor torácica intensa irradiando para o braço esquerdo há 6 horas, sudorese e falta de ar.",
     "exames": {
       "Troponina I": {"valor": 2.8, "unidade": "ng/mL", "ref_min": 0, "ref_max": 0.04},
       "CK-MB": {"valor": 85, "unidade": "U/L", "ref_min": 0, "ref_max": 25},
-      "LDH": {"valor": 420, "unidade": "U/L", "ref_min": 140, "ref_max": 280},
       "Glicose": {"valor": 210, "unidade": "mg/dL", "ref_min": 70, "ref_max": 99}
     },
     "diagnostico": "Infarto Agudo do Miocárdio (IAM)",
-    "explicacao": "A elevação marcante de Troponina I (marcador altamente específico para lesão miocárdica), associada ao aumento de CK-MB e LDH, confirma necrose do músculo cardíaco. A hiperglicemia é comum em situações de estresse agudo e em pacientes diabéticos.",
+    "explicacao": "A elevação marcante de Troponina I (marcador altamente específico para lesão miocárdica), associada ao aumento de CK-MB, confirma necrose do músculo cardíaco. A hiperglicemia é comum em situações de estresse agudo e em pacientes diabéticos.",
     "alternativas": ["Infarto Agudo do Miocárdio (IAM)", "Hepatite Aguda", "Insuficiência Renal Aguda", "Pancreatite Aguda"],
     "resposta_correta": "Infarto Agudo do Miocárdio (IAM)"
   },
@@ -34,13 +33,13 @@
     "titulo": "Caso 3 — Icterícia e dor abdominal",
     "historia": "Paciente masculino, 35 anos, etilista crônico, apresenta icterícia (pele e olhos amarelados), dor no quadrante superior direito, náuseas e urina escura há 1 semana.",
     "exames": {
-      "ALT": {"valor": 520, "unidade": "U/L", "ref_min": 7, "ref_max": 56},
-      "AST": {"valor": 380, "unidade": "U/L", "ref_min": 10, "ref_max": 40},
+      "ALT": {"valor": 105, "unidade": "U/L", "ref_min": 7, "ref_max": 56},
+      "AST": {"valor": 260, "unidade": "U/L", "ref_min": 10, "ref_max": 40},
       "GGT": {"valor": 290, "unidade": "U/L", "ref_min": 9, "ref_max": 48},
       "Bilirrubina Total": {"valor": 6.8, "unidade": "mg/dL", "ref_min": 0.2, "ref_max": 1.2}
     },
     "diagnostico": "Hepatite Alcoólica Aguda",
-    "explicacao": "A elevação intensa de ALT e AST indica lesão hepatocelular aguda. Na hepatite alcoólica, a AST costuma ser maior que ALT (relação AST/ALT > 2). O GGT muito elevado é marcador sensível para uso crônico de álcool. A hiperbilirrubinemia explica a icterícia.",
+    "explicacao": "A elevação de AST e ALT, ambas abaixo de 400 U/L e com a AST cerca de 2,5 vezes maior que a ALT (relação AST/ALT > 2), é típica da hepatite alcoólica. O GGT muito elevado é marcador sensível para uso crônico de álcool. A hiperbilirrubinemia explica a icterícia.",
     "alternativas": ["Colecistite Aguda", "Pancreatite Aguda", "Hepatite Alcoólica Aguda", "Insuficiência Cardíaca Congestiva"],
     "resposta_correta": "Hepatite Alcoólica Aguda"
   },
@@ -62,15 +61,16 @@
   {
     "id": 5,
     "titulo": "Caso 5 — Fraqueza muscular e câimbras",
-    "historia": "Paciente masculino, 50 anos, em uso de diuréticos para hipertensão, relata fraqueza muscular intensa, câimbras e palpitações. Refere diarreia frequente nas últimas semanas.",
+    "historia": "Paciente masculino, 50 anos, em uso de diuréticos para hipertensão, relata fraqueza muscular intensa, câimbras e palpitações.",
     "exames": {
       "Potássio": {"valor": 2.8, "unidade": "mEq/L", "ref_min": 3.5, "ref_max": 5.0},
       "Sódio": {"valor": 131, "unidade": "mEq/L", "ref_min": 136, "ref_max": 145},
       "Cloro": {"valor": 90, "unidade": "mEq/L", "ref_min": 98, "ref_max": 106},
-      "pH Sanguíneo": {"valor": 7.51, "unidade": "unidades", "ref_min": 7.35, "ref_max": 7.45}
+      "pH Sanguíneo": {"valor": 7.51, "unidade": "unidades", "ref_min": 7.35, "ref_max": 7.45},
+      "Bicarbonato": {"valor": 34, "unidade": "mEq/L", "ref_min": 22, "ref_max": 26}
     },
     "diagnostico": "Hipocalemia e Alcalose Metabólica por Diuréticos",
-    "explicacao": "Os diuréticos de alça e tiazídicos causam perda urinária de potássio, sódio e cloro. A hipocalemia grave provoca fraqueza muscular, câimbras e risco de arritmias. A alcalose metabólica ocorre pelo desequilíbrio eletrolítico. A diarreia agrava ainda mais as perdas.",
+    "explicacao": "Os diuréticos de alça e tiazídicos causam perda urinária de potássio, sódio e cloro. A hipocalemia, aqui moderada (grave abaixo de 2,5 mEq/L), provoca fraqueza muscular, câimbras e risco de arritmias. O pH e o bicarbonato altos confirmam a alcalose metabólica, mantida pela perda de cloro e de potássio.",
     "alternativas": ["Hipercalemia por Insuficiência Renal", "Hipocalemia e Alcalose Metabólica por Diuréticos", "Acidose Respiratória", "Hipernatremia por Desidratação"],
     "resposta_correta": "Hipocalemia e Alcalose Metabólica por Diuréticos"
   },
@@ -92,22 +92,22 @@
   {
     "id": 7,
     "titulo": "Caso 7 — Tremor, palpitações e perda de peso",
-    "historia": "Paciente feminina, 38 anos, refere tremor nas mãos, palpitações, ansiedade, insônia e perda de 8 kg em 2 meses. Goitro palpável no pescoço.",
+    "historia": "Paciente feminina, 38 anos, refere tremor nas mãos, palpitações, ansiedade, insônia e perda de 8 kg em 2 meses. Bócio palpável no pescoço.",
     "exames": {
       "TSH": {"valor": 0.05, "unidade": "mU/L", "ref_min": 0.4, "ref_max": 4.0},
       "T4 Livre": {"valor": 3.2, "unidade": "ng/dL", "ref_min": 0.8, "ref_max": 1.8},
-      "Anticorpo Anti-TPO": {"valor": 450, "unidade": "UI/mL", "ref_min": 0, "ref_max": 35},
+      "TRAb (anticorpo antirreceptor de TSH)": {"valor": 12.5, "unidade": "UI/L", "ref_min": 0, "ref_max": 1.75},
       "Glicose": {"valor": 115, "unidade": "mg/dL", "ref_min": 70, "ref_max": 99}
     },
     "diagnostico": "Hipertireoidismo por Doença de Graves",
-    "explicacao": "TSH suprimido com T4 elevado = hipertireoidismo. Anticorpos anti-TPO positivos indicam doença autoimune (Graves). Os sintomas de hipermetabolismo (taquicardia, tremor, perda peso) ocorrem pelo excesso de hormônios tireoides. O goitro é frequente.",
+    "explicacao": "TSH suprimido com T4 elevado = hipertireoidismo. O TRAb (anticorpo contra o receptor do TSH) positivo confirma a doença de Graves. Os sintomas de hipermetabolismo (taquicardia, tremor, perda de peso) ocorrem pelo excesso de hormônios tireoidianos. O bócio é frequente.",
     "alternativas": ["Hipotireoidismo", "Hipertireoidismo por Doença de Graves", "Síndrome Metabólica", "Ansiedade Generalizada"],
     "resposta_correta": "Hipertireoidismo por Doença de Graves"
   },
   {
     "id": 8,
     "titulo": "Caso 8 — Febre alta, confusão mental e rigidez de nuca",
-    "historia": "Paciente masculino, 32 anos, chega à emergência com febre 39.5°C, confusão mental, rigidez de nuca, cefaleia intensa e petéquias na pele. Internação de sepse suspeita.",
+    "historia": "Paciente masculino, 32 anos, chega à emergência com febre de 39,5 °C, confusão mental, rigidez de nuca, cefaleia intensa e petéquias na pele. Há suspeita de sepse.",
     "exames": {
       "Proteína C Reativa": {"valor": 45.2, "unidade": "mg/L", "ref_min": 0, "ref_max": 3.0},
       "Leucócitos": {"valor": 18500, "unidade": "/µL", "ref_min": 4500, "ref_max": 11000},
@@ -115,14 +115,14 @@
       "Plaquetas": {"valor": 85000, "unidade": "/µL", "ref_min": 150000, "ref_max": 400000}
     },
     "diagnostico": "Meningite Bacteriana com Sepse",
-    "explicacao": "Tríade clássica: febre, rigidez de nuca e confusão mental. PCR muito elevada indica inflamação sistêmica grave. Leucocitose com desvio à esquerda confirma infecção bacteriana. Lactato elevado e trombocitopenia indicam sepse com falência de órgãos. EMERGÊNCIA — necessário antibiótico IV imediato.",
+    "explicacao": "Tríade clássica: febre, rigidez de nuca e confusão mental. PCR muito elevada indica inflamação sistêmica grave. A leucocitose reforça a suspeita de infecção bacteriana, que se confirma pelo líquor e pelas culturas. Lactato elevado e trombocitopenia indicam sepse com falência de órgãos. EMERGÊNCIA — necessário antibiótico IV imediato.",
     "alternativas": ["Meningite Viral Benigna", "Meningite Bacteriana com Sepse", "Encefalite por HSV", "Enxaqueca Grave"],
     "resposta_correta": "Meningite Bacteriana com Sepse"
   },
   {
     "id": 9,
     "titulo": "Caso 9 — Dor abdominal aguda no epigástrio",
-    "historia": "Paciente masculino, 52 anos, chega com dor epigástrica intensa, sudorese, vômitos, náuseas. Refere consumo de bebidas alcoólicas a noite anterior. Abdome rígido.",
+    "historia": "Paciente masculino, 52 anos, chega com dor epigástrica intensa, sudorese, vômitos, náuseas. Refere consumo de bebidas alcoólicas na noite anterior. Abdome rígido.",
     "exames": {
       "Amilase": {"valor": 580, "unidade": "U/L", "ref_min": 30, "ref_max": 110},
       "Lipase": {"valor": 620, "unidade": "U/L", "ref_min": 10, "ref_max": 140},
@@ -130,14 +130,14 @@
       "Cálcio Total": {"valor": 7.2, "unidade": "mg/dL", "ref_min": 8.5, "ref_max": 10.5}
     },
     "diagnostico": "Pancreatite Aguda",
-    "explicacao": "Amilase e lipase marcadamente elevadas confirmam necrose pancreática. A lipase é mais específica que amilase para pâncreas. A hipertrigliceridemia extrema é fator de risco para pancreatite. O álcool é causa frequente. A hipocalcemia ocorre por saponificação de gordura.",
+    "explicacao": "Amilase e lipase marcadamente elevadas confirmam pancreatite aguda. A lipase é mais específica que amilase para pâncreas. A hipertrigliceridemia extrema é fator de risco para pancreatite. O álcool é causa frequente. A hipocalcemia ocorre por saponificação de gordura.",
     "alternativas": ["Colecistite Aguda", "Pancreatite Aguda", "Infarto do Miocárdio", "Úlcera Péptica Perfurada"],
     "resposta_correta": "Pancreatite Aguda"
   },
   {
     "id": 10,
     "titulo": "Caso 10 — Dor na panturrilha e falta de ar súbita",
-    "historia": "Paciente feminino, 48 anos, em repouso prolongado após cirurgia de joelho há 1 semana. Refere dor e inchaço na panturrilha direita, seguido de falta de ar súbita e dor no peito.",
+    "historia": "Paciente feminina, 48 anos, em repouso prolongado após cirurgia de joelho há 1 semana. Refere dor e inchaço na panturrilha direita, seguido de falta de ar súbita e dor no peito.",
     "exames": {
       "D-Dímero": {"valor": 850, "unidade": "ng/mL", "ref_min": 0, "ref_max": 240},
       "Troponina": {"valor": 0.15, "unidade": "ng/mL", "ref_min": 0, "ref_max": 0.04},
@@ -152,16 +152,16 @@
   {
     "id": 11,
     "titulo": "Caso 11 — Pressão alta e crises de sudoração",
-    "historia": "Paciente masculino, 45 anos, refere episódios recorrentes de dor de cabeça, palpitações, sudoração profusa e flushing (rubor facial). Pressão arterial oscila entre 140 e 220 mmHg.",
+    "historia": "Paciente masculino, 45 anos, refere episódios recorrentes de dor de cabeça, palpitações, sudoração profusa e palidez. Pressão arterial oscila entre 140 e 220 mmHg.",
     "exames": {
       "Catecolaminas Plasmáticas": {"valor": 850, "unidade": "pg/mL", "ref_min": 0, "ref_max": 400},
       "Metanefrina 24h": {"valor": 850, "unidade": "µg/24h", "ref_min": 0, "ref_max": 190},
       "Glicose": {"valor": 180, "unidade": "mg/dL", "ref_min": 70, "ref_max": 99},
-      "Acido Láctico": {"valor": 3.2, "unidade": "mmol/L", "ref_min": 0.5, "ref_max": 2.2}
+      "Ácido Lático": {"valor": 3.2, "unidade": "mmol/L", "ref_min": 0.5, "ref_max": 2.2}
     },
     "diagnostico": "Feocromocitoma",
-    "explicacao": "Catecolaminas e metanefrina 24h muito elevadas confirmam tumor secretor de catecolaminas (feocromocitoma). Os episódios de palpitações, sudoração e hipertensão paroxística são patognomônicos. Hiperglicemia por ação adrenérgica. Risco de infarto ou AVC durante crises.",
-    "alternativas": ["Hipertensão Essencial", "Feocromocitoma", "Hyperthyroidism", "Síndrome de Cushing"],
+    "explicacao": "Catecolaminas e metanefrina 24h muito elevadas confirmam tumor secretor de catecolaminas (feocromocitoma). Os episódios de palpitações, sudoração e hipertensão paroxística são característicos. Hiperglicemia por ação adrenérgica. Risco de infarto ou AVC durante crises.",
+    "alternativas": ["Hipertensão Essencial", "Feocromocitoma", "Hipertireoidismo", "Síndrome de Cushing"],
     "resposta_correta": "Feocromocitoma"
   },
   {
@@ -182,16 +182,15 @@
   {
     "id": 13,
     "titulo": "Caso 13 — Sangramento pelo nariz e hematomas espontâneos",
-    "historia": "Paciente masculino, 68 anos, refere epistaxe frequente, hematomas espontâneos na pele, sangramento gengival e fadiga. Antecedente de quimioterapia há 3 meses.",
+    "historia": "Paciente masculino, 68 anos, refere epistaxe frequente, hematomas espontâneos na pele, sangramento gengival e fadiga. Terminou um ciclo de quimioterapia há 2 semanas.",
     "exames": {
       "Hemoglobina": {"valor": 8.5, "unidade": "g/dL", "ref_min": 13.5, "ref_max": 17.5},
       "Plaquetas": {"valor": 28000, "unidade": "/µL", "ref_min": 150000, "ref_max": 400000},
-      "Leucócitos": {"valor": 2100, "unidade": "/µL", "ref_min": 4500, "ref_max": 11000},
-      "Tempo de Protrombina": {"valor": 18, "unidade": "segundos", "ref_min": 11, "ref_max": 13.5}
+      "Leucócitos": {"valor": 2100, "unidade": "/µL", "ref_min": 4500, "ref_max": 11000}
     },
     "diagnostico": "Pancitopenia Secundária (Mielossupressão por Quimioterapia)",
     "explicacao": "Redução em todas as séries sanguíneas: hemácias (anemia), plaquetas (trombocitopenia -> sangramento), leucócitos (leucopenia -> imunossupressão). Complicação comum e grave da quimioterapia. Risco de infecção oportunista e sangramento exsanguinante. Necessita transfusão e fatores de crescimento.",
-    "alternativas": ["Leucemia Aguda", "Pancitopenia Secundária", "Púrpura Trombocitopênica Imunológica", "Coagulopatia"],
+    "alternativas": ["Leucemia Aguda", "Pancitopenia Secundária (Mielossupressão por Quimioterapia)", "Púrpura Trombocitopênica Imunológica", "Coagulopatia"],
     "resposta_correta": "Pancitopenia Secundária (Mielossupressão por Quimioterapia)"
   },
   {
@@ -202,10 +201,10 @@
       "Cálcio Total": {"valor": 6.8, "unidade": "mg/dL", "ref_min": 8.5, "ref_max": 10.5},
       "Cálcio Iônico": {"valor": 3.2, "unidade": "mg/dL", "ref_min": 4.5, "ref_max": 5.3},
       "Fósforo": {"valor": 5.8, "unidade": "mg/dL", "ref_min": 2.5, "ref_max": 4.5},
-      "PTH": {"valor": 12, "unidade": "pg/mL", "ref_min": 10, "ref_max": 65}
+      "PTH": {"valor": 5, "unidade": "pg/mL", "ref_min": 10, "ref_max": 65}
     },
     "diagnostico": "Hipoparatireoidismo Pós-Cirúrgico",
-    "explicacao": "Lesão/remoção das glândulas paratireoides durante tiroidectomia causa hipocalcemia aguda. PTH baixo confirma disfunção paratireoidiana. A hipocalcemia causa tetania (espasmos, parestesias). Sinal de Chvostek (contração facial ao percutir facial) é patognomônico. EMERGÊNCIA — risco de laringoespasmo fatal.",
+    "explicacao": "Lesão/remoção das glândulas paratireoides durante tiroidectomia causa hipocalcemia aguda. PTH baixo confirma disfunção paratireoidiana. A hipocalcemia causa tetania (espasmos, parestesias). O sinal de Chvostek (contração facial ao percutir o nervo facial) sugere hipocalcemia, mas também aparece em parte das pessoas com cálcio normal. EMERGÊNCIA — risco de laringoespasmo fatal.",
     "alternativas": ["Convulsão por Hemorragia Intracraniana", "Hipoparatireoidismo Pós-Cirúrgico", "Hipercalemia", "Intoxicação por Estricnina"],
     "resposta_correta": "Hipoparatireoidismo Pós-Cirúrgico"
   },
@@ -217,10 +216,10 @@
       "Glicose": {"valor": 650, "unidade": "mg/dL", "ref_min": 70, "ref_max": 99},
       "pH": {"valor": 7.18, "unidade": "unidades", "ref_min": 7.35, "ref_max": 7.45},
       "HCO3-": {"valor": 8, "unidade": "mEq/L", "ref_min": 22, "ref_max": 26},
-      "Cetonas": {"valor": "MASSIVAS", "unidade": "mOsm/kg", "ref_min": "Negativas", "ref_max": "Negativas"}
+      "Cetonas": {"valor": "fortemente positivas", "unidade": "", "ref_min": "Negativas", "ref_max": "Negativas"}
     },
     "diagnostico": "Cetoacidose Diabética",
-    "explicacao": "Tríade: hiperglicemia extrema + acidose metabólica severa + cetonemia massiva. Ausência de insulina causa lipólise acelerada -> cetonas -> acidose. Respiração de Kussmaul é mecanismo compensatório (aumenta ventilação para eliminar CO2). Odor de acetona patognomônico. EMERGÊNCIA — taxa mortalidade 1-5%.",
+    "explicacao": "Tríade: hiperglicemia extrema + acidose metabólica severa + cetonemia massiva. Ausência de insulina causa lipólise acelerada -> cetonas -> acidose. Respiração de Kussmaul é mecanismo compensatório (aumenta ventilação para eliminar CO2). Odor de acetona característico. EMERGÊNCIA — taxa de mortalidade 1-5%.",
     "alternativas": ["Hiperglicemia Hiperosmolar", "Cetoacidose Diabética", "Coma Hipoglicêmico", "Acidose Lática"],
     "resposta_correta": "Cetoacidose Diabética"
   }

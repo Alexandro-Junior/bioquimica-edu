@@ -13,7 +13,7 @@
     "pergunta": "A HbA1c (hemoglobina glicada) reflete o controle glicêmico de qual período de tempo?",
     "alternativas": ["Últimas 24 horas", "Últimas 2 semanas", "Últimos 3 meses", "Último ano"],
     "resposta_correta": 2,
-    "explicacao": "A HbA1c reflete a média da glicemia nos últimos 2 a 3 meses, correspondendo ao tempo de vida das hemácias. Valores acima de 6,5% confirmam diabetes mellitus."
+    "explicacao": "A HbA1c reflete a média da glicemia nos últimos 2 a 3 meses, correspondendo ao tempo de vida das hemácias. Uma HbA1c igual ou acima de 6,5%, confirmada em segunda dosagem, indica diabetes mellitus."
   },
   {
     "id": 3,
@@ -47,7 +47,7 @@
       "LDL 100 mg/dL, HDL 50 mg/dL, TG 140 mg/dL"
     ],
     "resposta_correta": 1,
-    "explicacao": "LDL elevado (>130), HDL baixo (<40) e triglicerídeos muito altos (>150) formam a tríade da dislipidemia aterogênica, com alto risco para doenças coronarianas e aterosclerose."
+    "explicacao": "LDL elevado (acima de 130), HDL baixo (abaixo de 40) e triglicerídeos altos (acima de 150) somam fatores de risco. Triglicerídeos altos com HDL baixo, e partículas de LDL pequenas e densas, formam a dislipidemia aterogênica, de alto risco para doença coronariana e aterosclerose."
   },
   {
     "id": 6,
@@ -87,15 +87,15 @@
     "pergunta": "Após um infarto, em quanto tempo a Troponina I começa a se elevar no sangue?",
     "alternativas": ["Imediatamente (< 1 hora)", "3 a 6 horas após a lesão", "24 a 48 horas após", "Apenas após 3 dias"],
     "resposta_correta": 1,
-    "explicacao": "A Troponina I começa a se elevar de 3 a 6 horas após o início da lesão miocárdica, atinge pico em 12-24 horas e permanece elevada por 7 a 14 dias, sendo ideal para diagnóstico e monitoramento do IAM."
+    "explicacao": "A Troponina I começa a se elevar de 3 a 6 horas após o início da lesão miocárdica, atinge o pico entre 12 e 48 horas e permanece elevada por 7 a 14 dias, sendo ideal para diagnóstico e monitoramento do IAM."
   },
   {
     "id": 11,
     "categoria": "Eletrólito",
-    "pergunta": "Paciente em uso de diuréticos apresenta K+ = 2.8 mEq/L. Qual o principal risco imediato?",
+    "pergunta": "Paciente em uso de diuréticos apresenta K+ = 2,8 mEq/L. Qual o principal risco imediato?",
     "alternativas": ["Hipertensão grave", "Arritmias cardíacas potencialmente fatais", "Insuficiência renal aguda", "Hiperglicemia"],
     "resposta_correta": 1,
-    "explicacao": "A hipocalemia grave (K+ < 3.0 mEq/L) altera o potencial de membrana das células cardíacas, podendo causar arritmias graves como fibrilação ventricular. É uma emergência eletrolítica."
+    "explicacao": "A hipocalemia moderada a grave (K+ abaixo de 3,0 mEq/L; grave abaixo de 2,5) altera o potencial de membrana das células cardíacas, podendo causar arritmias graves como fibrilação ventricular. É uma emergência eletrolítica."
   },
   {
     "id": 12,
@@ -121,7 +121,7 @@
   {
     "id": 14,
     "categoria": "Eletrólito",
-    "pergunta": "Gasometria arterial: pH 7,18, HCO3 10 mEq/L e PaCO2 24 mmHg. Qual é o distúrbio primário?",
+    "pergunta": "Gasometria arterial: pH 7,24, HCO3 10 mEq/L e PaCO2 24 mmHg. Qual é o distúrbio primário?",
     "alternativas": ["Acidose respiratória", "Acidose metabólica com compensação respiratória", "Alcalose metabólica", "Alcalose respiratória com compensação metabólica"],
     "resposta_correta": 1,
     "explicacao": "pH baixo com bicarbonato baixo indica acidose metabólica; a PaCO2 baixa é a compensação respiratória (hiperventilação). A PaCO2 esperada é 1,5 × 10 + 8 ± 2, ou 21 a 25 mmHg."

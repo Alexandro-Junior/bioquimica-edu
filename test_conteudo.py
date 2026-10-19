@@ -103,6 +103,27 @@ def cards_e_quiz_cobrem_os_novos_marcadores():
 
 
 @teste
+def todo_caso_clinico_tem_resposta_entre_as_alternativas():
+    # o app compara o texto exato: o caso 13 já teve resposta que nenhum botão aceitava
+    casos = json.loads((RAIZ / "data" / "casos_clinicos.json").read_text(encoding="utf-8"))
+    for caso in casos:
+        assert caso["resposta_correta"] in caso["alternativas"], caso["id"]
+        assert len(set(caso["alternativas"])) == len(caso["alternativas"]), caso["id"]
+
+
+@teste
+def numeros_com_virgula_decimal_nos_cards_e_casos():
+    import re
+    # "5.7%" e "7.35" escapavam; "1.500" (milhar) continua válido
+    decimal_com_ponto = re.compile(r"(?<![\d.])\d+\.\d{1,2}(?![\d])")
+    textos = [f"{c['pergunta']} {c['resposta']}" for c in dados.carregar_flashcards()]
+    for caso in json.loads((RAIZ / "data" / "casos_clinicos.json").read_text(encoding="utf-8")):
+        textos += [caso["titulo"], caso["historia"], caso["explicacao"]]
+    errados = [t for t in textos if decimal_com_ponto.search(t)]
+    assert not errados, f"decimal com ponto: {errados[:3]}"
+
+
+@teste
 def nenhum_simbolo_fora_das_fontes_do_app():
     try:
         from fontTools.ttLib import TTFont

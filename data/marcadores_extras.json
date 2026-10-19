@@ -234,7 +234,7 @@
         {
           "titulo": "Creatinina normal com função renal reduzida",
           "descricao": "Paciente de 80 anos, magra e sarcopênica, com creatinina dentro da faixa, mas filtração glomerular estimada baixa.",
-          "valores": "creatinina 1,0 mg/dL | TFG estimada 38 mL/min/1,73 m² | ureia 62 mg/dL",
+          "valores": "creatinina 1,0 mg/dL | TFG estimada 57 mL/min/1,73 m² (CKD-EPI 2021) | ureia 62 mg/dL",
           "conducao": "A creatinina depende da massa muscular e pode mascarar doença renal em idosos. Usar a TFG estimada para ajustar a dose de medicamentos."
         }
       ]
@@ -501,7 +501,7 @@
         {
           "titulo": "Hipercolesterolemia familiar",
           "descricao": "Paciente de 35 anos com colesterol muito elevado, xantomas tendíneos e história familiar de infarto precoce.",
-          "valores": "CT 580 mg/dL | LDL 450 mg/dL | HDL 35 mg/dL | TG 150 mg/dL",
+          "valores": "CT 580 mg/dL | LDL 515 mg/dL | HDL 35 mg/dL | TG 150 mg/dL",
           "conducao": "LDL muito alto com história familiar sugere causa monogênica. Estatina de alta potência, associação com ezetimiba ou inibidor de PCSK9 e rastreio dos familiares."
         },
         {
@@ -817,7 +817,7 @@
         {
           "titulo": "Cetoacidose diabética",
           "descricao": "Jovem de 19 anos com diabetes tipo 1, vômitos e respiração rápida e profunda depois de parar a insulina.",
-          "valores": "pH 7,12 | HCO3 9 mEq/L | PaCO2 22 mmHg | Glicose 480 mg/dL | Na 134 mEq/L | Cl 98 mEq/L | Ânion gap 27 mEq/L",
+          "valores": "pH 7,23 | HCO3 9 mEq/L | PaCO2 22 mmHg | Glicose 480 mg/dL | Na 134 mEq/L | Cl 98 mEq/L | Ânion gap 27 mEq/L",
           "conducao": "Acidose metabólica com ânion gap elevado (134 − [98 + 9] = 27) e compensação respiratória: a PaCO2 esperada é 1,5 × 9 + 8 ± 2, ou cerca de 19,5 a 23,5 mmHg. Hidratação venosa, insulina, reposição de potássio e controle seriado de glicose, eletrólitos e gasometria."
         },
         {
@@ -905,7 +905,7 @@
         {
           "titulo": "Infarto com supradesnivelamento de ST",
           "descricao": "Paciente de 55 anos com dor torácica típica, sudorese e supradesnivelamento de ST no eletrocardiograma.",
-          "valores": "troponina I 3,2 ng/mL | CK-MB 6 U/L | ST elevado em V1–V4",
+          "valores": "troponina I 3,2 ng/mL | CK-MB 48 U/L | ST elevado em V1–V4",
           "conducao": "Não esperar a troponina para agir: o eletrocardiograma já indica reperfusão imediata, preferencialmente por angioplastia primária."
         },
         {
