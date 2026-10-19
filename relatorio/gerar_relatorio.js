@@ -1477,9 +1477,13 @@ const resultados = [
     "os arquivos internos de cada pacote foram conferidos. Ambos usam o servidor intermediário da seção " +
     "4.7.5. O APK foi testado num celular Samsung Galaxy S20 FE 5G, com Android 13, e num tablet " +
     "Samsung Galaxy Tab S4, com Android 10, em pé e deitado: a disposição das telas, o quiz, " +
-    "os jogos, o tutor com Gemini, os vídeos e as referências, o atalho para Libras e o alto contraste " +
-    "funcionaram. " +
-    "[[CONFIRMAR: resultado do login com Google no Android e se o APK já está publicado no site.]]"),
+    "os jogos, o tutor com Gemini, os vídeos e as referências, o atalho para Libras, o alto contraste e o " +
+    "login com Google funcionaram. Os testes em aparelho também mostraram dois problemas, corrigidos " +
+    "antes da distribuição: a aba de casos do detalhe de um marcador abria rolada para o fim, num espaço " +
+    "vazio, e o login no Android falhava porque uma biblioteca do Android de que ele depende ficava fora " +
+    "do pacote. Desde então, cada APK gerado é conferido por um programa que verifica a presença das " +
+    "classes do login e a ausência da chave do Gemini e de dados pessoais. [[CONFIRMAR: se o APK já " +
+    "está publicado no site.]]"),
 
   h2("4.8 AVALIAÇÃO DA APRENDIZAGEM"),
   p("[[PREENCHER: quantos estudantes fizeram o pré-teste e quantos concluíram o pós-teste; perfil em " +
