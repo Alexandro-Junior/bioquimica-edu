@@ -2,7 +2,7 @@
 
 O APK é gerado pelo GitHub Actions ([.github/workflows/android.yml](../.github/workflows/android.yml)),
 num computador Linux do GitHub, porque o Buildozer não roda no Windows.
-Cada geração leva de 30 a 40 minutos (a primeira, um pouco mais).
+A primeira geração leva uns 30 minutos; as seguintes, com o cache do GitHub, de 5 a 15.
 
 ## 1. Chave de assinatura e segredos (uma vez só)
 

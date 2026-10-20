@@ -93,7 +93,7 @@ D) Desconjugação
 ## ⚙️ Configuração Avançada
 
 ### Trocar Modelo
-Edite `ollama_ia.py` linha 37:
+Na criação do tutor, passe outro modelo (o padrão de `OllamaIA` é `mistral`):
 
 ```python
 ia = OllamaIA(model="phi")  # Troca para Phi (mais rápido)

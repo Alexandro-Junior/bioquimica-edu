@@ -20,8 +20,8 @@ largura de leitura confortável, em vez de esticar até a borda.
 |-----|-----------|
 | **Início** | O que estudar hoje (revisões vencidas, erros do dia, conteúdo novo), estado da memória, pontos fracos, domínio por sistema, autoavaliação (confiança × acerto), constância e marcos |
 | **Estudo** | 22 marcadores com busca e filtro por sistema; cada um tem visão geral, casos clínicos, imagens, fontes acadêmicas e vídeos. A TFGe tem uma calculadora (CKD-EPI 2021), e bilirrubina, TFGe e bicarbonato têm textos de aprofundamento |
-| **Cards** | 52 cards que viram com animação; depois de virar, "Lembrei / Não lembrei" alimenta a revisão |
-| **Prática** | Quiz (10 questões sorteadas de 12), 15 casos clínicos com exames classificados em ALTO / BAIXO / NORMAL e dois jogos: "Alto, normal ou baixo?" (10 resultados de exame, com régua da faixa de referência, pontos, relógio opcional e recorde pessoal) e jogo da memória (marcador e sistema) |
+| **Cards** | 59 cards que viram com animação; depois de virar, "Lembrei / Não lembrei" alimenta a revisão |
+| **Prática** | Quiz (10 questões sorteadas de 14), 15 casos clínicos com exames classificados em ALTO / BAIXO / NORMAL e dois jogos: "Alto, normal ou baixo?" (10 resultados de exame, com régua da faixa de referência, pontos, relógio opcional e recorde pessoal) e jogo da memória (marcador e sistema) |
 | **Tutor** | Conversa sobre os marcadores. Offline, responde pela base do app; com o Gemini ligado ([docs/TUTOR_GEMINI.md](docs/TUTOR_GEMINI.md)), explica, compara e lembra a conversa |
 | **Revisão** | Sessão guiada: pergunta → confiança → resposta → autoavaliação em 4 níveis; cada botão mostra quando o marcador volta (Difícil, Bom e Fácil levam a intervalos diferentes) |
 | **Acessibilidade** | (ícone no topo do Início) tamanho do texto até 150%, alto contraste, fonte para leitura facilitada (Atkinson Hyperlegible), leitura em voz alta com velocidade, modo foco, sessões curtas, reduzir animações e atalho para o VLibras |
@@ -99,7 +99,7 @@ O Buildozer só roda em **Linux** — no Windows, use o
    A primeira compilação baixa o SDK e o NDK do Android e leva de 20 a 40 minutos.
 3. Instale no celular (com a depuração USB ativada):
    ```bash
-   adb install -r bin/bioquimicaedu-0.4-*-debug.apk
+   adb install -r bin/bioquimicaedu-*-debug.apk
    ```
 4. No aparelho, confira o que o computador não consegue testar: a leitura em
    voz alta (Acessibilidade › Leitura em voz alta › Testar a voz), o atalho

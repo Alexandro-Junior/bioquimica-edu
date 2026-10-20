@@ -10,9 +10,9 @@ package.name = bioquimicaedu
 package.domain = br.unicid
 
 # (str) Diretório raiz do projeto.
-# O Android sempre executa main.py. O main.py detecta o celular e abre a
-# versão mobile (pasta mobile/); no computador ele continua abrindo a
-# versão desktop.
+# O Android sempre executa main.py, que abre o app da pasta mobile/. No
+# computador, o main.py abre o mesmo app; a versão antiga, em Tkinter, só
+# com --classico.
 source.dir = .
 
 # (list) Extensões incluídas no APK
@@ -97,8 +97,8 @@ android.release_artifact = apk
 
 # (bool) Permite o backup do próprio Android (progresso e preferências vão
 # para a conta Google do estudante, se ele tiver o backup ligado no
-# aparelho). Não há senha nem token no app; se um dia houver login, os
-# tokens devem ser excluídos do backup (android.backup_rules).
+# aparelho). A sessão do login com Google fica fora do backup: é gravada
+# na pasta "no backup" do aparelho (mobile/app.py, _pasta_sessao).
 android.allow_backup = True
 
 [buildozer]

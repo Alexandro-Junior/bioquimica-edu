@@ -1,368 +1,164 @@
-# ⚗️ BioquímicaEDU — Software Educacional Interativo
+<p align="center">
+  <img src="assets/logo/horizontal.svg" alt="BioquímicaEDU" width="420">
+</p>
 
-> Aprenda marcadores bioquímicos com gamificação, IA e casos clínicos reais
+<p align="center">
+  <strong>Bioquímica clínica no ritmo da sua memória.</strong><br>
+  App gratuito para estudar marcadores bioquímicos, para computador, tablet e celular.<br>
+  Projeto de iniciação científica · UNICID · PIBIC/CNPq
+</p>
 
-[![Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
-[![Tkinter](https://img.shields.io/badge/Framework-Tkinter%20%7C%20Kivy-green.svg)]()
-[![Ollama AI](https://img.shields.io/badge/AI-Ollama%20Local-red.svg)]()
-[![LGPD](https://img.shields.io/badge/Privacy-LGPD%20Compliant-purple.svg)]()
-[![License](https://img.shields.io/badge/License-UNICID%20PIBIC-orange.svg)]()
-
----
-
-## 🚀 Começar em 30 Segundos
-
-### Desktop Puro
-```bash
-python main.py
-```
-
-### Com Tutor IA (Melhor!)
-```bash
-ollama pull mistral
-python main_enhanced.py
-```
-
-### Mobile
-```bash
-python main_kivy_completo.py
-```
-
-👉 **[Leia COMECE_AQUI.md para setup completo](COMECE_AQUI.md)**
+<p align="center">
+  <a href="https://bioquimicaedu.web.app"><strong>Baixar em bioquimicaedu.web.app</strong></a>
+</p>
 
 ---
 
-## 📱 O Que Você Tem
-
-### 5️⃣ Modos de Estudo
-
-| Modo | Features | Desktop | Mobile |
-|------|----------|---------|--------|
-| **📚 Estudo** | 22 marcadores + vídeos + exemplos + calculadora de TFGe | ✅ | ✅ |
-| **🎴 Flashcards** | 50 cards com flip animation | ✅ | ✅ |
-| **🧠 Quiz** | 12 perguntas + feedback | ✅ | ✅ |
-| **🩺 Diagnóstico** | 15 casos clínicos | ✅ | ✅ |
-| **🎮 Jogos** | "Alto, normal ou baixo?" e jogo da memória | ✅ | ✅ |
-| **💬 Tutor IA** | Chat offline + recomendações | ✅* | ✅ |
-
-*Desktop: requer Ollama
-
-### 📊 Dados Inclusos
-
-- ✅ **22 Marcadores** — ALT, AST, Glicose, Creatinina, TFGe, K+, Bicarbonato, Troponina...
-- ✅ **50 Flashcards** — Memorização rápida
-- ✅ **12 Quiz Questions** — Teste conhecimento
-- ✅ **15 Casos Clínicos** — Situações reais
-- ✅ **2 Jogos didáticos** — Interpretar resultados contra a faixa de referência; ligar marcador e sistema
-- ✅ **16 Vídeos YouTube** — Explicações
-- ✅ **20+ Exemplos** — Diagnóstico & conduta
-
-### 🎨 Desenhado para Educação
-
-- **Cores de Reagentes Bioquímicos** — Verde Fehling, Vermelho Heme, etc.
-- **Gamificação** — XP + Streak system
-- **Interface Duolingo-Style** — Desktop bonito & intuitivo
-- **Touch-Friendly** — Mobile otimizado (56px+ buttons)
-- **100% Offline** — Sem transmissão de dados (LGPD compliant)
-
----
-
-## 📁 Arquivos Principais
-
-### Código
-```
-main.py                  ← Desktop puro (1800+ linhas)
-main_enhanced.py         ← Desktop + IA Ollama (900+ linhas)
-main_kivy_completo.py    ← Mobile Kivy (700+ linhas)
-ollama_ia.py             ← Módulo IA compartilhado (300+ linhas)
-```
-
-### Dados
-```
-data/
-├── marcadores.csv           (20 biomarcadores)
-├── flashcards.json          (50 perguntas/respostas)
-├── marcadores_extras.json   (vídeos + exemplos)
-├── quiz_perguntas.json      (12 questões)
-└── casos_clinicos.json      (5 casos)
-```
-
-### Documentação
-```
-COMECE_AQUI.md               ← 👈 Comece aqui!
-STATUS.md                    ← Checklist de implementação
-RESUMO_IMPLEMENTACAO.md      ← Features completas
-GUIA_IA.md                   ← Como usar Ollama
-GUIA_MOBILE.md               ← Compilar Android/iOS
-ROADMAP_MELHORIAS.md         ← v0.3, v1.0, v2.0
-README.md                    ← Este arquivo
-```
-
-### Testes
-```
-test_simple.py               ← Validação rápida
-test_kivy_completo.py        ← Teste do app mobile
-```
-
----
-
-## 💻 Requisitos
-
-### Mínimos
-- Python 3.8+
-- Tkinter (incluso)
-
-### Recomendados
-```bash
-pip install kivy pillow requests
-```
-
-### Para IA (opcional)
-```bash
-pip install ollama
-ollama pull mistral  # ~4.7 GB
-```
-
----
-
-## 🎯 3 Versões para 3 Usos
-
-### 1. Desktop Puro (`main.py`)
-- **Melhor para**: Aprendizado rápido em PC
-- **Vantagens**: Nenhuma dependência, inicia em <1s
-- **Recurso IA**: Não
-- **Offline**: Sim
-
-### 2. Desktop + IA (`main_enhanced.py`)
-- **Melhor para**: Aprendizado profundo com tutoria
-- **Vantagens**: Quiz dinâmico, chat, diagnóstico IA
-- **Recurso IA**: Sim (Ollama local)
-- **Offline**: Sim (após download modelo)
-
-### 3. Mobile (`main_kivy_completo.py`)
-- **Melhor para**: Estudar em qualquer lugar
-- **Vantagens**: Touch-friendly, compilável para Android/iOS
-- **Recurso IA**: Sim (offline com pattern matching)
-- **Offline**: Sim
-
----
-
-## 🔧 Setup Rápido
-
-### Opção A: Apenas Desktop
-```bash
-git clone <repo>
-cd bioquimica_edu
-python main.py
-```
-
-### Opção B: Desktop + IA
-```bash
-git clone <repo>
-cd bioquimica_edu
-
-# Instalar Ollama em https://ollama.com
-ollama pull mistral
-
-python main_enhanced.py
-```
-
-### Opção C: Mobile
-```bash
-git clone <repo>
-cd bioquimica_edu
-pip install kivy pillow
-python main_kivy_completo.py
-```
-
-### Validar Setup
-```bash
-python test_simple.py
-```
-
-Esperado: `[RESULTADO] SUCESSO!`
-
----
-
-## 📱 Compilar para Android/iOS
-
-Ver [GUIA_MOBILE.md](GUIA_MOBILE.md) para instruções completas.
-
-### Android (Buildozer)
-```bash
-pip install buildozer cython
-buildozer android debug
-```
-
-### iOS (Mac only)
-```bash
-pip install kivy-ios
-toolchain create BioquimicaEDU .
-```
-
----
-
-## 🎓 Estrutura Curricular
-
-### Marcadores Inclusos (20)
-
-**Hepatocelulares** (3)
-- ALT, AST, GGT
-
-**Renais** (2)
-- Creatinina, Ureia
-
-**Glicêmicos** (2)
-- Glicose, HbA1c
-
-**Lipídicos** (3)
-- Colesterol, Triglicerídeos, Frações
-
-**Eletrolíticos** (3)
-- Sódio, Potássio, Cloro
-
-**Cardíacos** (3)
-- Troponina, CK-MB, BNP
-
-**Hepatobiliares** (4)
-- Bilirrubina, Fosfatase Alcalina, Albumina, INR
-
----
-
-## 🎨 Paleta de Cores
-
-Baseada em reagentes bioquímicos reais:
-
-```python
-Verde Fehling    #16A44A  ← Reações positivas, botões
-Vermelho Heme    #E11D48  ← Crítico, alerta
-Âmbar Bile       #F69E3D  ← Atenção, abas
-Azul Cobalto     #1D88B2  ← Informação
-Roxo Biuret      #7C3A92  ← Destaque
-```
-
----
-
-## 📊 Estatísticas
-
-| Métrica | Valor |
-|---------|-------|
-| Linhas de código | 3500+ |
-| Arquivos Python | 6 |
-| Documentação | 6 guias |
-| Marcadores | 20 |
-| Flashcards | 50 |
-| Quiz Questions | 12 |
-| Casos Clínicos | 5 |
-| Vídeos | 16 |
-| Exemplos | 20+ |
-| **Total de dados** | **~200 items** |
-
----
-
-## 🚀 Roadmap
-
-### v0.2 ✅ (ATUAL)
-- [x] 3 versões (Desktop, Desktop+IA, Mobile)
-- [x] 5 modos de estudo
-- [x] 200+ dados educacionais
-- [x] IA Ollama integrada
-- [x] Compilação Android/iOS pronta
-
-### v0.3 (Próximo)
-- [ ] Gamification avançada (badges, achievements)
-- [ ] Gráficos de progresso
-- [ ] Objetivos diários
-- [ ] Persist score
-
-### v1.0
-- [ ] Google Play Store
-- [ ] Apple App Store
-- [ ] Cloud sync opcional
-- [ ] Multi-idioma
-
-### v2.0
-- [ ] 50+ marcadores
-- [ ] IA adaptativa
-- [ ] Comunidade
-- [ ] Analytics
-
----
-
-## 🔒 Privacidade & Compliance
-
-- ✅ **100% Offline** — Nenhum dado transmitido
-- ✅ **LGPD Compliant** — Sem rastreamento
-- ✅ **Open Source** — Código auditável
-- ✅ **Educacional** — Sem anúncios
-
-Todos os dados ficam locais no seu device.
-
----
-
-## 📞 Suporte
-
-### Documentação
-- 👉 [COMECE_AQUI.md](COMECE_AQUI.md) — Setup rápido
-- 📖 [RESUMO_IMPLEMENTACAO.md](RESUMO_IMPLEMENTACAO.md) — Features
-- 🤖 [GUIA_IA.md](GUIA_IA.md) — Ollama setup
-- 📱 [GUIA_MOBILE.md](GUIA_MOBILE.md) — Android/iOS
-- 🗺️ [ROADMAP_MELHORIAS.md](ROADMAP_MELHORIAS.md) — Futuro
-
-### Troubleshooting
-1. **Kivy não funciona** → `pip install kivy --upgrade`
-2. **Ollama não encontrado** → Baixar em ollama.com
-3. **Dados não carregam** → Verificar `data/` directory
-4. **APK muito grande** → Ver seção Buildozer em GUIA_MOBILE.md
-
----
-
-## 👨‍🎓 Autoria
-
-**BioquímicaEDU** — Software educacional para estudo de biomarcadores
-
-- **Aluno**: Alexandro de Araujo Junior
-- **Orientador**: Francisco de Assis Cavallaro
-- **Instituição**: UNICID PIBIC/CNPq
-- **Desenvolvido com**: Claude (Anthropic)
-
----
-
-## 📜 Licença
-
-UNICID PIBIC/CNPq — Uso educacional
-
----
-
-## ✨ Features Highlights
-
-- ✅ **Offline-First** — Funciona 100% sem internet
-- ✅ **Gamified** — XP, Streak, Progress tracking
-- ✅ **AI-Enhanced** — Chat tutor, quiz dinâmico
-- ✅ **Multi-Platform** — Windows, Mac, Linux, Android, iOS
-- ✅ **Educational** — 200+ dados clínicos reais
-- ✅ **Beautiful UI** — Duolingo-style design
-- ✅ **LGPD Compliant** — Privacidade garantida
-
----
-
-## 🎯 Próximo Passo
-
-Escolha sua versão:
+<p align="center">
+  <img src="https://bioquimicaedu.web.app/imagens/computador-inicio.webp" alt="Tela inicial no computador" width="560">
+  <img src="https://bioquimicaedu.web.app/imagens/celular-revisao.webp" alt="Revisão no celular" width="180">
+</p>
+
+## O que é
+
+O BioquímicaEDU ajuda estudantes da área da saúde a aprender e a não esquecer
+faixas de referência e a interpretação de exames laboratoriais. Ele aplica duas
+estratégias com evidência científica: tentar lembrar antes de ver a resposta e
+revisar em intervalos que crescem com o tempo (revisão espaçada).
+
+É o resultado do projeto *Desenvolvimento de software educacional para o ensino
+interativo de bioquímica clínica: marcadores bioquímicos e sua correlação com
+doenças*, de Alexandro de Araujo Junior, com orientação do Prof. Dr. Francisco
+de Assis Cavallaro (Universidade Cidade de São Paulo, PIBIC/CNPq).
+
+## Recursos
+
+- **22 marcadores em 6 sistemas** (hepático, renal, glicêmico, lipídico,
+  eletrólitos e equilíbrio ácido-base, cardíaco), com faixa de referência,
+  interpretação, condições associadas, exemplos clínicos, fontes e vídeos.
+  Inclui uma **calculadora da TFG estimada** (CKD-EPI 2021, categorias da KDIGO).
+- **Revisão espaçada** com o algoritmo SM-2 adaptado: o app escolhe o que revisar
+  a cada dia, e "Difícil", "Bom" e "Fácil" levam a intervalos diferentes.
+- **Prática:** 59 cards, quiz de 10 questões sorteadas de 14, 15 casos clínicos
+  e dois jogos ("Alto, normal ou baixo?" e jogo da memória). Tudo alimenta a revisão.
+- **Autoavaliação:** antes de ver a resposta, o estudante diz o quanto acha que sabe,
+  e o app compara com os acertos.
+- **Tutor**, em ordem de preferência: Gemini (opcional, pela internet), modelo
+  local com o Ollama (opcional, só no computador) e a base do próprio app, que
+  responde sempre, sem internet. Valores e interpretações vêm sempre do conteúdo
+  curado do app.
+- **Acessibilidade:** texto até 150%, alto contraste, fonte Atkinson Hyperlegible,
+  leitura em voz alta, atalho para Libras (VLibras) e modo foco.
+- **Conta Google opcional**, só para lembrar se a apresentação inicial já foi vista.
+  O progresso de estudo fica sempre no aparelho.
+
+O conteúdo usa obras de referência com acesso conferido (StatPearls, Manual MSD,
+diretriz KDIGO 2024 e artigos com DOI). É material de apoio ao estudo: não serve
+para diagnóstico nem para decidir conduta com pacientes.
+
+## Baixar
+
+Pelo site **https://bioquimicaedu.web.app**:
+
+| Sistema | Como |
+|---|---|
+| Windows 10 ou 11 (64 bits) | instalador `.exe`; na primeira vez, o Windows pode mostrar um aviso, porque o app não tem assinatura digital paga |
+| Android 5.0 ou mais recente (64 bits) | arquivo `.apk`, instalado fora da Play Store |
+| macOS e Linux | pelo código-fonte (abaixo) |
+| iPhone e iPad | não disponível |
+
+## Rodar a partir do código
+
+Com Python 3.11 ou 3.12:
 
 ```bash
-# Rápido & Offline
-python main.py
-
-# Com Tutor IA (recomendado)
-ollama pull mistral && python main_enhanced.py
-
-# Mobile
-python main_kivy_completo.py
+pip install -r requirements.txt
+python main.py              # o app, que se adapta ao tamanho da janela
+python main.py --celular    # o mesmo app em formato de celular
+python main.py --classico   # versão antiga para computador, em Tkinter
+python main_enhanced.py     # versão antiga com tutor local (Ollama, opcional)
 ```
 
-**Bom estudo! 📚**
+Sem configurar nada, o app funciona por completo, sem login com Google e com o
+tutor respondendo pela base do app. Para ligar os recursos de nuvem:
 
----
+- tutor com Gemini: [docs/TUTOR_GEMINI.md](docs/TUTOR_GEMINI.md);
+- login com Google: [docs/LOGIN_GOOGLE.md](docs/LOGIN_GOOGLE.md).
 
-*BioquímicaEDU v0.2 — 2026-08-29*
+O progresso fica em `data/` quando o app roda pelo código, e em
+`%APPDATA%\BioquimicaEDU` no instalador do Windows.
+
+## Testes
+
+Cada arquivo roda sozinho, numa pasta temporária: o progresso real não é lido
+nem alterado.
+
+```bash
+python test_kivy_completo.py   # percorre todas as telas do app
+python test_progresso.py       # motor de revisão espaçada e arquivo de progresso
+python test_conteudo.py        # conteúdo: marcadores da proposta, fontes, casos, calculadora
+python test_jogos.py           # regras dos jogos
+python test_tutor.py           # tutor com Gemini simulado e servidor do tutor
+python test_login.py           # login com Google simulado
+python test_desktop.py         # versões clássicas para computador
+```
+
+## Instaladores
+
+- **Windows:** `pyinstaller empacotamento/bioquimicaedu_windows.spec` gera um
+  executável único. O spec deixa de fora o `.env`, o progresso e a sessão de quem
+  gera.
+- **Android:** o APK é gerado pelo GitHub Actions, com Buildozer
+  ([docs/ANDROID.md](docs/ANDROID.md)), e conferido por
+  `empacotamento/conferir_apk.py`.
+- Os dois vão para as versões (Releases) do
+  [repositório do site](https://github.com/Alexandro-Junior/Site-Bioqu-micaEDU).
+
+## Estrutura
+
+```
+main.py                ponto de entrada (no Android também)
+mobile/                o app em Kivy: telas, componentes, tema, conta, voz
+progresso.py           motor de aprendizagem (SM-2 adaptado) e progresso
+jogos.py, calculos.py  regras dos jogos e calculadora da TFG estimada
+assistente.py          tutor: Gemini, Ollama e base do app
+autenticacao.py        login com Google pelo Firebase
+servidor/              servidor intermediário do tutor (Cloudflare Workers)
+data/                  conteúdo: marcadores, cards, quiz, casos, fontes, diagramas
+assets/                logo, ícone, tela de abertura e fontes
+firebase/              regras do banco de dados (Cloud Firestore)
+empacotamento/         instalador do Windows, chave do APK e conferência do APK
+relatorio/             relatório final (ABNT) e o programa que gera as figuras
+docs/                  guias, privacidade e roteiros de avaliação
+```
+
+## Relatório final
+
+O relatório do projeto, em ABNT, é gerado a partir de `relatorio/`:
+
+```bash
+python relatorio/gerar_figuras.py
+node relatorio/gerar_relatorio.js
+powershell -ExecutionPolicy Bypass -File relatorio/atualizar_campos.ps1
+```
+
+## Privacidade e chaves
+
+- Nenhuma chave de acesso entra no repositório: o `.env` e a pasta `config/`
+  ficam fora do Git, e um teste procura chaves esquecidas.
+- O instalador e o APK não levam a chave do Gemini: falam com um servidor
+  intermediário, que guarda a chave e tem a própria cópia do conteúdo curado.
+- O que cada recurso opcional envia, e como pedir a exclusão dos dados, está no
+  [aviso de privacidade](docs/PRIVACIDADE.md), também publicado em
+  https://bioquimicaedu.web.app/privacidade.
+
+## Créditos
+
+- Aluno: Alexandro de Araujo Junior
+- Orientador: Prof. Dr. Francisco de Assis Cavallaro
+- Universidade Cidade de São Paulo (UNICID), Programa Institucional de Bolsas de
+  Iniciação Científica (PIBIC/CNPq)
+- Fonte Atkinson Hyperlegible, do Braille Institute, sob a SIL Open Font License
+
+Este repositório ainda não tem uma licença de código aberto definida. Para
+reutilizar o código ou o conteúdo, fale com o autor.

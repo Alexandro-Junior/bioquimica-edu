@@ -1,3 +1,8 @@
-requests>=2.31.0
-# Opcional (para IA melhorada):
-# ollama>=0.1.0  — descomente após instalar Ollama
+# Para rodar o app a partir do código: pip install -r requirements.txt
+kivy==2.3.1
+certifi            # certificados HTTPS do tutor com IA e do login com Google
+requests>=2.31.0   # tutor local com o Ollama (opcional)
+
+# Só para quem gera figuras, instaladores e o relatório:
+#   pip install matplotlib pillow fonttools cryptography pyinstaller
+# e, para o relatório em Word, o pacote docx do Node: npm install docx@9
