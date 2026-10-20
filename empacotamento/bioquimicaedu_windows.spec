@@ -25,7 +25,9 @@ PESSOAIS = {"progresso.json", "preferencias_mobile.json", "preferencias.json",
 dados = []
 for pasta in ("data", "assets"):
     for arquivo in sorted((RAIZ / pasta).rglob("*")):
-        if arquivo.is_file() and arquivo.name not in PESSOAIS and not arquivo.name.startswith("~$"):
+        # fora também a gravação em andamento (.tmp) e o progresso ilegível posto de lado
+        if (arquivo.is_file() and arquivo.name not in PESSOAIS and not arquivo.name.startswith("~$")
+                and arquivo.suffix != ".tmp" and not arquivo.name.startswith("progresso.ilegivel")):
             dados.append((str(arquivo), str(arquivo.parent.relative_to(RAIZ))))
 for nome in ("tutor_nuvem.json", "firebase.json"):   # servidor do tutor; login com Google
     arquivo = RAIZ / "config" / nome
