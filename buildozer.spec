@@ -29,7 +29,7 @@ source.exclude_dirs = .git,.claude,.buildozer,bin,__pycache__,.venv,venv,tests,r
 source.exclude_patterns = main_enhanced.py,tela_painel.py,tela_revisao.py,painel_inicio.py,criar_imagens.py,criar_assets_mobile.py,criar_logo.py,criar_capturas_site.py,main_kivy_completo.py,ollama_ia.py,test_*.py,data/progresso.json,data/preferencias_mobile.json,data/sessao_google.dat,.env,data/*.tmp,data/progresso.ilegivel-*,config/firebase.exemplo.json
 
 # (str) Versão da aplicação
-version = 0.5
+version = 0.6
 
 # (list) Requerimentos Python.
 # matplotlib saiu: só serve para gerar as imagens no computador
