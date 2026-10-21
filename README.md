@@ -43,10 +43,10 @@ de Assis Cavallaro (Universidade Cidade de São Paulo, PIBIC/CNPq).
   e dois jogos ("Alto, normal ou baixo?" e jogo da memória). Tudo alimenta a revisão.
 - **Autoavaliação:** antes de ver a resposta, o estudante diz o quanto acha que sabe,
   e o app compara com os acertos.
-- **Tutor**, em ordem de preferência: Gemini (opcional, pela internet), modelo
-  local com o Ollama (opcional, só no computador) e a base do próprio app, que
-  responde sempre, sem internet. Valores e interpretações vêm sempre do conteúdo
-  curado do app.
+- **Tutor**, em ordem de preferência: Gemini (pela internet; já vem ligado no
+  `.exe` e no APK do site), modelo local com o Ollama (opcional, só no computador)
+  e a base do próprio app, que responde sempre, sem internet. Valores e
+  interpretações vêm sempre do conteúdo curado do app.
 - **Acessibilidade:** texto até 150%, alto contraste, fonte Atkinson Hyperlegible,
   leitura em voz alta, atalho para Libras (VLibras) e modo foco.
 - **Conta Google opcional**, só para lembrar se a apresentação inicial já foi vista.
@@ -58,11 +58,11 @@ para diagnóstico nem para decidir conduta com pacientes.
 
 ## Baixar
 
-Pelo site **https://bioquimicaedu.web.app**:
+Pelo site **https://bioquimicaedu.web.app** (versão atual: 0.6):
 
 | Sistema | Como |
 |---|---|
-| Windows 10 ou 11 (64 bits) | instalador `.exe`; na primeira vez, o Windows pode mostrar um aviso, porque o app não tem assinatura digital paga |
+| Windows 10 ou 11 (64 bits) | arquivo `.exe`, que abre sem precisar instalar; na primeira vez, o Windows pode mostrar um aviso, porque o app não tem assinatura digital paga |
 | Android 5.0 ou mais recente (64 bits) | arquivo `.apk`, instalado fora da Play Store |
 | macOS e Linux | pelo código-fonte (abaixo) |
 | iPhone e iPad | não disponível |
@@ -85,8 +85,9 @@ tutor respondendo pela base do app. Para ligar os recursos de nuvem:
 - tutor com Gemini: [docs/TUTOR_GEMINI.md](docs/TUTOR_GEMINI.md);
 - login com Google: [docs/LOGIN_GOOGLE.md](docs/LOGIN_GOOGLE.md).
 
-O progresso fica em `data/` quando o app roda pelo código, e em
-`%APPDATA%\BioquimicaEDU` no instalador do Windows.
+O progresso fica em `data/` quando o app roda pelo código, em
+`%APPDATA%\BioquimicaEDU` no `.exe` do Windows e, no Android, na pasta privada do
+app (atualizar o APK não apaga o que já foi estudado).
 
 ## Testes
 
@@ -103,13 +104,13 @@ python test_login.py           # login com Google simulado
 python test_desktop.py         # versões clássicas para computador
 ```
 
-## Instaladores
+## Gerar o `.exe` e o APK
 
 - **Windows:** `pyinstaller empacotamento/bioquimicaedu_windows.spec` gera um
-  executável único. O spec deixa de fora o `.env`, o progresso e a sessão de quem
-  gera.
-- **Android:** o APK é gerado pelo GitHub Actions, com Buildozer
-  ([docs/ANDROID.md](docs/ANDROID.md)), e conferido por
+  executável único, que abre sem instalar. O spec deixa de fora o `.env`, o
+  progresso e a sessão de quem gera.
+- **Android:** o APK é gerado pelo GitHub Actions (`.github/workflows/android.yml`),
+  com Buildozer ([docs/ANDROID.md](docs/ANDROID.md)), e conferido por
   `empacotamento/conferir_apk.py`.
 - Os dois vão para as versões (Releases) do
   [repositório do site](https://github.com/Alexandro-Junior/Site-Bioqu-micaEDU).
@@ -117,17 +118,23 @@ python test_desktop.py         # versões clássicas para computador
 ## Estrutura
 
 ```
-main.py                ponto de entrada (no Android também)
+main.py                ponto de entrada (no Android também); com --classico,
+                       a versão clássica em Tkinter
 mobile/                o app em Kivy: telas, componentes, tema, conta, voz
 progresso.py           motor de aprendizagem (SM-2 adaptado) e progresso
 jogos.py, calculos.py  regras dos jogos e calculadora da TFG estimada
 assistente.py          tutor: Gemini, Ollama e base do app
 autenticacao.py        login com Google pelo Firebase
+painel_inicio.py,      telas das versões clássicas para computador (Tkinter);
+tela_*.py, ollama_ia.py  ollama_ia.py é o tutor local de main_enhanced.py
+criar_*.py             geram a logo, o ícone, os diagramas e as capturas do site
 servidor/              servidor intermediário do tutor (Cloudflare Workers)
 data/                  conteúdo: marcadores, cards, quiz, casos, fontes, diagramas
 assets/                logo, ícone, tela de abertura e fontes
 firebase/              regras do banco de dados (Cloud Firestore)
-empacotamento/         instalador do Windows, chave do APK e conferência do APK
+buildozer.spec,        configuração do APK e manifesto extra do Android
+android/
+empacotamento/         .exe do Windows, chave do APK e conferência do APK
 relatorio/             relatório final (ABNT) e o programa que gera as figuras
 docs/                  guias, privacidade e roteiros de avaliação
 ```
@@ -141,6 +148,10 @@ python relatorio/gerar_figuras.py
 node relatorio/gerar_relatorio.js
 powershell -ExecutionPolicy Bypass -File relatorio/atualizar_campos.ps1
 ```
+
+Precisa das dependências extras listadas no `requirements.txt` (Matplotlib e
+outras), do pacote `docx` do Node (`npm install docx@9`) e do Microsoft Word, que
+atualiza o sumário e exporta o PDF.
 
 ## Privacidade e chaves
 
