@@ -1251,8 +1251,9 @@ const resultados = [
   p("Como a avaliação foi formativa e sem instrumento padronizado, esses resultados não medem " +
     "usabilidade nem satisfação: indicam o que pessoas do público do aplicativo e da área consideraram " +
     "importante. As sugestões orientaram as mudanças visuais e de estrutura e as funções acrescentadas " +
-    "depois, junto com os itens da proposta que ainda faltavam (seção 4.7). Os vídeos em português foram " +
-    "incluídos; a melhoria dos diagramas do conteúdo ainda não foi feita e fica como trabalho futuro."),
+    "depois, junto com os itens da proposta que ainda faltavam (seção 4.7). Os dois pedidos mais diretos " +
+    "foram atendidos nessa evolução: os vídeos em português foram incluídos, e as imagens e os esquemas " +
+    "foram melhorados."),
 
   h2("4.7 EVOLUÇÃO DO SOFTWARE"),
   p("Depois da primeira versão, o software continuou a ser desenvolvido, orientado pelas sugestões da " +
@@ -1600,9 +1601,8 @@ const discussao = [
   p(`O trabalho tem limitações. O conteúdo cobre ${CE.marcadores} marcadores e não passou por revisão formal de ` +
     `docente da área da saúde, e o banco de ${CE.questoes} questões é pequeno, o que favorece a repetição das ` +
     "mesmas perguntas. As questões geradas pelo modelo de " +
-    "linguagem na versão clássica com tutor não passam por curadoria e podem conter erros. Os diagramas " +
-    "do conteúdo ainda são os da primeira versão, e a melhoria pedida na avaliação formativa não foi " +
-    "feita. A versão para iOS, possível com o Kivy, não foi testada, e os recursos de acessibilidade não " +
+    "linguagem na versão clássica com tutor não passam por curadoria e podem conter erros. A versão para " +
+    "iOS, possível com o Kivy, não foi testada, e os recursos de acessibilidade não " +
     "foram avaliados com estudantes com deficiência. Na avaliação, a parte formativa não usou instrumento " +
     "padronizado nem produziu medidas; o pré-teste e o pós-teste não têm grupo de comparação, repetem as " +
     "mesmas questões — parte da melhora pode vir de já tê-las visto — e reúnem uma amostra pequena e de " +
@@ -1630,8 +1630,7 @@ const consideracoes = [
     "conta Google opcional, site e instaladores; e recebeu, como opção, um tutor com inteligência " +
     "artificial generativa ancorado no conteúdo curado, com a chave de acesso mantida fora do aplicativo."),
   p("Como trabalhos futuros, sugerem-se: ampliar o número de marcadores e de questões, com revisão por " +
-    "docentes da área da saúde; melhorar os diagramas e esquemas do conteúdo, como pediram os " +
-    "participantes; realizar estudo com grupo de comparação e acompanhamento da retenção ao longo de " +
+    "docentes da área da saúde; realizar estudo com grupo de comparação e acompanhamento da retenção ao longo de " +
     "meses; sincronizar o progresso entre aparelhos pela conta Google, mediante consentimento explícito; " +
     "publicar o aplicativo na Google Play, após testes em diferentes aparelhos; levar a tradução para " +
     "Libras para dentro do próprio aplicativo, sem depender do navegador; avaliar os recursos de " +
