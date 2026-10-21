@@ -91,6 +91,5 @@ node_modules/
 package.json
 package-lock.json
 
-# Claude Code: configurações locais e cópias de trabalho dos revisores
-.claude/settings.local.json
-.claude/worktrees/
+# Configurações locais do editor e cópias de trabalho
+.claude/
