@@ -1487,8 +1487,8 @@ const resultados = [
     "antes da distribuição: a aba de casos do detalhe de um marcador abria rolada para o fim, num espaço " +
     "vazio, e o login no Android falhava porque uma biblioteca do Android de que ele depende ficava fora " +
     "do pacote. Desde então, cada APK gerado é conferido por um programa que verifica a presença das " +
-    "classes do login e a ausência da chave do Gemini e de dados pessoais. [[CONFIRMAR: se o APK já " +
-    "está publicado no site.]]"),
+    "classes do login e a ausência da chave do Gemini e de dados pessoais. O APK da versão 0.6 está " +
+    "publicado no site do projeto, ao lado do executável para Windows."),
 
   h2("4.8 AVALIAÇÃO DA APRENDIZAGEM"),
   p("[[PREENCHER: quantos estudantes fizeram o pré-teste e quantos concluíram o pós-teste; perfil em " +
